@@ -392,9 +392,15 @@ class BeamSwitchMode(Base):
 
 class Visit(Base):
     __tablename__ = 'Visit'
+
     visit = Column(Integer, primary_key=True, autoincrement=False)
     visitTypeId = Column(Integer)
     description = Column(String)
+
+    def __init__(self, visit, visitTypeId, description):
+        self.visit = visit
+        self.visitTypeId = visitTypeId
+        self.description = description
 
 
 class Exposure(Base):
@@ -639,10 +645,15 @@ class pfsArmObj(Base):
 
 class VisitHash(Base):
     __tablename__ = 'VisitHash'
-    pfsVisitHash = Column(BigInteger, primary_key=True, autoincrement=False)
-    visit = Column(Integer, ForeignKey('Visit.visit'))
 
-    visits = relation(Visit, backref=backref('VisitHash'))
+    pfsVisitHash = Column(BigInteger, primary_key=True, autoincrement=False)
+    nVisit = Column(Integer)
+#    visit = Column(Integer, ForeignKey('Visit.visit'))
+#    visits = relation(Visit, backref=backref('VisitHash'))
+
+    def __init__(self, pfsVisitHash, nVisit):
+        self.pfsVisitHash = pfsVisitHash
+        self.nVisit = nVisit
 
 
 class pfsObject(Base):
@@ -658,7 +669,7 @@ class pfsObject(Base):
     pfsVisitHash = Column(BigInteger, ForeignKey('VisitHash.pfsVisitHash'))
     cum_texp = Column(Float(precision=24))
     processDate = Column(DateTime)
-    pipeline2DVersion = Column(String)
+    DRP2DVersion = Column(String)
     fluxCalibId = Column(Integer, ForeignKey('FluxCalib.fluxCalibId'))
     flags = Column(Integer)
     QATypeId = Column(Integer, ForeignKey('QAType.QATypeId'))
@@ -670,7 +681,7 @@ class pfsObject(Base):
     visitHashs = relation(VisitHash, backref=backref('pfsObject'))
 
     def __init__(self, pfsObjectId, targetId, tract, patch, catId, objId, nVisit, pfsVisitHash,
-                 cum_texp, processDate, pipeline2DVersion, fluxCalibId, flags, QATypeId, QAValue):
+                 cum_texp, processDate, DRP2DVersion, fluxCalibId, flags, QATypeId, QAValue):
         self.pfsObjectId = pfsObjectId
         self.targetId = targetId
         self.tract = tract
@@ -681,7 +692,7 @@ class pfsObject(Base):
         self.pfsVisitHash = pfsVisitHash
         self.cum_texp = cum_texp
         self.processDate = processDate
-        self.pipeline2DVesion = pipeline2DVesion
+        self.DRP2DVesion = DRP2DVesion
         self.fluxCalibId = fluxCalibId
         self.flags = flags
         self.QATypeId = QATypeId
