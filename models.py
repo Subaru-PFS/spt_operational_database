@@ -345,6 +345,8 @@ class pfsConfigFiber(Base):
     pfsConfigId = Column(BigInteger, ForeignKey('pfsConfig.pfsConfigId'))
     cobraId = Column(Integer, ForeignKey('FiberPosition.cobraId'))
     targetId = Column(BigInteger, ForeignKey('Target.targetId'))
+    pfiNominal_x = Column(Float(precision=24))
+    pfiNominal_y = Column(Float(precision=24))
     pfiCenter_x = Column(Float(precision=24))
     pfiCenter_y = Column(Float(precision=24))
     mcsCenter_x = Column(Float(precision=24))
@@ -359,7 +361,7 @@ class pfsConfigFiber(Base):
     fiberPositions = relation(FiberPosition, backref=backref('psfConfigFiber'))
 
     def __init__(self, pfsConfigFiberId, pfsConfigId, cobraId, targetId,
-                 pfiCenter_x, pfiCenter_y, mcsCenter_x, mcsCenter_y,
+                 pfiNominal_x, pfiNominal_y, pfiCenter_x, pfiCenter_y, mcsCenter_x, mcsCenter_y,
                  motorMap, motorNumStep, configTime,
                  onSource=True):
         #self.pfsConfigFiberId = pfsConfigFiberId
@@ -367,6 +369,8 @@ class pfsConfigFiber(Base):
         self.pfsConfigId = pfsConfigId
         self.cobraId = cobraId
         self.targetId = targetId
+        self.pfiNominal_x = pfiNominal_x
+        self.pfiNominal_y = pfiNominal_y
         self.pfiCenter_x = pfiCenter_x
         self.pfiCenter_y = pfiCenter_y
         self.mcsCenter_x = mcsCenter_x
