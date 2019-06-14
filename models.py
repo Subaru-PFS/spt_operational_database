@@ -158,6 +158,26 @@ class Target(Base):
         self.finished = finished
 
 
+class GuideStars(Base):
+    __tablename__ = 'GuideStars'
+    guideStarId = Column(BigInteger, primary_key=True, autoincrement=False)
+    ra = Column(Float(precision=24))
+    dec = Column(Float(precision=24))
+    catId = Column(Integer, ForeignKey('InputCatalog.catId'))
+    mag_agc = Column(Float(precision=24))
+    flux_agc = Column(Float(precision=24))
+
+    inputCatalogs = relation(InputCatalog, backref=backref('GuideStars'))
+
+    def __init__(self, guideStarId, ra, dec, catId, mag_agc, flux_agc):
+        self.guideStarId = guideStarId
+        self.ra = ra
+        self.dec = dec
+        self.catId = catId
+        self.mag_agc = mag_agc
+        self.flux_agc = flux_agc
+
+
 class Tile(Base):
     __tablename__ = 'Tile'
 
