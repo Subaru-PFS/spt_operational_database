@@ -166,16 +166,18 @@ class GuideStars(Base):
     catId = Column(Integer, ForeignKey('InputCatalog.catId'))
     mag_agc = Column(Float(precision=24))
     flux_agc = Column(Float(precision=24))
+    flags = Column(Integer)
 
     inputCatalogs = relation(InputCatalog, backref=backref('GuideStars'))
 
-    def __init__(self, guideStarId, ra, dec, catId, mag_agc, flux_agc):
+    def __init__(self, guideStarId, ra, dec, catId, mag_agc, flux_agc, flags):
         self.guideStarId = guideStarId
         self.ra = ra
         self.dec = dec
         self.catId = catId
         self.mag_agc = mag_agc
         self.flux_agc = flux_agc
+        self.flags = flags
 
 
 class Tile(Base):
