@@ -663,7 +663,7 @@ class VisitHash(Base):
 class pfsObject(Base):
     __tablename__ = 'pfsObject'
 
-    pfsObjectId = Column(String, primary_key=True, autoincrement=False)
+    pfsObjectId = Column(BigInteger, primary_key=True, autoincrement=True)
     targetId = Column(BigInteger, ForeignKey('Target.targetId'))
     tract = Column(Integer)
     patch = Column(String)
@@ -751,7 +751,7 @@ class SpecParam(Base):
     __tablename__ = 'SpecParam'
 
     specParamId = Column(Integer, primary_key=True, autoincrement=False)
-    pfsObjectId = Column(String, ForeignKey('pfsObject.pfsObjectId'))
+    pfsObjectId = Column(BigInteger, ForeignKey('pfsObject.pfsObjectId'))
     redshift = Column(Float(precision=24))
     z_mean = Column(Float(precision=24))
     z_median = Column(Float(precision=24))
@@ -782,7 +782,7 @@ class StarSpecParam(Base):
     __tablename__ = 'StarSpecParam'
 
     starSpecParamId = Column(Integer, primary_key=True, autoincrement=False)
-    pfsObjectId = Column(String, ForeignKey('pfsObject.pfsObjectId'), primary_key=True)
+    pfsObjectId = Column(BigInteger, ForeignKey('pfsObject.pfsObjectId'), primary_key=True)
     starTypeId = Column(Integer, ForeignKey('StarType.starTypeId'))
     velocity = Column(Float(precision=24))
     metallicity = Column(Float(precision=24))
@@ -825,7 +825,7 @@ class SpecLine(Base):
     __tablename__ = 'SpecLine'
 
     specLineId = Column(Integer, primary_key=True, autoincrement=False)
-    pfsObjectId = Column(String, ForeignKey('pfsObject.pfsObjectId'))
+    pfsObjectId = Column(BigInteger, ForeignKey('pfsObject.pfsObjectId'))
     lineId = Column(Integer, ForeignKey('LineList.lineId'))
     wavelength = Column(Float(precision=24))
     z = Column(Float(precision=24))
