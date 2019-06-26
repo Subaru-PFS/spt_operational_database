@@ -838,10 +838,6 @@ class Drp1DLine(Base):
     pfsObjects = relation(pfsObject, backref=backref('specLine'))
     lineLists = relation(LineList, backref=backref('specLine'))
 
-<< << << < HEAD
-    starSpecParamId = Column(Integer, primary_key=True, autoincrement=False)
-    pfsObjectId = Column(BigInteger, ForeignKey('pfsObject.pfsObjectId'), primary_key=True)
-== == == =
     def __init__(self, drp1DLineId, drp1DId, lineId, lineName, lineWave, lineZ, lineZ_err, lineSigma, lineSigma_err, lineVel, lineVel_err, lineFlux, lineFlux_err, lineEW, lineEW_err, lineContLevel, lineContLevel_err):
         self.drp1DLineId = drp1DLineId
         self.drp1DId = drp1DId
@@ -867,7 +863,6 @@ class DrpGA(Base):
 
     drpGAId = Column(Integer, primary_key=True, autoincrement=True)
     pfsObjectId = Column(String, ForeignKey('pfsObject.pfsObjectId'), primary_key=True)
->>>>>> > initial draft
     starTypeId = Column(Integer, ForeignKey('StarType.starTypeId'))
     velocity = Column(Float(precision=24))
     metallicity = Column(Float(precision=24))
@@ -891,56 +886,6 @@ class DrpGA(Base):
         self.flags = flags
         self.processDate = processDate
         self.DRPGAVersion = DRPGAVersion
-
-
-<< << << < HEAD
-
-
-class LineList(Base):
-    __tablename__ = 'LineList'
-
-    lineId = Column(Integer, primary_key=True, autoincrement=False)
-    name = Column(String)
-    wavelength = Column(Float(precision=24))
-
-    def __init__(self, lineId, name, wavelength):
-        self.lineId = lineId
-        self.name = name
-        self.wavelength = wavelength
-
-
-class SpecLine(Base):
-    __tablename__ = 'SpecLine'
-
-    specLineId = Column(Integer, primary_key=True, autoincrement=False)
-    pfsObjectId = Column(BigInteger, ForeignKey('pfsObject.pfsObjectId'))
-    lineId = Column(Integer, ForeignKey('LineList.lineId'))
-    wavelength = Column(Float(precision=24))
-    z = Column(Float(precision=24))
-    sigma = Column(Float(precision=24))
-    area = Column(Float(precision=24))
-    ew = Column(Float(precision=24))
-    contlevel = Column(Float(precision=24))
-    chi2 = Column(Float(precision=24))
-
-    pfsObjects = relation(pfsObject, backref=backref('specLine'))
-    lineLists = relation(LineList, backref=backref('specLine'))
-
-    def __init__(self, pfsObjectId, lineId, wavelength, z, sigma, ew, contlevel, chi2):
-        self.specLineId = specLineId
-        self.pfsObjectId = pfsObjectId
-        self.lineId = lineId
-        self.wavelength = wavelength
-        self.z = z
-        self.sigma = sigma
-        self.area = area
-        self.ew = ew
-        self.contlevel = contlevel
-        self.chi2 = chi2
-
-
-== == == =
->>>>>> > initial draft
 
 
 def make_database(dbinfo):
