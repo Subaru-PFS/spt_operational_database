@@ -116,6 +116,7 @@ class Target(Base):
     QALambdaMax = Column(Float(precision=24))
     QAThreshold = Column(Float(precision=24))
     QALineFlux = Column(Float(precision=24))
+    completeness = Column(Float(precision=24))
     finished = Column(Boolean)
 
     programs = relation(Program, backref=backref('Target'))
@@ -123,16 +124,10 @@ class Target(Base):
     inputCatalogs = relation(InputCatalog, backref=backref('Target'))
     qaTypes = relation(QAType, backref=backref('Target'))
 
-    def calculateId1(self, programId, objId):
-        return (programId << 60) + objId
-
-    def calculateId2(self, catId, objId):
-        return (catId << 26) + objId
-
     def __init__(self, programId, objId, ra, dec, tract, patch, priority, targetType, catId,
                  fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_Y,
                  fiberMag_J, fiducialExptime, photz, QATypeId,
-                 QALambdaMin, QALambdaMax, QAThreshold, QALineFlux, finished=False):
+                 QALambdaMin, QALambdaMax, QAThreshold, QALineFlux, completeness=0.0, finished=False):
         self.programId = programId
         self.objId = objId
         self.ra = ra
@@ -155,6 +150,7 @@ class Target(Base):
         self.QALambdaMax = QALambdaMax
         self.QAThreshold = QAThreshold
         self.QALineFlux = QALineFlux
+        self.completeness = completeness
         self.finished = finished
 
 
