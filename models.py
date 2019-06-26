@@ -764,7 +764,7 @@ class Drp1D(Base):
     __tablename__ = 'Drp1D'
 
     drp1DId = Column(Integer, primary_key=True, autoincrement=True)
-    pfsObjectId = Column(String, ForeignKey('pfsObject.pfsObjectId'))
+    pfsObjectId = Column(BigInteger, ForeignKey('pfsObject.pfsObjectId'))
     z_best = Column(Float(precision=24))
     z_best_err = Column(Float(precision=24))
     z_best_reliability = Column(Float(precision=24))
@@ -862,7 +862,7 @@ class DrpGA(Base):
     __tablename__ = 'DrpGA'
 
     drpGAId = Column(Integer, primary_key=True, autoincrement=True)
-    pfsObjectId = Column(String, ForeignKey('pfsObject.pfsObjectId'), primary_key=True)
+    pfsObjectId = Column(BigInteger, ForeignKey('pfsObject.pfsObjectId'), primary_key=True)
     starTypeId = Column(Integer, ForeignKey('StarType.starTypeId'))
     velocity = Column(Float(precision=24))
     metallicity = Column(Float(precision=24))
