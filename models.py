@@ -73,20 +73,54 @@ class CloudCondition(Base):
         self.description = description
 
 
-class FiberPosition(Base):
-    __tablename__ = 'FiberPosition'
+class CobraPosition(Base):
+    __tablename__ = 'CobraPosition'
     cobraId = Column(Integer, primary_key=True, autoincrement=False)
-    spectrograph = Column(Integer)
-    slitId = Column(Integer)
-    CobraCenter_x = Column(Float(precision=24))
-    CobraCenter_y = Column(Float(precision=24))
+    fld = Column(Integer)
+    cf = Column(Integer)
+    mf = Column(Integer)
+    cm = Column(Integer)
+    mod = Column(String)
+    x = Column(Float(precision=24))
+    y = Column(Float(precision=24))
+    r = Column(Float(precision=24))
+    sp = Column(Integer)
+    fh = Column(Integer)
+    sfib = Column(Integer)
+    fiberIdLNA = Column(String)
 
-    def __init__(self, cobraId, spectrograph, slitId, CobraCenter_x, CobraCenter_y):
+    def __init__(self, cobraId, fld, cf, mf, cm, mod, x, y, r, sp, fh, sfib, fiberIdLNA):
         self.cobraId = cobraId
-        self.spectrograph = spectrograph
-        self.slitId = slitId
-        self.CobraCenter_x = CobraCenter_x
-        self.CobraCenter_y = CobraCenter_y
+        self.fld = fld
+        self.cf = cf
+        self.mf = mf
+        self.cm = cm
+        self.mod = mod
+        self.x = x
+        self.y = y
+        self.r = r
+        self.sp = sp
+        self.fh = fh
+        self.sfib = sfib
+        self.fiberIdLNA = fiberIdLNA
+
+
+class FiducialFiberPosition(Base):
+    __tablename__ = 'FiducialFiberPosition'
+    fid = Column(Integer, primary_key=True, autoincrement=False)
+    f = Column(Integer)
+    fff = Column(Integer)
+    ftype = Column(Integer)
+    x = Column(Float(precision=24))
+    y = Column(Float(precision=24))
+
+    def __init__(self, fid, f, fff, ftype, x, y):
+        self.fid = fid
+        self.f = f
+        self.fff = fff
+        self.ftype = ftype
+        self.x = x
+        self.y = y
 
 
 class Target(Base):
@@ -215,7 +249,7 @@ class pfsDesignFiber(Base):
 
     pfsDesignFiberId = Column(BigInteger, primary_key=True, autoincrement=True)
     pfsDesignId = Column(BigInteger, ForeignKey('pfsDesign.pfsDesignId'))
-    cobraId = Column(Integer, ForeignKey('FiberPosition.cobraId'))
+    cobraId = Column(Integer, ForeignKey('CobraPosition.cobraId'))
     targetId = Column(BigInteger, ForeignKey('Target.targetId'))
     etsCostFunction = Column(String)
     etsCobraMovement = Column(String)
@@ -225,7 +259,7 @@ class pfsDesignFiber(Base):
 
     pfsDesigns = relation(pfsDesign, backref=backref('pfsDesignFiber'))
     targets = relation(Target, backref=backref('pfsDesignFiber'))
-    FiberPositions = relation(FiberPosition, backref=backref('pfsDesignFiber'))
+    CobraPositions = relation(CobraPosition, backref=backref('pfsDesignFiber'))
 
     def __init__(self, pfsDesignFiberId, pfsDesignId, cobraId, targetId,
                  etsCostFunction, etsCobraMovement,
@@ -339,7 +373,7 @@ class pfsConfigFiber(Base):
 
     pfsConfigFiberId = Column(BigInteger, primary_key=True, autoincrement=True)
     pfsConfigId = Column(BigInteger, ForeignKey('pfsConfig.pfsConfigId'))
-    cobraId = Column(Integer, ForeignKey('FiberPosition.cobraId'))
+    cobraId = Column(Integer, ForeignKey('CobraPosition.cobraId'))
     targetId = Column(BigInteger, ForeignKey('Target.targetId'))
     pfiNominal_x = Column(Float(precision=24))
     pfiNominal_y = Column(Float(precision=24))
@@ -354,7 +388,7 @@ class pfsConfigFiber(Base):
 
     pfsConfigs = relation(pfsConfig, backref=backref('psfConfigFiber'))
     targets = relation(Target, backref=backref('psfConfigFiber'))
-    fiberPositions = relation(FiberPosition, backref=backref('psfConfigFiber'))
+    CobraPositions = relation(CobraPosition, backref=backref('psfConfigFiber'))
 
     def __init__(self, pfsConfigFiberId, pfsConfigId, cobraId, targetId,
                  pfiNominal_x, pfiNominal_y, pfiCenter_x, pfiCenter_y, mcsCenter_x, mcsCenter_y,
@@ -617,7 +651,7 @@ class pfsArmObj(Base):
     spectrograph = Column(Integer)
     arm = Column(String)
     armNum = Column(Integer)
-    cobraId = Column(Integer, ForeignKey('FiberPosition.cobraId'))
+    cobraId = Column(Integer, ForeignKey('CobraPosition.cobraId'))
     pfsConfigFiberId = Column(BigInteger, ForeignKey('pfsConfigFiber.pfsConfigFiberId'))
     flags = Column(Integer)
     QATypeId = Column(Integer, ForeignKey('QAType.QATypeId'))
@@ -626,7 +660,7 @@ class pfsArmObj(Base):
     visits = relation(Visit, backref=backref('pfsArmObj'))
     pfsArms = relation(pfsArm, backref=backref('pfsArmObj'))
     pfsConfigFibers = relation(pfsConfigFiber, backref=backref('psfArmObj'))
-    fiberPositions = relation(FiberPosition, backref=backref('pfsArmObj'))
+    CobraPositions = relation(CobraPosition, backref=backref('pfsArmObj'))
     qaTypes = relation(QAType, backref=backref('pfsArmObj'))
 
     def __init__(self, pfsArmId, visit, spectrograph, arm, armNum,
