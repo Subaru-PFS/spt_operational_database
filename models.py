@@ -464,6 +464,37 @@ class Visit(Base):
         self.description = description
 
 
+class mcsData(Base):
+
+    __tablename__ = 'mcsData'
+
+    mcsId = Column(Integer, primary_key=True, autoincrement=True)
+    datatime = Column(DateTime)
+    frameId = Column(Integer)
+    moveId = Column(Integer)
+    fiberId = Column(Integer)
+    centroidx = Column(Float(precision=24))
+    centroidy = Column(Float(precision=24))
+    fwhmx = Column(Float(precision=24))
+    fwhmy = Column(Float(precision=24))
+    bgvalue = Column(Float(precision=24))
+    peakvalue = Column(Float(precision=24))
+
+    def __init__(self, mcsId, datatime, frameId, moveId, fiberId,
+                 centroidx, centroidy, fwhmx, fwhmy, bgvalue, peakvalue):
+        self.mcsId = mcsId
+        self.datatime = datatime
+        self.frameId = frameId
+        self.moveId = moveId
+        self.fiberId = fiberId
+        self.centroidx = centroidx
+        self.centroidy = centroidy
+        self.fwhmx = fwhmx
+        self.fwhmy = fwhmy
+        self.bgvalue = bgvalue
+        self.peakvalue = peakvalue
+
+
 class pfsConfig(Base):
     __tablename__ = 'pfsConfig'
 
