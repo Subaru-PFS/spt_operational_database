@@ -34,6 +34,32 @@ class TargetType(Base):
         self.description = description
 
 
+class ObjType(Base):
+    __tablename__ = 'ObjType'
+
+    objTypeId = Column(Integer, primary_key=True, autoincrement=False)
+    name = Column(String)
+    description = Column(String)
+
+    def __init__(self, objTypeId, name, description):
+        self.objTypeId = objTypeId
+        self.name = name
+        self.description = description
+
+
+class StarType(Base):
+    __tablename__ = 'StarType'
+
+    starTypeId = Column(Integer, primary_key=True, autoincrement=False)
+    name = Column(String)
+    description = Column(String)
+
+    def __init__(self, starTypeId, name, description):
+        self.starTypeId = starTypeId
+        self.name = name
+        self.description = description
+
+
 class QAType(Base):
     __tablename__ = 'QAType'
 
@@ -75,18 +101,76 @@ class CloudCondition(Base):
 
 class FiberPosition(Base):
     __tablename__ = 'FiberPosition'
-    cobraId = Column(Integer, primary_key=True, autoincrement=False)
-    spectrograph = Column(Integer)
-    slitId = Column(Integer)
-    CobraCenter_x = Column(Float(precision=24))
-    CobraCenter_y = Column(Float(precision=24))
+    fiberId = Column(Integer, primary_key=True, autoincrement=False)
+    ftype = Column(String)
+    x = Column(Float(precision=24))
+    y = Column(Float(precision=24))
 
-    def __init__(self, cobraId, spectrograph, slitId, CobraCenter_x, CobraCenter_y):
+    def __init__(self, fiberId, ftype, x, y):
+        self.fiberId = fiberId
+        self.ftype = ftype
+        self.x = x
+        self.y = y
+
+
+class CobraPosition(Base):
+    __tablename__ = 'CobraPosition'
+    cobraId = Column(Integer, primary_key=True, autoincrement=False)
+    fiberId = Column(Integer, ForeignKey('FiberPosition.fiberId'))
+    fld = Column(Integer)
+    cf = Column(Integer)
+    mf = Column(Integer)
+    cm = Column(Integer)
+    mod = Column(String)
+    x = Column(Float(precision=24))
+    y = Column(Float(precision=24))
+    r = Column(Float(precision=24))
+    sp = Column(Integer)
+    fh = Column(Integer)
+    sfib = Column(Integer)
+    fiberIdLNA = Column(String)
+
+    fiberPositions = relation(FiberPosition, backref=backref('CobraPosition'))
+
+    def __init__(self, cobraId, fiberId, fld, cf, mf, cm, mod, x, y, r, sp, fh, sfib, fiberIdLNA):
         self.cobraId = cobraId
-        self.spectrograph = spectrograph
-        self.slitId = slitId
-        self.CobraCenter_x = CobraCenter_x
-        self.CobraCenter_y = CobraCenter_y
+        self.fiberId = fiberId
+        self.fld = fld
+        self.cf = cf
+        self.mf = mf
+        self.cm = cm
+        self.mod = mod
+        self.x = x
+        self.y = y
+        self.r = r
+        self.sp = sp
+        self.fh = fh
+        self.sfib = sfib
+        self.fiberIdLNA = fiberIdLNA
+
+
+class FiducialFiberPosition(Base):
+    __tablename__ = 'FiducialFiberPosition'
+    ffId = Column(Integer, primary_key=True, autoincrement=False)
+    fiberId = Column(Integer, ForeignKey('FiberPosition.fiberId'))
+    ff = Column(Integer)
+    fff = Column(Integer)
+    fftype = Column(String)
+    fft = Column(Integer)
+    x = Column(Float(precision=24))
+    y = Column(Float(precision=24))
+
+    fiberPositions = relation(FiberPosition, backref=backref('FiducialFiberPosition'))
+
+    def __init__(self, ffId, fiberId, ff, fff, fftype, fft, x, y):
+        self.ffId = ffId
+        self.fiberId = fiberId
+        self.ff = ff
+        self.fff = fff
+        self.fftype = fftype
+        self.fft = fft
+        self.x = x
+        self.y = y
 
 
 class Target(Base):
@@ -116,6 +200,7 @@ class Target(Base):
     QALambdaMax = Column(Float(precision=24))
     QAThreshold = Column(Float(precision=24))
     QALineFlux = Column(Float(precision=24))
+    completeness = Column(Float(precision=24))
     finished = Column(Boolean)
 
     programs = relation(Program, backref=backref('Target'))
@@ -123,16 +208,10 @@ class Target(Base):
     inputCatalogs = relation(InputCatalog, backref=backref('Target'))
     qaTypes = relation(QAType, backref=backref('Target'))
 
-    def calculateId1(self, programId, objId):
-        return (programId << 60) + objId
-
-    def calculateId2(self, catId, objId):
-        return (catId << 26) + objId
-
     def __init__(self, programId, objId, ra, dec, tract, patch, priority, targetType, catId,
                  fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_Y,
                  fiberMag_J, fiducialExptime, photz, QATypeId,
-                 QALambdaMin, QALambdaMax, QAThreshold, QALineFlux, finished=False):
+                 QALambdaMin, QALambdaMax, QAThreshold, QALineFlux, completeness=0.0, finished=False):
         self.programId = programId
         self.objId = objId
         self.ra = ra
@@ -155,7 +234,32 @@ class Target(Base):
         self.QALambdaMax = QALambdaMax
         self.QAThreshold = QAThreshold
         self.QALineFlux = QALineFlux
+        self.completeness = completeness
         self.finished = finished
+
+
+class GuideStars(Base):
+    __tablename__ = 'GuideStars'
+    guideStarId = Column(BigInteger, primary_key=True, autoincrement=False)
+    ra = Column(Float(precision=24))
+    dec = Column(Float(precision=24))
+    catId = Column(Integer, ForeignKey('InputCatalog.catId'))
+    objTypeId = Column(Integer, ForeignKey('ObjType.objTypeId'))
+    mag_agc = Column(Float(precision=24))
+    flux_agc = Column(Float(precision=24))
+    flags = Column(Integer)
+
+    inputCatalogs = relation(InputCatalog, backref=backref('GuideStars'))
+    objTypes = relation(ObjType, backref=backref('GuideStars'))
+
+    def __init__(self, guideStarId, ra, dec, catId, mag_agc, flux_agc, flags):
+        self.guideStarId = guideStarId
+        self.ra = ra
+        self.dec = dec
+        self.catId = catId
+        self.mag_agc = mag_agc
+        self.flux_agc = flux_agc
+        self.flags = flags
 
 
 class Tile(Base):
@@ -219,7 +323,7 @@ class pfsDesignFiber(Base):
 
     pfsDesignFiberId = Column(BigInteger, primary_key=True, autoincrement=True)
     pfsDesignId = Column(BigInteger, ForeignKey('pfsDesign.pfsDesignId'))
-    cobraId = Column(Integer, ForeignKey('FiberPosition.cobraId'))
+    fiberId = Column(Integer, ForeignKey('FiberPosition.fiberId'))
     targetId = Column(BigInteger, ForeignKey('Target.targetId'))
     etsCostFunction = Column(String)
     etsCobraMovement = Column(String)
@@ -229,16 +333,16 @@ class pfsDesignFiber(Base):
 
     pfsDesigns = relation(pfsDesign, backref=backref('pfsDesignFiber'))
     targets = relation(Target, backref=backref('pfsDesignFiber'))
-    FiberPositions = relation(FiberPosition, backref=backref('pfsDesignFiber'))
+    fiberPositions = relation(FiberPosition, backref=backref('pfsDesignFiber'))
 
-    def __init__(self, pfsDesignFiberId, pfsDesignId, cobraId, targetId,
+    def __init__(self, pfsDesignFiberId, pfsDesignId, fiberId, targetId,
                  etsCostFunction, etsCobraMovement,
                  pfiNominal_x, pfiNominal_y,
                  onSource=True):
         #self.pfsDesignFiberId = pfsDesignFiberId
-        self.pfsDesignFiberId = (pfsDesignId << 12) + cobraId
+        self.pfsDesignFiberId = (pfsDesignId << 12) + fiberId
         self.pfsDesignId = pfsDesignId
-        self.cobraId = cobraId
+        self.fiberId = fiberId
         self.targetId = targetId
         self.etsCostFunction = etsCostFunction
         self.etsCobraMovement = etsCobraMovement
@@ -343,7 +447,7 @@ class pfsConfigFiber(Base):
 
     pfsConfigFiberId = Column(BigInteger, primary_key=True, autoincrement=True)
     pfsConfigId = Column(BigInteger, ForeignKey('pfsConfig.pfsConfigId'))
-    cobraId = Column(Integer, ForeignKey('FiberPosition.cobraId'))
+    fiberId = Column(Integer, ForeignKey('FiberPosition.fiberId'))
     targetId = Column(BigInteger, ForeignKey('Target.targetId'))
     pfiNominal_x = Column(Float(precision=24))
     pfiNominal_y = Column(Float(precision=24))
@@ -360,14 +464,14 @@ class pfsConfigFiber(Base):
     targets = relation(Target, backref=backref('psfConfigFiber'))
     fiberPositions = relation(FiberPosition, backref=backref('psfConfigFiber'))
 
-    def __init__(self, pfsConfigFiberId, pfsConfigId, cobraId, targetId,
+    def __init__(self, pfsConfigFiberId, pfsConfigId, fiberId, targetId,
                  pfiNominal_x, pfiNominal_y, pfiCenter_x, pfiCenter_y, mcsCenter_x, mcsCenter_y,
                  motorMap, motorNumStep, configTime,
                  onSource=True):
         #self.pfsConfigFiberId = pfsConfigFiberId
-        self.pfsConfigFiberId = (pfsConfigId << 12) + cobraId
+        self.pfsConfigFiberId = (pfsConfigId << 12) + fiberId
         self.pfsConfigId = pfsConfigId
-        self.cobraId = cobraId
+        self.fiberId = fiberId
         self.targetId = targetId
         self.pfiNominal_x = pfiNominal_x
         self.pfiNominal_y = pfiNominal_y
@@ -491,7 +595,7 @@ class ObsFiber(Base):
     frameId = Column(String, ForeignKey('Exposure.frameId'))
     visit = Column(Integer, ForeignKey('Visit.visit'))
     pfsConfigFiberId = Column(BigInteger, ForeignKey('pfsConfigFiber.pfsConfigFiberId'))
-    cobraId = Column(Integer)
+    fiberId = Column(Integer)
     targetId = Column(BigInteger, ForeignKey('Target.targetId'))
     exptime = Column(Float(precision=24))
     cum_nexp = Column(Integer)
@@ -504,12 +608,12 @@ class ObsFiber(Base):
     pfsConfigFibers = relation(pfsConfigFiber, backref=backref('ObsFiber'))
     targets = relation(Target, backref=backref('ObsFiber'))
 
-    def __init__(self, frameId, visit, pfsConfigFiberId, cobraId, targetId,
+    def __init__(self, frameId, visit, pfsConfigFiberId, fiberId, targetId,
                  exptime, cum_nexp, cum_texp, delta_pfi_x, delta_pfi_y):
         self.frameId = frameId
         self.visit = visit
         self.pfsConfigFiberId = pfsConfigFiberId
-        self.cobraId = cobraId
+        self.fiberId = fiberId
         self.targetId = targetId
         self.exptime = exptime
         self.cum_nexp = cum_nexp
@@ -621,7 +725,7 @@ class pfsArmObj(Base):
     spectrograph = Column(Integer)
     arm = Column(String)
     armNum = Column(Integer)
-    cobraId = Column(Integer, ForeignKey('FiberPosition.cobraId'))
+    fiberId = Column(Integer, ForeignKey('FiberPosition.fiberId'))
     pfsConfigFiberId = Column(BigInteger, ForeignKey('pfsConfigFiber.pfsConfigFiberId'))
     flags = Column(Integer)
     QATypeId = Column(Integer, ForeignKey('QAType.QATypeId'))
@@ -634,13 +738,13 @@ class pfsArmObj(Base):
     qaTypes = relation(QAType, backref=backref('pfsArmObj'))
 
     def __init__(self, pfsArmId, visit, spectrograph, arm, armNum,
-                 cobraId, pfsConfigFiberId, flags, QATypeId, QAValue):
+                 fiberId, pfsConfigFiberId, flags, QATypeId, QAValue):
         self.pfsArmId = pfsArmId
         self.visit = visit
         self.spectrograph = spectrograph
         self.arm = arm
         self.armNum = armNum
-        self.cobraId = cobraId
+        self.fiberId = fiberId
         self.pfsConfigFiberId = pfsConfigFiberId
         self.flags = flags
         self.QATypeId = QATypeId
@@ -720,33 +824,6 @@ class VisitsToCombine(Base):
         self.visit = visit
         self.pfsVisitHash = pfsVisitHash
 
-
-class ObjType(Base):
-    __tablename__ = 'ObjType'
-
-    objTypeId = Column(Integer, primary_key=True, autoincrement=False)
-    name = Column(String)
-    description = Column(String)
-
-    def __init__(self, objTypeId, name, description):
-        self.objTypeId = objTypeId
-        self.name = name
-        self.description = description
-
-
-class StarType(Base):
-    __tablename__ = 'StarType'
-
-    starTypeId = Column(Integer, primary_key=True, autoincrement=False)
-    name = Column(String)
-    description = Column(String)
-
-    def __init__(self, starTypeId, name, description):
-        self.starTypeId = starTypeId
-        self.name = name
-        self.description = description
-
-
 class LineList(Base):
     __tablename__ = 'LineList'
 
@@ -758,7 +835,6 @@ class LineList(Base):
         self.lineId = lineId
         self.name = name
         self.wavelength = wavelength
-
 
 class Drp1D(Base):
     __tablename__ = 'Drp1D'
