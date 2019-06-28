@@ -34,6 +34,32 @@ class TargetType(Base):
         self.description = description
 
 
+class ObjType(Base):
+    __tablename__ = 'ObjType'
+
+    objTypeId = Column(Integer, primary_key=True, autoincrement=False)
+    name = Column(String)
+    description = Column(String)
+
+    def __init__(self, objTypeId, name, description):
+        self.objTypeId = objTypeId
+        self.name = name
+        self.description = description
+
+
+class StarType(Base):
+    __tablename__ = 'StarType'
+
+    starTypeId = Column(Integer, primary_key=True, autoincrement=False)
+    name = Column(String)
+    description = Column(String)
+
+    def __init__(self, starTypeId, name, description):
+        self.starTypeId = starTypeId
+        self.name = name
+        self.description = description
+
+
 class QAType(Base):
     __tablename__ = 'QAType'
 
@@ -164,11 +190,13 @@ class GuideStars(Base):
     ra = Column(Float(precision=24))
     dec = Column(Float(precision=24))
     catId = Column(Integer, ForeignKey('InputCatalog.catId'))
+    objTypeId = Column(Integer, ForeignKey('ObjType.objTypeId'))
     mag_agc = Column(Float(precision=24))
     flux_agc = Column(Float(precision=24))
     flags = Column(Integer)
 
     inputCatalogs = relation(InputCatalog, backref=backref('GuideStars'))
+    objTypes = relation(ObjType, backref=backref('GuideStars'))
 
     def __init__(self, guideStarId, ra, dec, catId, mag_agc, flux_agc, flags):
         self.guideStarId = guideStarId
@@ -741,32 +769,6 @@ class VisitsToCombine(Base):
         self.targetId = targetId
         self.visit = visit
         self.pfsVisitHash = pfsVisitHash
-
-
-class ObjType(Base):
-    __tablename__ = 'ObjType'
-
-    objTypeId = Column(Integer, primary_key=True, autoincrement=False)
-    name = Column(String)
-    description = Column(String)
-
-    def __init__(self, objTypeId, name, description):
-        self.objTypeId = objTypeId
-        self.name = name
-        self.description = description
-
-
-class StarType(Base):
-    __tablename__ = 'StarType'
-
-    starTypeId = Column(Integer, primary_key=True, autoincrement=False)
-    name = Column(String)
-    description = Column(String)
-
-    def __init__(self, starTypeId, name, description):
-        self.starTypeId = starTypeId
-        self.name = name
-        self.description = description
 
 
 class SpecParam(Base):
