@@ -824,68 +824,6 @@ class VisitsToCombine(Base):
         self.visit = visit
         self.pfsVisitHash = pfsVisitHash
 
-
-class SpecParam(Base):
-    __tablename__ = 'SpecParam'
-
-    specParamId = Column(Integer, primary_key=True, autoincrement=False)
-    pfsObjectId = Column(BigInteger, ForeignKey('pfsObject.pfsObjectId'))
-    redshift = Column(Float(precision=24))
-    z_mean = Column(Float(precision=24))
-    z_median = Column(Float(precision=24))
-    z_percentileXX = Column(Float(precision=24))
-    objTypeId = Column(Integer, ForeignKey('ObjType.objTypeId'))
-    flags = Column(Integer)
-    processDate = Column(DateTime)
-    DRP1DVersion = Column(String)
-
-    pfsObjects = relation(pfsObject, backref=backref('specParam'))
-    objTypes = relation(ObjType, backref=backref('specParam'))
-
-    def __init__(self, specParamId, pfsObjectId, redshift, z_mean, z_median, z_percentileXX,
-                 objTypeId, flags, processDate, DRP1DVersion):
-        self.specParamId = specParamId
-        self.pfsObjectId = pfsObjectId
-        self.redshift = redshift
-        self.z_mean = z_mean
-        self.z_median = z_median
-        self.z_percentileXX = z_percentileXX
-        self.objTypeId = objTypeId
-        self.flags = flags
-        self.processDate = processDate
-        self.DRP1DVersion = DRP1DVersion
-
-
-class StarSpecParam(Base):
-    __tablename__ = 'StarSpecParam'
-
-    starSpecParamId = Column(Integer, primary_key=True, autoincrement=False)
-    pfsObjectId = Column(BigInteger, ForeignKey('pfsObject.pfsObjectId'), primary_key=True)
-    starTypeId = Column(Integer, ForeignKey('StarType.starTypeId'))
-    velocity = Column(Float(precision=24))
-    metallicity = Column(Float(precision=24))
-    logg = Column(Float(precision=24))
-    teff = Column(Float(precision=24))
-    flags = Column(Integer)
-    processDate = Column(DateTime)
-    DRPGAVersion = Column(String)
-
-    pfsObjects = relation(pfsObject, backref=backref('starSpecParam'))
-    starTypes = relation(StarType, backref=backref('starSpecParam'))
-
-    def __init__(self, pfsObjectId, starTypeId, velocity, metallicity, logg, teff,
-                 flags, processDate, pipelneStellarVersion):
-        self.pfsObjectId = pfsObjectId
-        self.starTypeId = startTypeId
-        self.velocity = velocity
-        self.metallicity = metallicity
-        self.logg = logg
-        self.teff = teff
-        self.flags = flags
-        self.processDate = processDate
-        self.DRPGAVersion = DRPGAVersion
-
-
 class LineList(Base):
     __tablename__ = 'LineList'
 
@@ -898,35 +836,132 @@ class LineList(Base):
         self.name = name
         self.wavelength = wavelength
 
+class Drp1D(Base):
+    __tablename__ = 'Drp1D'
 
-class SpecLine(Base):
-    __tablename__ = 'SpecLine'
-
-    specLineId = Column(Integer, primary_key=True, autoincrement=False)
+    drp1DId = Column(Integer, primary_key=True, autoincrement=True)
     pfsObjectId = Column(BigInteger, ForeignKey('pfsObject.pfsObjectId'))
-    lineId = Column(Integer, ForeignKey('LineList.lineId'))
-    wavelength = Column(Float(precision=24))
+    z_best = Column(Float(precision=24))
+    z_best_err = Column(Float(precision=24))
+    z_best_reliability = Column(Float(precision=24))
+    objTypeId = Column(Integer, ForeignKey('ObjType.objTypeId'))
+    flags = Column(Integer)
+    processDate = Column(DateTime)
+    DRP1DVersion = Column(String)
+
+    pfsObjects = relation(pfsObject, backref=backref('Drp1D'))
+    objTypes = relation(ObjType, backref=backref('Drp1D'))
+
+    def __init__(self, drp1DId, pfsObjectId, z_best, z_best_err, z_best_reliability,
+                 objTypeId, flags, processDate, DRP1DVersion):
+        self.drp1DId = drp1DId
+        self.pfsObjectId = pfsObjectId
+        self.z_best = z_best
+        self.z_best_err = z_best_err
+        self.z_best_reliability = z_best_reliability
+        self.objTypeId = objTypeId
+        self.flags = flags
+        self.processDate = processDate
+        self.DRP1DVersion = DRP1DVersion
+
+
+class Drp1DRedshift(Base):
+    __tablename__ = 'Drp1DRedshift'
+
+    drp1DRedshiftId = Column(BigInteger, primary_key=True, autoincrement=True)
+    drp1DId = Column(Integer, ForeignKey('Drp1D.drp1DId'))
     z = Column(Float(precision=24))
-    sigma = Column(Float(precision=24))
-    area = Column(Float(precision=24))
-    ew = Column(Float(precision=24))
-    contlevel = Column(Float(precision=24))
-    chi2 = Column(Float(precision=24))
+    z_err = Column(Float(precision=24))
+    zrank = Column(Float(precision=24))
+    reliability = Column(Float(precision=24))
+    specClass = Column(String)
+    specSubclass = Column(String)
+
+    pfsObjects = relation(pfsObject, backref=backref('Drp1DRedshift'))
+
+    def __init__(self, drp1DRedshiftId, drp1DId, z, z_err, zrank, reliability, specClass, specSubclass):
+        self.drp1DRedshiftId = drp1DRedshiftId
+        self.drp1DId = drp1DId
+        self.z = z
+        self.z_err = z_err
+        self.zrank = zrank
+        self.reliability = reliability
+        self.specClass = specClass
+        self.specSubclass = specSubclass
+
+
+class Drp1DLine(Base):
+    __tablename__ = 'Drp1DLine'
+
+    drp1DLineId = Column(BigInteger, primary_key=True, autoincrement=True)
+    drp1DId = Column(Integer, ForeignKey('Drp1D.drp1DId'))
+    lineId = Column(Integer, ForeignKey('LineList.lineId'))
+    lineName = Column(String)
+    lineWave = Column(Float(precision=24))
+    lineZ = Column(Float(precision=24))
+    lineZ_err = Column(Float(precision=24))
+    lineSigma = Column(Float(precision=24))
+    lineSigma_err = Column(Float(precision=24))
+    lineVel = Column(Float(precision=24))
+    lineVel_err = Column(Float(precision=24))
+    lineFlux = Column(Float(precision=24))
+    lineFlux_err = Column(Float(precision=24))
+    lineEW = Column(Float(precision=24))
+    lineEW_err = Column(Float(precision=24))
+    lineContLevel = Column(Float(precision=24))
+    lineContLevel_err = Column(Float(precision=24))
 
     pfsObjects = relation(pfsObject, backref=backref('specLine'))
     lineLists = relation(LineList, backref=backref('specLine'))
 
-    def __init__(self, pfsObjectId, lineId, wavelength, z, sigma, ew, contlevel, chi2):
-        self.specLineId = specLineId
-        self.pfsObjectId = pfsObjectId
+    def __init__(self, drp1DLineId, drp1DId, lineId, lineName, lineWave, lineZ, lineZ_err, lineSigma, lineSigma_err, lineVel, lineVel_err, lineFlux, lineFlux_err, lineEW, lineEW_err, lineContLevel, lineContLevel_err):
+        self.drp1DLineId = drp1DLineId
+        self.drp1DId = drp1DId
         self.lineId = lineId
-        self.wavelength = wavelength
-        self.z = z
-        self.sigma = sigma
-        self.area = area
-        self.ew = ew
-        self.contlevel = contlevel
-        self.chi2 = chi2
+        self.lineName = lineName
+        self.lineWave = lineWave
+        self.lineZ = lineZ
+        self.lineZ_err = lineZ_err
+        self.lineSigma = lineSigma
+        self.lineSigma_err = lineSigma_err
+        self.lineVel = lineVel
+        self.lineVel_err = lineVel_err
+        self.lineFlux = lineFlux
+        self.lineFlux_err = lineFlux_err
+        self.lineEW = lineEW
+        self.lineEW_err = lineEW_err
+        self.lineContLevel = lineContLevel
+        self.lineContLevel_err = lineContLevel_err
+
+
+class DrpGA(Base):
+    __tablename__ = 'DrpGA'
+
+    drpGAId = Column(Integer, primary_key=True, autoincrement=True)
+    pfsObjectId = Column(BigInteger, ForeignKey('pfsObject.pfsObjectId'), primary_key=True)
+    starTypeId = Column(Integer, ForeignKey('StarType.starTypeId'))
+    velocity = Column(Float(precision=24))
+    metallicity = Column(Float(precision=24))
+    logg = Column(Float(precision=24))
+    teff = Column(Float(precision=24))
+    flags = Column(Integer)
+    processDate = Column(DateTime)
+    DRPGAVersion = Column(String)
+
+    pfsObjects = relation(pfsObject, backref=backref('DrpGA'))
+    starTypes = relation(StarType, backref=backref('DrpGA'))
+
+    def __init__(self, drpGAId, starTypeId, velocity, metallicity, logg, teff,
+                 flags, processDate, pipelneStellarVersion):
+        self.drpGAId = drpGAId
+        self.starTypeId = startTypeId
+        self.velocity = velocity
+        self.metallicity = metallicity
+        self.logg = logg
+        self.teff = teff
+        self.flags = flags
+        self.processDate = processDate
+        self.DRPGAVersion = DRPGAVersion
 
 
 def make_database(dbinfo):
