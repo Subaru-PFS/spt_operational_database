@@ -618,6 +618,33 @@ class pfsConfigFiber(Base):
         self.onSource = onSource
 
 
+class CobraConfig(Base):
+    __tablename__ = 'CobraConfig'
+
+    cobraConfigId = Column(BigInteger, primary_key=True, autoincrement=True)
+    pfsConfigFiberId = Column(BigInteger, ForeignKey('pfsConfigFiber.pfsConfigFiberId'))
+    iteration = Column(Integer)
+    mcsId = Column(Integer, ForeignKey('mcsData.mcsId'))
+    pfiCenter_x = Column(Float(precision=24))
+    pfiCenter_y = Column(Float(precision=24))
+    mcsCenter_x = Column(Float(precision=24))
+    mcsCenter_y = Column(Float(precision=24))
+    exectime = Column(DateTime)
+
+    def __init__(self, cobraConfigId, pfsConfigFiberId, iteration, mcsId,
+                 pfiCenter_x, pfiCenter_y, mcsCenter_x, mcsCenter_y,
+                 exectime):
+        self.cobraConfigId = cobraConfigId
+        self.pfsConfigFiberId = pfsConfigFiberId
+        self.iteration = iteration
+        self.mcsId = mcsId
+        self.pfiCenter_x = pfiCenter_x
+        self.pfiCenter_y = pfiCenter_y
+        self.mcsCenter_x = mcsCenter_x
+        self.mcsCenter_y = mcsCenter_y
+        self.exectime = exectime
+
+
 class BeamSwitchMode(Base):
     __tablename__ = 'BeamSwitchMode'
 
