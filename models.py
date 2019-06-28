@@ -106,8 +106,9 @@ class CobraPosition(Base):
 
     fiberPositions = relation(FiberPosition, backref=backref('CobraPosition'))
 
-    def __init__(self, cobraId, fld, cf, mf, cm, mod, x, y, r, sp, fh, sfib, fiberIdLNA):
+    def __init__(self, cobraId, fiberId, fld, cf, mf, cm, mod, x, y, r, sp, fh, sfib, fiberIdLNA):
         self.cobraId = cobraId
+        self.fiberId = fiberId
         self.fld = fld
         self.cf = cf
         self.mf = mf
@@ -124,21 +125,24 @@ class CobraPosition(Base):
 
 class FiducialFiberPosition(Base):
     __tablename__ = 'FiducialFiberPosition'
-    ffid = Column(Integer, primary_key=True, autoincrement=False)
+    ffId = Column(Integer, primary_key=True, autoincrement=False)
     fiberId = Column(Integer, ForeignKey('FiberPosition.fiberId'))
     ff = Column(Integer)
     fff = Column(Integer)
-    fftype = Column(Integer)
+    fftype = Column(String)
+    fft = Column(Integer)
     x = Column(Float(precision=24))
     y = Column(Float(precision=24))
 
     fiberPositions = relation(FiberPosition, backref=backref('FiducialFiberPosition'))
 
-    def __init__(self, fid, f, fff, ftype, x, y):
-        self.fid = fid
-        self.f = f
+    def __init__(self, ffId, fiberId, ff, fff, fftype, fft, x, y):
+        self.ffId = ffId
+        self.fiberId = fiberId
+        self.ff = ff
         self.fff = fff
-        self.ftype = ftype
+        self.fftype = fftype
+        self.fft = fft
         self.x = x
         self.y = y
 
