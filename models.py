@@ -37,12 +37,12 @@ class Program(Base):
 class TargetType(Base):
     __tablename__ = 'TargetType'
 
-    targetType = Column(Integer, primary_key=True, autoincrement=False)
+    targetTypeId = Column(Integer, primary_key=True, autoincrement=False)
     name = Column(String)
     description = Column(String)
 
-    def __init__(self, targetType, name, description):
-        self.targetType = targetType
+    def __init__(self, targetTypeId, name, description):
+        self.targetTypeId = targetTypeId
         self.name = name
         self.description = description
 
@@ -197,7 +197,7 @@ class Target(Base):
     tract = Column(Integer)
     patch = Column(String)
     priority = Column(Float(precision=24))
-    targetTypeId = Column(Integer, ForeignKey('TargetType.targetType'))
+    targetTypeId = Column(Integer, ForeignKey('TargetType.targetTypeId'))
     catId = Column(Integer, ForeignKey('InputCatalog.catId'))
     catObjId = Column(BigInteger, autoincrement=True)
     fiberMag_g = Column(Float(precision=24))
@@ -222,7 +222,7 @@ class Target(Base):
     inputCatalogs = relation(InputCatalog, backref=backref('Target'))
     qaTypes = relation(QAType, backref=backref('Target'))
 
-    def __init__(self, programId, objId, ra, dec, tract, patch, priority, targetType, catId,
+    def __init__(self, programId, objId, ra, dec, tract, patch, priority, targetTypeId, catId,
                  fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_Y,
                  fiberMag_J, fiducialExptime, photz, mediumResolution,
                  QATypeId, QALambdaMin, QALambdaMax, QAThreshold, QALineFlux,
@@ -234,7 +234,7 @@ class Target(Base):
         self.tract = tract
         self.patch = patch
         self.priority = priority
-        self.targetTypeId = targetType
+        self.targetTypeId = targetTypeId
         self.catId = catId
         self.fiberMag_g = fiberMag_g
         self.fiberMag_r = fiberMag_r
@@ -307,6 +307,7 @@ class pfsDesign(Base):
     tileId = Column(Integer, ForeignKey('Tile.tileId'))
     raCenter = Column(Float(precision=24))
     decCenter = Column(Float(precision=24))
+    paConfig = Column(Float(precision=24))
     numSciDesigned = Column(Integer)
     numCalDesigned = Column(Integer)
     numSkyDesigned = Column(Integer)
@@ -320,13 +321,14 @@ class pfsDesign(Base):
 
     tiles = relation(Tile, backref=backref('pfsDesign'))
 
-    def __init__(self, pfsDesignId, tileId, raCenter, decCenter,
+    def __init__(self, pfsDesignId, tileId, raCenter, decCenter, paConfig,
                  numSciDesigned, numCalDesigned, numSkyDesigned, numGuideStars,
                  exptime, minExptime, etsVersion, etsAssgner, etsExectime, obsolete=False):
         self.pfsDesignId = pfsDesignId
         self.tileId = tileId
         self.raCenter = raCenter
         self.decCenter = decCenter
+        self.paConfig = paConfig
         self.numSciDesigned = numSciDesigned
         self.numCalDesigned = numCalDesigned
         self.numSkyDesigned = numSkyDesigned
@@ -346,6 +348,20 @@ class pfsDesignFiber(Base):
     pfsDesignId = Column(BigInteger, ForeignKey('pfsDesign.pfsDesignId'))
     fiberId = Column(Integer, ForeignKey('FiberPosition.fiberId'))
     targetId = Column(BigInteger, ForeignKey('Target.targetId'))
+    tract = Column(Integer)
+    patch = Column(String)
+    ra = Column(Float(precision=24))
+    dec = Column(Float(precision=24))
+    catId = Column(Integer)
+    objId = Column(BigInteger)
+    targetTypeId = Column(Integer)
+    fiberMag_g = Column(Float(precision=24))
+    fiberMag_r = Column(Float(precision=24))
+    fiberMag_i = Column(Float(precision=24))
+    fiberMag_z = Column(Float(precision=24))
+    fiberMag_Y = Column(Float(precision=24))
+    fiberMag_J = Column(Float(precision=24))
+    etsPriority = Column(String)
     etsCostFunction = Column(String)
     etsCobraMovement = Column(String)
     pfiNominal_x = Column(Float(precision=24))
@@ -355,11 +371,13 @@ class pfsDesignFiber(Base):
     pfsDesigns = relation(pfsDesign, backref=backref('pfsDesignFiber'))
     targets = relation(Target, backref=backref('pfsDesignFiber'))
     fiberPositions = relation(FiberPosition, backref=backref('pfsDesignFiber'))
+    targetTypes = relation(TargetType, backref=backref('pfsDesignFiber'))
+    inputCatalogs = relation(InputCatalog, backref=backref('pfsDesignFiber'))
 
     def __init__(self, pfsDesignFiberId, pfsDesignId, fiberId,
                  targetId, tract, patch, ra, dec, catId, objId, targetTypeId,
                  fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_Y,
-                 etsCostFunction, etsCobraMovement,
+                 etsPriority, etsCostFunction, etsCobraMovement,
                  pfiNominal_x, pfiNominal_y,
                  onSource=True):
         self.pfsDesignFiberId = (pfsDesignId << 12) + fiberId
@@ -372,13 +390,14 @@ class pfsDesignFiber(Base):
         self.dec = dec
         self.catId = catId
         self.objId = objId
-        self.targetTypeId = targetType
+        self.targetTypeId = targetTypeId
         self.fiberMag_g = fiberMag_g
         self.fiberMag_r = fiberMag_r
         self.fiberMag_i = fiberMag_i
         self.fiberMag_z = fiberMag_z
         self.fiberMag_y = fiberMag_y
         self.fiberMag_j = fiberMag_j
+        self.etsPriority = etsPriority
         self.etsCostFunction = etsCostFunction
         self.etsCobraMovement = etsCobraMovement
         self.pfiNominal_x = pfiNominal_x
@@ -437,43 +456,44 @@ class pfsConfig(Base):
 
     pfsConfigId = Column(BigInteger, primary_key=True, autoincrement=False)
     pfsDesignId = Column(BigInteger, ForeignKey('pfsDesign.pfsDesignId'))
-    ra_config = Column(Float(precision=24))
-    dec_config = Column(Float(precision=24))
-    pa_config = Column(Float(precision=24))
-    num_sci_allocated = Column(Integer)
-    num_cal_allocated = Column(Integer)
-    num_sky_allocated = Column(Integer)
-    num_guide_stars = Column(Integer)
+    visit0 = Column(Integer)
+    raCenter = Column(Float(precision=24))
+    decCenter = Column(Float(precision=24))
+    paConfig = Column(Float(precision=24))
+    numSciAllocated = Column(Integer)
+    numCalAllocated = Column(Integer)
+    numSkyAllocated = Column(Integer)
+    numGuideStars = Column(Integer)
     exptime = Column(Float(precision=24))
     minExptime = Column(Float(precision=24))
-    alloc_num_iter = Column(Integer)
-    alloc_elapsetime = Column(Float(precision=24))
-    alloc_rms_scatter = Column(Float(precision=24))
-    alloc_exectime = Column(DateTime)
+    allocNumIter = Column(Integer)
+    allocElapsetime = Column(Float(precision=24))
+    allocRmsScatter = Column(Float(precision=24))
+    allocExectime = Column(DateTime)
     observed = Column(Boolean)
 
     pfsDesigns = relation(pfsDesign, backref=backref('pfsConfig'))
 
-    def __init__(self, pfsConfigId, pfsDesignId, calibId, ra_config, dec_config, pa_config,
-                 num_sci_allocated, num_cal_target, num_cal_allocated, num_sky_allocated, num_guide_stars,
-                 exptime, minExptime, alloc_num_iter, alloc_elapsetime, alloc_rms_scatter, alloc_exectime,
+    def __init__(self, pfsConfigId, pfsDesignId, visit0, raCenter, decCenter, paConfig,
+                 numSciAllocated, numCalAllocated, numSkyAllocated, numGuideStars,
+                 exptime, minExptime, allocNumIter, allocElapsetime, allocRmsScatter, allocExectime,
                  observed=False):
         self.pfsConfigId = pfsConfigId
         self.pfsDesignId = pfsDesignId
-        self.calibId = calibId
-        self.ra_config = ra_config
-        self.dec_config = dec_config
-        self.pa_config = pa_config
-        self.num_sci_allocated = num_sci_allocated
-        self.num_cal_allocated = num_cal_allocated
-        self.num_sky_allocated = num_sky_allocated
-        self.num_guide_stars = num_guide_stars
+        self.visit0 = visit0
+        self.raCenter = raCenter
+        self.decCenter = decCenter
+        self.paConfig = paConfig
+        self.numSciAllocated = numSciAllocated
+        self.numCalAllocated = numCalAllocated
+        self.numSkyAllocated = numSkyAllocated
+        self.numGuideStars = numGuideStars
         self.exptime = exptime
         self.minExptime = minExptime
-        self.alloc_num_iter = alloc_num_iter
-        self.alloc_elapsetime = alloc_elapsetime
-        self.alloc_rms_scatter = alloc_rms_scatter
-        self.alloc_exectime = alloc_exectime
+        self.allocNumIter = allocNumIter
+        self.allocElapsetime = allocElapsetime
+        self.allocRmsScatter = allocRmsScatter
+        self.allocExectime = allocExectime
         self.observed = observed
 
 
@@ -484,6 +504,19 @@ class pfsConfigFiber(Base):
     pfsConfigId = Column(BigInteger, ForeignKey('pfsConfig.pfsConfigId'))
     fiberId = Column(Integer, ForeignKey('FiberPosition.fiberId'))
     targetId = Column(BigInteger, ForeignKey('Target.targetId'))
+    tract = Column(Integer)
+    patch = Column(String)
+    ra = Column(Float(precision=24))
+    dec = Column(Float(precision=24))
+    catId = Column(Integer)
+    objId = Column(BigInteger)
+    targetTypeId = Column(Integer)
+    fiberMag_g = Column(Float(precision=24))
+    fiberMag_r = Column(Float(precision=24))
+    fiberMag_i = Column(Float(precision=24))
+    fiberMag_z = Column(Float(precision=24))
+    fiberMag_Y = Column(Float(precision=24))
+    fiberMag_J = Column(Float(precision=24))
     pfiNominal_x = Column(Float(precision=24))
     pfiNominal_y = Column(Float(precision=24))
     pfiCenter_x = Column(Float(precision=24))
@@ -498,8 +531,11 @@ class pfsConfigFiber(Base):
     pfsConfigs = relation(pfsConfig, backref=backref('psfConfigFiber'))
     targets = relation(Target, backref=backref('psfConfigFiber'))
     fiberPositions = relation(FiberPosition, backref=backref('psfConfigFiber'))
+    targetTypes = relation(TargetType, backref=backref('pfsDesignFiber'))
+    inputCatalogs = relation(InputCatalog, backref=backref('pfsDesignFiber'))
 
-    def __init__(self, pfsConfigFiberId, pfsConfigId, fiberId, targetId,
+    def __init__(self, pfsConfigFiberId, pfsConfigId, fiberId,
+                 targetId, tract, patch, catId, objId, targetTypeId,
                  pfiNominal_x, pfiNominal_y, pfiCenter_x, pfiCenter_y, mcsCenter_x, mcsCenter_y,
                  motorMap, motorNumStep, configTime,
                  onSource=True):
@@ -508,6 +544,19 @@ class pfsConfigFiber(Base):
         self.pfsConfigId = pfsConfigId
         self.fiberId = fiberId
         self.targetId = targetId
+        self.tract = tract
+        self.patch = patch
+        self.ra = ra
+        self.dec = dec
+        self.catId = catId
+        self.objId = objId
+        self.targetTypeId = targetTypeId
+        self.fiberMag_g = fiberMag_g
+        self.fiberMag_r = fiberMag_r
+        self.fiberMag_i = fiberMag_i
+        self.fiberMag_z = fiberMag_z
+        self.fiberMag_y = fiberMag_y
+        self.fiberMag_j = fiberMag_j
         self.pfiNominal_x = pfiNominal_x
         self.pfiNominal_y = pfiNominal_y
         self.pfiCenter_x = pfiCenter_x
