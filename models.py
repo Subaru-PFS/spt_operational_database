@@ -6,18 +6,31 @@ from sqlalchemy.orm import sessionmaker, relation, backref
 Base = declarative_base()
 
 
+class Proposal(Base):
+    __tablename__ = 'Proposal'
+
+    proposalId = Column(String, primary_key=True, autoincrement=False)
+
+    def __init__(self, proposalId):
+        self.proposalId = proposalId
+
+
 class Program(Base):
     __tablename__ = 'Program'
 
     programId = Column(Integer, primary_key=True, autoincrement=False)
     name = Column(String)
     description = Column(String)
+    proposalId = Column(String, ForeignKey('Proposal.proposalId'))
     filler = Column(Boolean)
 
-    def __init__(self, programId, name, description, filler):
+    proposals = relation(Proposal, backref=backref('Program'))
+
+    def __init__(self, programId, name, description, proposalId, filler):
         self.programId = programId
         self.name = name
         self.description = description
+        self.proposalId = proposalId
         self.filler = filler
 
 
@@ -824,6 +837,7 @@ class VisitsToCombine(Base):
         self.visit = visit
         self.pfsVisitHash = pfsVisitHash
 
+
 class LineList(Base):
     __tablename__ = 'LineList'
 
@@ -835,6 +849,7 @@ class LineList(Base):
         self.lineId = lineId
         self.name = name
         self.wavelength = wavelength
+
 
 class Drp1D(Base):
     __tablename__ = 'Drp1D'
