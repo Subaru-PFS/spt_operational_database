@@ -208,6 +208,7 @@ class Target(Base):
     fiberMag_J = Column(Float(precision=24))
     fiducialExptime = Column(Float(precision=24))
     photz = Column(Float(precision=24))
+    mediumResolution = Column(Boolean)
     QATypeId = Column(Integer, ForeignKey('QAType.QATypeId'))
     QALambdaMin = Column(Float(precision=24))
     QALambdaMax = Column(Float(precision=24))
@@ -223,8 +224,9 @@ class Target(Base):
 
     def __init__(self, programId, objId, ra, dec, tract, patch, priority, targetType, catId,
                  fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_Y,
-                 fiberMag_J, fiducialExptime, photz, QATypeId,
-                 QALambdaMin, QALambdaMax, QAThreshold, QALineFlux, completeness=0.0, finished=False):
+                 fiberMag_J, fiducialExptime, photz, mediumResolution,
+                 QATypeId, QALambdaMin, QALambdaMax, QAThreshold, QALineFlux,
+                 completeness=0.0, finished=False):
         self.programId = programId
         self.objId = objId
         self.ra = ra
@@ -242,6 +244,7 @@ class Target(Base):
         self.fiberMag_J = fiberMag_Y
         self.fiducialExptime = fiducialExptime
         self.photz = photz
+        self.mediumResolution = mediumResolution
         self.QATypeId = QATypeId
         self.QALambdaMin = QALambdaMin
         self.QALambdaMax = QALambdaMax
@@ -557,6 +560,7 @@ class Exposure(Base):
     beamSwitchModeId = Column(Integer, ForeignKey('BeamSwitchMode.beamSwitchModeId'))
     beamSwitchOffsetRA = Column(Float(precision=24))
     beamSwitchOffsetDec = Column(Float(precision=24))
+    mediumResolution = Column(Boolean)
 
     visits = relation(Visit, backref=backref('Exposure'))
     pfsConfigs = relation(pfsConfig, backref=backref('Exposure'))
@@ -567,7 +571,8 @@ class Exposure(Base):
                  pfsConfigId, ra_tel, dec_tel, exptime, timeObsStart, timeObsEnd,
                  mjdStart, mjdEnd, airmass, seeing, transp, background, moonPhase, moonAlt, moonSep,
                  throughput, cloudConditionId, guideError_dx, guideError_dy, focusing_error,
-                 insRotStart, insRotEnd, beamSwitchModeId=0, beamSwitchOffsetRA=0.0, beamSwitchOffsetDec=0.0
+                 insRotStart, insRotEnd, beamSwitchModeId=0, beamSwitchOffsetRA=0.0, beamSwitchOffsetDec=0.0,
+                 mediumResolution=False
                  ):
         self.frameId = frameId
         self.visit = visit
@@ -599,6 +604,7 @@ class Exposure(Base):
         self.beamSwitchModeId = beamSwitchModeId
         self.beamSwitchOffsetRA = beamSwitchOffsetRA
         self.beamSwitchOffsetDec = beamSwitchOffsetDec
+        self.mediumResolution = mediumResolution
 
 
 class ObsFiber(Base):
