@@ -240,8 +240,8 @@ class Target(Base):
         self.fiberMag_r = fiberMag_r
         self.fiberMag_i = fiberMag_i
         self.fiberMag_z = fiberMag_z
-        self.fiberMag_Y = fiberMag_Y
-        self.fiberMag_J = fiberMag_Y
+        self.fiberMag_y = fiberMag_y
+        self.fiberMag_j = fiberMag_j
         self.fiducialExptime = fiducialExptime
         self.photz = photz
         self.mediumResolution = mediumResolution
@@ -284,18 +284,18 @@ class Tile(Base):
     tileId = Column(Integer, primary_key=True, autoincrement=True)
     programId = Column(Integer, ForeignKey('Program.programId'))
     tile = Column(Integer)
-    ra_center = Column(Float(precision=24))
-    dec_center = Column(Float(precision=24))
+    raCenter = Column(Float(precision=24))
+    decCenter = Column(Float(precision=24))
     pa = Column(Float(precision=24))
     finished = Column(Boolean)
 
     programs = relation(Program, backref=backref('Tile'))
 
-    def __init__(self, programId, tile, ra_center, dec_center, pa, finished):
+    def __init__(self, programId, tile, raCenter, decCenter, pa, finished):
         self.programId = programId
         self.tile = tile
-        self.ra_center = ra_center
-        self.dec_center = dec_center
+        self.raCenter = raCenter
+        self.decCenter = decCenter
         self.pa = pa
         self.finished = finished
 
@@ -305,10 +305,12 @@ class pfsDesign(Base):
 
     pfsDesignId = Column(BigInteger, primary_key=True, autoincrement=False)
     tileId = Column(Integer, ForeignKey('Tile.tileId'))
-    num_sci_designed = Column(Integer)
-    num_cal_designed = Column(Integer)
-    num_sky_designed = Column(Integer)
-    num_guide_stars = Column(Integer)
+    raCenter = Column(Float(precision=24))
+    decCenter = Column(Float(precision=24))
+    numSciDesigned = Column(Integer)
+    numCalDesigned = Column(Integer)
+    numSkyDesigned = Column(Integer)
+    numGuideStars = Column(Integer)
     exptime = Column(Float(precision=24))
     minExptime = Column(Float(precision=24))
     etsVersion = Column(String)
@@ -318,14 +320,17 @@ class pfsDesign(Base):
 
     tiles = relation(Tile, backref=backref('pfsDesign'))
 
-    def __init__(self, pfsDesignId, tileId, num_sci_designed, num_cal_designed, num_sky_designed,
-                 num_guide_stars, exptime, minExptime, etsVersion, etsAssgner, etsExectime, obsolete=False):
+    def __init__(self, pfsDesignId, tileId, raCenter, decCenter,
+                 numSciDesigned, numCalDesigned, numSkyDesigned, numGuideStars,
+                 exptime, minExptime, etsVersion, etsAssgner, etsExectime, obsolete=False):
         self.pfsDesignId = pfsDesignId
         self.tileId = tileId
-        self.num_sci_designed = num_sci_designed
-        self.num_cal_designed = num_cal_designed
-        self.num_sky_designed = num_sky_designed
-        self.num_guide_stars = num_guide_stars
+        self.raCenter = raCenter
+        self.decCenter = decCenter
+        self.numSciDesigned = numSciDesigned
+        self.numCalDesigned = numCalDesigned
+        self.numSkyDesigned = numSkyDesigned
+        self.numGuideStars = numGuideStars
         self.exptime = exptime
         self.minExptime = minExptime
         self.etsVersion = etsVersion
@@ -351,15 +356,29 @@ class pfsDesignFiber(Base):
     targets = relation(Target, backref=backref('pfsDesignFiber'))
     fiberPositions = relation(FiberPosition, backref=backref('pfsDesignFiber'))
 
-    def __init__(self, pfsDesignFiberId, pfsDesignId, fiberId, targetId,
+    def __init__(self, pfsDesignFiberId, pfsDesignId, fiberId,
+                 targetId, tract, patch, ra, dec, catId, objId, targetTypeId,
+                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_Y
                  etsCostFunction, etsCobraMovement,
                  pfiNominal_x, pfiNominal_y,
                  onSource=True):
-        #self.pfsDesignFiberId = pfsDesignFiberId
         self.pfsDesignFiberId = (pfsDesignId << 12) + fiberId
         self.pfsDesignId = pfsDesignId
         self.fiberId = fiberId
         self.targetId = targetId
+        self.tract = tract
+        self.patch = patch
+        self.ra = ra
+        self.dec = dec
+        self.catId = catId
+        self.objId = objId
+        self.targetTypeId = targetType
+        self.fiberMag_g = fiberMag_g
+        self.fiberMag_r = fiberMag_r
+        self.fiberMag_i = fiberMag_i
+        self.fiberMag_z = fiberMag_z
+        self.fiberMag_y = fiberMag_y
+        self.fiberMag_j = fiberMag_j
         self.etsCostFunction = etsCostFunction
         self.etsCobraMovement = etsCobraMovement
         self.pfiNominal_x = pfiNominal_x
