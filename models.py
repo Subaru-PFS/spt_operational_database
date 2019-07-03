@@ -451,12 +451,25 @@ class FluxCalib(Base):
         self.fluxCalibStarZ = fluxCalibStarZ
 
 
+class Visit(Base):
+    __tablename__ = 'Visit'
+
+    visit = Column(Integer, primary_key=True, autoincrement=False)
+    visitTypeId = Column(Integer)
+    description = Column(String)
+
+    def __init__(self, visit, visitTypeId, description):
+        self.visit = visit
+        self.visitTypeId = visitTypeId
+        self.description = description
+
+
 class pfsConfig(Base):
     __tablename__ = 'pfsConfig'
 
     pfsConfigId = Column(BigInteger, primary_key=True, autoincrement=False)
     pfsDesignId = Column(BigInteger, ForeignKey('pfsDesign.pfsDesignId'))
-    visit0 = Column(Integer)
+    visit0 = Column(Integer, ForeignKey('Visit.visit'))
     raCenter = Column(Float(precision=24))
     decCenter = Column(Float(precision=24))
     paConfig = Column(Float(precision=24))
@@ -473,6 +486,8 @@ class pfsConfig(Base):
     observed = Column(Boolean)
 
     pfsDesigns = relation(pfsDesign, backref=backref('pfsConfig'))
+
+    visits = relation(Visit, backref=backref('pfsConfig'))
 
     def __init__(self, pfsConfigId, pfsDesignId, visit0, raCenter, decCenter, paConfig,
                  numSciAllocated, numCalAllocated, numSkyAllocated, numGuideStars,
@@ -579,19 +594,6 @@ class BeamSwitchMode(Base):
     def __init__(self, beamSwitchModeId, name, description):
         self.beamSwitchModeId = beamSwitchModeId
         self.name = name
-        self.description = description
-
-
-class Visit(Base):
-    __tablename__ = 'Visit'
-
-    visit = Column(Integer, primary_key=True, autoincrement=False)
-    visitTypeId = Column(Integer)
-    description = Column(String)
-
-    def __init__(self, visit, visitTypeId, description):
-        self.visit = visit
-        self.visitTypeId = visitTypeId
         self.description = description
 
 
