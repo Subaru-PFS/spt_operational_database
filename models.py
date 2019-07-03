@@ -358,7 +358,7 @@ class pfsDesignFiber(Base):
 
     def __init__(self, pfsDesignFiberId, pfsDesignId, fiberId,
                  targetId, tract, patch, ra, dec, catId, objId, targetTypeId,
-                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_Y
+                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_Y,
                  etsCostFunction, etsCobraMovement,
                  pfiNominal_x, pfiNominal_y,
                  onSource=True):
