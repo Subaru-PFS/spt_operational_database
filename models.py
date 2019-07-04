@@ -625,21 +625,29 @@ class CobraConfig(Base):
     pfsConfigFiberId = Column(BigInteger, ForeignKey('pfsConfigFiber.pfsConfigFiberId'))
     iteration = Column(Integer)
     mcsId = Column(Integer, ForeignKey('mcsData.mcsId'))
+    pfiNominal_x = Column(Float(precision=24))
+    pfiNominal_y = Column(Float(precision=24))
     pfiCenter_x = Column(Float(precision=24))
     pfiCenter_y = Column(Float(precision=24))
+    pfiDiff_x = Column(Float(precision=24))
+    pfiDiff_y = Column(Float(precision=24))
     mcsCenter_x = Column(Float(precision=24))
     mcsCenter_y = Column(Float(precision=24))
     exectime = Column(DateTime)
 
     def __init__(self, cobraConfigId, pfsConfigFiberId, iteration, mcsId,
-                 pfiCenter_x, pfiCenter_y, mcsCenter_x, mcsCenter_y,
-                 exectime):
+                 pfiNominal_x, pfiNominal_y, pfiCenter_x, pfiCenter_y, pfiDiff_x, pfiDiff_y,
+                 mcsCenter_x, mcsCenter_y, exectime):
         self.cobraConfigId = cobraConfigId
         self.pfsConfigFiberId = pfsConfigFiberId
         self.iteration = iteration
         self.mcsId = mcsId
+        self.pfiNominal_x = pfiNominal_x
+        self.pfiNominal_y = pfiNominal_y
         self.pfiCenter_x = pfiCenter_x
         self.pfiCenter_y = pfiCenter_y
+        self.pfiDiff_x = pfiDiff_x
+        self.pfiDiff_y = pfiDiff_y
         self.mcsCenter_x = mcsCenter_x
         self.mcsCenter_y = mcsCenter_y
         self.exectime = exectime
