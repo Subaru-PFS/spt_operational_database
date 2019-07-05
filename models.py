@@ -624,6 +624,8 @@ class CobraConfig(Base):
     cobraConfigId = Column(BigInteger, primary_key=True, autoincrement=True)
     pfsConfigFiberId = Column(BigInteger, ForeignKey('pfsConfigFiber.pfsConfigFiberId'))
     iteration = Column(Integer)
+    motorNumStepTheta = Column(Integer)
+    motorNumStepPhi = Column(Integer)
     mcsId = Column(Integer, ForeignKey('mcsData.mcsId'))
     pfiNominal_x = Column(Float(precision=24))
     pfiNominal_y = Column(Float(precision=24))
@@ -635,12 +637,14 @@ class CobraConfig(Base):
     mcsCenter_y = Column(Float(precision=24))
     exectime = Column(DateTime)
 
-    def __init__(self, cobraConfigId, pfsConfigFiberId, iteration, mcsId,
+    def __init__(self, cobraConfigId, pfsConfigFiberId, iteration, motorNumStepTheta, motorNumStepPhi, mcsId,
                  pfiNominal_x, pfiNominal_y, pfiCenter_x, pfiCenter_y, pfiDiff_x, pfiDiff_y,
                  mcsCenter_x, mcsCenter_y, exectime):
         self.cobraConfigId = cobraConfigId
         self.pfsConfigFiberId = pfsConfigFiberId
         self.iteration = iteration
+        self.motorNumStepTheta = motorNumStepTheta
+        self.motorNumStepPhi = motorNumStepPhi
         self.mcsId = mcsId
         self.pfiNominal_x = pfiNominal_x
         self.pfiNominal_y = pfiNominal_y
@@ -846,7 +850,7 @@ class pfsArm(Base):
 
     visits = relation(Visit, backref=backref('pfsArm'))
     exposures = relation(Exposure, backref=backref('pfsArm'))
-    #calibs = relation(Calib, backref=backref('pfsArm'))
+    # calibs = relation(Calib, backref=backref('pfsArm'))
     pfsConfigs = relation(pfsConfig, backref=backref('pfsArm'))
     skyModels = relation(SkyModel, backref=backref('pfsArm'))
     psfModels = relation(PsfModel, backref=backref('pfsArm'))
@@ -1126,10 +1130,10 @@ class DrpGA(Base):
 
 def make_database(dbinfo):
     '''
-    dbinfo is something like this: postgresql://xxxxx:yyyyy@zzz.zzz.zzz.zz/dbname 
+    dbinfo is something like this: postgresql://xxxxx:yyyyy@zzz.zzz.zzz.zz/dbname
     '''
-    #engine = create_engine('sqlite:///:memory:', echo=True)
-    #engine = create_engine('sqlite:///pfs_proto.sqlite', echo=False)
+    # engine = create_engine('sqlite:///:memory:', echo=True)
+    # engine = create_engine('sqlite:///pfs_proto.sqlite', echo=False)
     engine = create_engine(dbinfo)
 
     Base.metadata.drop_all(engine)
