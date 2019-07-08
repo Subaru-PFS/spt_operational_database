@@ -536,10 +536,11 @@ class pfsConfigFiber(Base):
     pfiNominal_y = Column(Float(precision=24))
     pfiCenter_x = Column(Float(precision=24))
     pfiCenter_y = Column(Float(precision=24))
+    pfiDiff_x = Column(Float(precision=24))
+    pfiDiff_y = Column(Float(precision=24))
     mcsCenter_x = Column(Float(precision=24))
     mcsCenter_y = Column(Float(precision=24))
-    motorMap = Column(Float(precision=24))
-    motorNumStep = Column(Float(precision=24))
+    motorMapSummary = Column(String)
     configTime = Column(Float(precision=24))
     onSource = Column(Boolean)
 
@@ -551,8 +552,8 @@ class pfsConfigFiber(Base):
 
     def __init__(self, pfsConfigFiberId, pfsConfigId, fiberId,
                  targetId, tract, patch, catId, objId, targetTypeId,
-                 pfiNominal_x, pfiNominal_y, pfiCenter_x, pfiCenter_y, mcsCenter_x, mcsCenter_y,
-                 motorMap, motorNumStep, configTime,
+                 pfiNominal_x, pfiNominal_y, pfiCenter_x, pfiCenter_y, pfiDiff_x, pfiDiff_y,
+                 mcsCenter_x, mcsCenter_y, motorMapSummary, configTime,
                  onSource=True):
         #self.pfsConfigFiberId = pfsConfigFiberId
         self.pfsConfigFiberId = (pfsConfigId << 12) + fiberId
@@ -576,10 +577,11 @@ class pfsConfigFiber(Base):
         self.pfiNominal_y = pfiNominal_y
         self.pfiCenter_x = pfiCenter_x
         self.pfiCenter_y = pfiCenter_y
+        self.pfiDiff_x = pfiDiff_x
+        self.pfiDiff_y = pfiDiff_y
         self.mcsCenter_x = mcsCenter_x
         self.mcsCenter_y = mcsCenter_y
-        self.motorMap = motorMap
-        self.motorNumStep = motorNumStep
+        self.motorMapSummary = motorMapSummary
         self.configTime = configTime
         self.onSource = onSource
 
