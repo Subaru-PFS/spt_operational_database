@@ -353,9 +353,9 @@ class pfsDesignFiber(Base):
     patch = Column(String)
     ra = Column(Float(precision=24))
     dec = Column(Float(precision=24))
-    catId = Column(Integer)
+    catId = Column(Integer, ForeignKey('InputCatalog.catId'))
     objId = Column(BigInteger)
-    targetTypeId = Column(Integer)
+    targetTypeId = Column(Integer, ForeignKey('TargetType.targetTypeId'))
     fiberMag_g = Column(Float(precision=24))
     fiberMag_r = Column(Float(precision=24))
     fiberMag_i = Column(Float(precision=24))
@@ -561,9 +561,9 @@ class pfsConfigFiber(Base):
     patch = Column(String)
     ra = Column(Float(precision=24))
     dec = Column(Float(precision=24))
-    catId = Column(Integer)
+    catId = Column(Integer, ForeignKey('InputCatalog.catId'))
     objId = Column(BigInteger)
-    targetTypeId = Column(Integer)
+    targetTypeId = Column(Integer, ForeignKey('TargetType.targetTypeId'))
     fiberMag_g = Column(Float(precision=24))
     fiberMag_r = Column(Float(precision=24))
     fiberMag_i = Column(Float(precision=24))
@@ -1082,6 +1082,8 @@ class Drp1DRedshift(Base):
     specClass = Column(String)
     specSubclass = Column(String)
 
+    drp1dsRedshift = relation(Drp1D, backref=backref('Drp1DRedshift'))
+
     def __init__(self, drp1DRedshiftId, drp1DId, z, z_err, zrank, reliability, specClass, specSubclass):
         self.drp1DRedshiftId = drp1DRedshiftId
         self.drp1DId = drp1DId
@@ -1114,7 +1116,8 @@ class Drp1DLine(Base):
     lineContLevel = Column(Float(precision=24))
     lineContLevel_err = Column(Float(precision=24))
 
-    lineLists = relation(LineList, backref=backref('specLine'))
+    drp1dsLine = relation(Drp1D, backref=backref('Drp1DLine'))
+    lineLists = relation(LineList, backref=backref('Drp1DLine'))
 
     def __init__(self, drp1DLineId, drp1DId, lineId, lineName, lineWave, lineZ, lineZ_err, lineSigma, lineSigma_err, lineVel, lineVel_err, lineFlux, lineFlux_err, lineEW, lineEW_err, lineContLevel, lineContLevel_err):
         self.drp1DLineId = drp1DLineId
