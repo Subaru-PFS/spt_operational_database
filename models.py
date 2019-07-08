@@ -199,13 +199,13 @@ class Target(Base):
     priority = Column(Float(precision=24))
     targetTypeId = Column(Integer, ForeignKey('TargetType.targetTypeId'))
     catId = Column(Integer, ForeignKey('InputCatalog.catId'))
-    catObjId = Column(BigInteger, autoincrement=True)
+    catObjId = Column(BigInteger)
     fiberMag_g = Column(Float(precision=24))
     fiberMag_r = Column(Float(precision=24))
     fiberMag_i = Column(Float(precision=24))
     fiberMag_z = Column(Float(precision=24))
-    fiberMag_Y = Column(Float(precision=24))
-    fiberMag_J = Column(Float(precision=24))
+    fiberMag_y = Column(Float(precision=24))
+    fiberMag_j = Column(Float(precision=24))
     fiducialExptime = Column(Float(precision=24))
     photz = Column(Float(precision=24))
     mediumResolution = Column(Boolean)
@@ -222,9 +222,9 @@ class Target(Base):
     inputCatalogs = relation(InputCatalog, backref=backref('Target'))
     qaTypes = relation(QAType, backref=backref('Target'))
 
-    def __init__(self, programId, objId, ra, dec, tract, patch, priority, targetTypeId, catId,
-                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_Y,
-                 fiberMag_J, fiducialExptime, photz, mediumResolution,
+    def __init__(self, programId, objId, ra, dec, tract, patch, priority, targetTypeId, catId, catObjId,
+                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_y, fiberMag_j,
+                 fiducialExptime, photz, mediumResolution,
                  QATypeId, QALambdaMin, QALambdaMax, QAThreshold, QALineFlux,
                  completeness=0.0, finished=False):
         self.programId = programId
@@ -236,6 +236,7 @@ class Target(Base):
         self.priority = priority
         self.targetTypeId = targetTypeId
         self.catId = catId
+        self.catObjId = catObjId
         self.fiberMag_g = fiberMag_g
         self.fiberMag_r = fiberMag_r
         self.fiberMag_i = fiberMag_i
@@ -352,15 +353,15 @@ class pfsDesignFiber(Base):
     patch = Column(String)
     ra = Column(Float(precision=24))
     dec = Column(Float(precision=24))
-    catId = Column(Integer)
+    catId = Column(Integer, ForeignKey('InputCatalog.catId'))
     objId = Column(BigInteger)
-    targetTypeId = Column(Integer)
+    targetTypeId = Column(Integer, ForeignKey('TargetType.targetTypeId'))
     fiberMag_g = Column(Float(precision=24))
     fiberMag_r = Column(Float(precision=24))
     fiberMag_i = Column(Float(precision=24))
     fiberMag_z = Column(Float(precision=24))
-    fiberMag_Y = Column(Float(precision=24))
-    fiberMag_J = Column(Float(precision=24))
+    fiberMag_y = Column(Float(precision=24))
+    fiberMag_j = Column(Float(precision=24))
     etsPriority = Column(Integer)
     etsCostFunction = Column(String)
     etsCobraMovement = Column(String)
@@ -371,12 +372,12 @@ class pfsDesignFiber(Base):
     pfsDesigns = relation(pfsDesign, backref=backref('pfsDesignFiber'))
     targets = relation(Target, backref=backref('pfsDesignFiber'))
     fiberPositions = relation(FiberPosition, backref=backref('pfsDesignFiber'))
-    targetTypes = relation(TargetType, backref=backref('pfsDesignFiber'))
-    inputCatalogs = relation(InputCatalog, backref=backref('pfsDesignFiber'))
+    #targetTypes = relation(TargetType, backref=backref('pfsDesignFiber'))
+    #inputCatalogs = relation(InputCatalog, backref=backref('pfsDesignFiber'))
 
     def __init__(self, pfsDesignFiberId, pfsDesignId, fiberId,
                  targetId, tract, patch, ra, dec, catId, objId, targetTypeId,
-                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_Y,
+                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_y, fiberMag_j,
                  etsPriority, etsCostFunction, etsCobraMovement,
                  pfiNominal_x, pfiNominal_y,
                  onSource=True):
@@ -523,15 +524,15 @@ class pfsConfigFiber(Base):
     patch = Column(String)
     ra = Column(Float(precision=24))
     dec = Column(Float(precision=24))
-    catId = Column(Integer)
+    catId = Column(Integer, ForeignKey('InputCatalog.catId'))
     objId = Column(BigInteger)
-    targetTypeId = Column(Integer)
+    targetTypeId = Column(Integer, ForeignKey('TargetType.targetTypeId'))
     fiberMag_g = Column(Float(precision=24))
     fiberMag_r = Column(Float(precision=24))
     fiberMag_i = Column(Float(precision=24))
     fiberMag_z = Column(Float(precision=24))
-    fiberMag_Y = Column(Float(precision=24))
-    fiberMag_J = Column(Float(precision=24))
+    fiberMag_y = Column(Float(precision=24))
+    fiberMag_j = Column(Float(precision=24))
     pfiNominal_x = Column(Float(precision=24))
     pfiNominal_y = Column(Float(precision=24))
     pfiCenter_x = Column(Float(precision=24))
@@ -547,8 +548,8 @@ class pfsConfigFiber(Base):
     pfsConfigs = relation(pfsConfig, backref=backref('psfConfigFiber'))
     targets = relation(Target, backref=backref('psfConfigFiber'))
     fiberPositions = relation(FiberPosition, backref=backref('psfConfigFiber'))
-    targetTypes = relation(TargetType, backref=backref('pfsDesignFiber'))
-    inputCatalogs = relation(InputCatalog, backref=backref('pfsDesignFiber'))
+    #targetTypes = relation(TargetType, backref=backref('pfsConfigFiber'))
+    #inputCatalogs = relation(InputCatalog, backref=backref('pfsDesignFiber'))
 
     def __init__(self, pfsConfigFiberId, pfsConfigId, fiberId,
                  targetId, tract, patch, catId, objId, targetTypeId,
