@@ -801,6 +801,47 @@ class SkyModel(Base):
         self.armNum = armNum
 
 
+class agcData(Base):
+    __tablename__ = 'agcData'
+
+    agcId = Column(Integer, primary_key=True, autoincrement=True)
+    visit = Column(Integer, ForeignKey('Visit.visit'))
+    guideStarId = Column(BigInteger, ForeignKey('GuideStars.guideStarId'))
+    agcNum = Column(Integer)
+    datatime = Column(DateTime)
+    centroidx = Column(Float(precision=24))
+    centroidy = Column(Float(precision=24))
+    fwhmx = Column(Float(precision=24))
+    fwhmy = Column(Float(precision=24))
+    bgvalue = Column(Float(precision=24))
+    peakvalue = Column(Float(precision=24))
+    flux = Column(Float(precision=24))
+    seeing = Column(Float(precision=24))
+    transparency = Column(Float(precision=24))
+    flags = Column(Integer)
+
+    visits = relation(Visit, backref=backref('agcData'))
+    guideStars = relation(GuideStars, backref=backref('agcData'))
+
+    def __init__(self, agcId, visit, guideStarId, agcNum, datatime, centroidx, centroidy,
+                 fwhmx, fwhmy, bgvalue, peakvalue, flux, seeing, transparency, flags):
+        self.agcId = agcId
+        self.visit = visit
+        self.guideStarId = guideStarId
+        self.agcNum = agcNum
+        self.datatime = datatime
+        self.centroidx = centroidx
+        self.centroidy = centroidy
+        self.fwhmx = fwhmx
+        self.fwhmy = fwhmy
+        self.bgvalue = bgvalue
+        self.peakvalue = peakvalue
+        self.flux = flux
+        self.seeing = seeing
+        self.transparency = transparency
+        self.flags = flags
+
+
 class PsfModel(Base):
     __tablename__ = 'PsfModel'
 
