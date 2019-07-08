@@ -361,7 +361,7 @@ class pfsDesignFiber(Base):
     fiberMag_z = Column(Float(precision=24))
     fiberMag_Y = Column(Float(precision=24))
     fiberMag_J = Column(Float(precision=24))
-    etsPriority = Column(String)
+    etsPriority = Column(Integer)
     etsCostFunction = Column(String)
     etsCobraMovement = Column(String)
     pfiNominal_x = Column(Float(precision=24))
