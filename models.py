@@ -506,6 +506,8 @@ class pfsConfig(Base):
     raCenter = Column(Float(precision=24))
     decCenter = Column(Float(precision=24))
     paConfig = Column(Float(precision=24))
+    telEl = Column(Float(precision=24))
+    insRot = Column(Float(precision=24))
     numSciAllocated = Column(Integer)
     numCalAllocated = Column(Integer)
     numSkyAllocated = Column(Integer)
@@ -522,7 +524,7 @@ class pfsConfig(Base):
 
     visits = relation(Visit, backref=backref('pfsConfig'))
 
-    def __init__(self, pfsConfigId, pfsDesignId, visit0, raCenter, decCenter, paConfig,
+    def __init__(self, pfsConfigId, pfsDesignId, visit0, raCenter, decCenter, paConfig, telEl, insRot,
                  numSciAllocated, numCalAllocated, numSkyAllocated, numGuideStars,
                  exptime, minExptime, allocNumIter, allocElapsetime, allocRmsScatter, allocExectime,
                  observed=False):
@@ -532,6 +534,8 @@ class pfsConfig(Base):
         self.raCenter = raCenter
         self.decCenter = decCenter
         self.paConfig = paConfig
+        self.telEl = telEl
+        self.insRot = insRot
         self.numSciAllocated = numSciAllocated
         self.numCalAllocated = numCalAllocated
         self.numSkyAllocated = numSkyAllocated
