@@ -223,8 +223,8 @@ class Target(Base):
     qaTypes = relation(QAType, backref=backref('Target'))
 
     def __init__(self, programId, objId, ra, dec, tract, patch, priority, targetTypeId, catId, catObjId,
-                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_y, fiberMag_j,
-                 fiducialExptime, photz, mediumResolution,
+                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_y,
+                 fiberMag_j, fiducialExptime, photz, mediumResolution,
                  QATypeId, QALambdaMin, QALambdaMax, QAThreshold, QALineFlux,
                  completeness=0.0, finished=False):
         self.programId = programId
@@ -1045,8 +1045,6 @@ class Drp1DRedshift(Base):
     specClass = Column(String)
     specSubclass = Column(String)
 
-    pfsObjects = relation(pfsObject, backref=backref('Drp1DRedshift'))
-
     def __init__(self, drp1DRedshiftId, drp1DId, z, z_err, zrank, reliability, specClass, specSubclass):
         self.drp1DRedshiftId = drp1DRedshiftId
         self.drp1DId = drp1DId
@@ -1079,7 +1077,6 @@ class Drp1DLine(Base):
     lineContLevel = Column(Float(precision=24))
     lineContLevel_err = Column(Float(precision=24))
 
-    pfsObjects = relation(pfsObject, backref=backref('specLine'))
     lineLists = relation(LineList, backref=backref('specLine'))
 
     def __init__(self, drp1DLineId, drp1DId, lineId, lineName, lineWave, lineZ, lineZ_err, lineSigma, lineSigma_err, lineVel, lineVel_err, lineFlux, lineFlux_err, lineEW, lineEW_err, lineContLevel, lineContLevel_err):
