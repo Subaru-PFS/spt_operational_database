@@ -499,7 +499,7 @@ class mcsData(Base):
 class pfsConfig(Base):
     __tablename__ = 'pfsConfig'
 
-    pfsConfigId = Column(BigInteger, primary_key=True, autoincrement=False)
+    pfsConfigId = Column(Integer, primary_key=True, autoincrement=True)
     pfsDesignId = Column(BigInteger, ForeignKey('pfsDesign.pfsDesignId'))
     visit0 = Column(Integer, ForeignKey('Visit.visit'))
     raCenter = Column(Float(precision=24))
