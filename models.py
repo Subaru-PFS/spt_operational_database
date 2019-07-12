@@ -551,7 +551,7 @@ class pfsConfig(Base):
 class pfsConfigFiber(Base):
     __tablename__ = 'pfsConfigFiber'
 
-    pfsConfigFiberId = Column(BigInteger, primary_key=True, autoincrement=True)
+    pfsConfigFiberId = Column(BigInteger, primary_key=True, autoincrement=False)
     pfsConfigId = Column(BigInteger, ForeignKey('pfsConfig.pfsConfigId'))
     fiberId = Column(Integer, ForeignKey('FiberPosition.fiberId'))
     targetId = Column(BigInteger, ForeignKey('Target.targetId'))
