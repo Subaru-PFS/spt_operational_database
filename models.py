@@ -204,8 +204,8 @@ class Target(Base):
     fiberMag_r = Column(Float(precision=24))
     fiberMag_i = Column(Float(precision=24))
     fiberMag_z = Column(Float(precision=24))
-    fiberMag_Y = Column(Float(precision=24))
-    fiberMag_J = Column(Float(precision=24))
+    fiberMag_y = Column(Float(precision=24))
+    fiberMag_j = Column(Float(precision=24))
     fiducialExptime = Column(Float(precision=24))
     photz = Column(Float(precision=24))
     mediumResolution = Column(Boolean)
@@ -223,8 +223,8 @@ class Target(Base):
     qaTypes = relation(QAType, backref=backref('Target'))
 
     def __init__(self, programId, objId, ra, dec, tract, patch, priority, targetTypeId, catId,
-                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_Y,
-                 fiberMag_J, fiducialExptime, photz, mediumResolution,
+                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_y,
+                 fiberMag_j, fiducialExptime, photz, mediumResolution,
                  QATypeId, QALambdaMin, QALambdaMax, QAThreshold, QALineFlux,
                  completeness=0.0, finished=False):
         self.programId = programId
@@ -359,8 +359,8 @@ class pfsDesignFiber(Base):
     fiberMag_r = Column(Float(precision=24))
     fiberMag_i = Column(Float(precision=24))
     fiberMag_z = Column(Float(precision=24))
-    fiberMag_Y = Column(Float(precision=24))
-    fiberMag_J = Column(Float(precision=24))
+    fiberMag_y = Column(Float(precision=24))
+    fiberMag_j = Column(Float(precision=24))
     etsPriority = Column(Integer)
     etsCostFunction = Column(String)
     etsCobraMovement = Column(String)
@@ -371,12 +371,12 @@ class pfsDesignFiber(Base):
     pfsDesigns = relation(pfsDesign, backref=backref('pfsDesignFiber'))
     targets = relation(Target, backref=backref('pfsDesignFiber'))
     fiberPositions = relation(FiberPosition, backref=backref('pfsDesignFiber'))
-    targetTypes = relation(TargetType, backref=backref('pfsDesignFiber'))
-    inputCatalogs = relation(InputCatalog, backref=backref('pfsDesignFiber'))
+    #targetTypes = relation(TargetType, backref=backref('pfsDesignFiber'))
+    #inputCatalogs = relation(InputCatalog, backref=backref('pfsDesignFiber'))
 
     def __init__(self, pfsDesignFiberId, pfsDesignId, fiberId,
                  targetId, tract, patch, ra, dec, catId, objId, targetTypeId,
-                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_Y,
+                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_y,
                  etsPriority, etsCostFunction, etsCobraMovement,
                  pfiNominal_x, pfiNominal_y,
                  onSource=True):
@@ -567,8 +567,8 @@ class pfsConfigFiber(Base):
     fiberMag_r = Column(Float(precision=24))
     fiberMag_i = Column(Float(precision=24))
     fiberMag_z = Column(Float(precision=24))
-    fiberMag_Y = Column(Float(precision=24))
-    fiberMag_J = Column(Float(precision=24))
+    fiberMag_y = Column(Float(precision=24))
+    fiberMag_j = Column(Float(precision=24))
     pfiNominal_x = Column(Float(precision=24))
     pfiNominal_y = Column(Float(precision=24))
     pfiCenter_x = Column(Float(precision=24))
@@ -584,8 +584,8 @@ class pfsConfigFiber(Base):
     pfsConfigs = relation(pfsConfig, backref=backref('psfConfigFiber'))
     targets = relation(Target, backref=backref('psfConfigFiber'))
     fiberPositions = relation(FiberPosition, backref=backref('psfConfigFiber'))
-    targetTypes = relation(TargetType, backref=backref('pfsDesignFiber'))
-    inputCatalogs = relation(InputCatalog, backref=backref('pfsDesignFiber'))
+    #targetTypes = relation(TargetType, backref=backref('pfsDesignFiber'))
+    #inputCatalogs = relation(InputCatalog, backref=backref('pfsDesignFiber'))
 
     def __init__(self, pfsConfigFiberId, pfsConfigId, fiberId,
                  targetId, tract, patch, catId, objId, targetTypeId,
@@ -1034,8 +1034,6 @@ class Drp1DRedshift(Base):
     specClass = Column(String)
     specSubclass = Column(String)
 
-    pfsObjects = relation(pfsObject, backref=backref('Drp1DRedshift'))
-
     def __init__(self, drp1DRedshiftId, drp1DId, z, z_err, zrank, reliability, specClass, specSubclass):
         self.drp1DRedshiftId = drp1DRedshiftId
         self.drp1DId = drp1DId
@@ -1068,7 +1066,6 @@ class Drp1DLine(Base):
     lineContLevel = Column(Float(precision=24))
     lineContLevel_err = Column(Float(precision=24))
 
-    pfsObjects = relation(pfsObject, backref=backref('specLine'))
     lineLists = relation(LineList, backref=backref('specLine'))
 
     def __init__(self, drp1DLineId, drp1DId, lineId, lineName, lineWave, lineZ, lineZ_err, lineSigma, lineSigma_err, lineVel, lineVel_err, lineFlux, lineFlux_err, lineEW, lineEW_err, lineContLevel, lineContLevel_err):
