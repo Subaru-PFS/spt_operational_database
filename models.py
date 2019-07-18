@@ -142,10 +142,11 @@ class CobraPosition(Base):
     fh = Column(Integer)
     sfib = Column(Integer)
     fiberIdLNA = Column(String)
+    version = Column(String, primary_key=True, autoincrement=False)
 
     fiberPositions = relation(FiberPosition, backref=backref('CobraPosition'))
 
-    def __init__(self, cobraId, fiberId, fld, cf, mf, cm, mod, x, y, r, sp, fh, sfib, fiberIdLNA):
+    def __init__(self, cobraId, fiberId, fld, cf, mf, cm, mod, x, y, r, sp, fh, sfib, fiberIdLNA, version):
         self.cobraId = cobraId
         self.fiberId = fiberId
         self.fld = fld
@@ -160,6 +161,7 @@ class CobraPosition(Base):
         self.fh = fh
         self.sfib = sfib
         self.fiberIdLNA = fiberIdLNA
+        self.version = version
 
 
 class FiducialFiberPosition(Base):
@@ -172,10 +174,11 @@ class FiducialFiberPosition(Base):
     fft = Column(Integer)
     x = Column(Float(precision=24))
     y = Column(Float(precision=24))
+    version = Column(String, primary_key=True, autoincrement=False)
 
     fiberPositions = relation(FiberPosition, backref=backref('FiducialFiberPosition'))
 
-    def __init__(self, ffId, fiberId, ff, fff, fftype, fft, x, y):
+    def __init__(self, ffId, fiberId, ff, fff, fftype, fft, x, y, version):
         self.ffId = ffId
         self.fiberId = fiberId
         self.ff = ff
@@ -184,6 +187,7 @@ class FiducialFiberPosition(Base):
         self.fft = fft
         self.x = x
         self.y = y
+        self.version = version
 
 
 class Target(Base):
