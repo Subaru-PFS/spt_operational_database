@@ -627,6 +627,7 @@ class CobraConfig(Base):
 
     cobraConfigId = Column(BigInteger, primary_key=True, autoincrement=True)
     pfsConfigFiberId = Column(BigInteger, ForeignKey('pfsConfigFiber.pfsConfigFiberId'))
+    pfsConfigId = Column(BigInteger)
     fiberId = Column(Integer)
     iteration = Column(Integer)
     motorNumStepTheta = Column(Integer)
@@ -642,11 +643,13 @@ class CobraConfig(Base):
     mcsCenter_y = Column(Float(precision=24))
     exectime = Column(DateTime)
 
-    def __init__(self, cobraConfigId, pfsConfigFiberId, fiberId, iteration, motorNumStepTheta, motorNumStepPhi,
-                 mcsId, pfiNominal_x, pfiNominal_y, pfiCenter_x, pfiCenter_y, pfiDiff_x, pfiDiff_y,
+    def __init__(self, cobraConfigId, pfsConfigFiberId, pfsConfigId, fiberId, iteration,
+                 motorNumStepTheta, motorNumStepPhi, mcsId,
+                 pfiNominal_x, pfiNominal_y, pfiCenter_x, pfiCenter_y, pfiDiff_x, pfiDiff_y,
                  mcsCenter_x, mcsCenter_y, exectime):
         self.cobraConfigId = cobraConfigId
         self.pfsConfigFiberId = pfsConfigFiberId
+        self.pfsConfigId = pfsConfigId
         self.fiberId = fiberId
         self.iteration = iteration
         self.motorNumStepTheta = motorNumStepTheta
