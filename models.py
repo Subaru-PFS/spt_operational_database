@@ -588,7 +588,7 @@ class pfsConfigFiber(Base):
     targets = relation(Target, backref=backref('psfConfigFiber'))
     fiberPositions = relation(FiberPosition, backref=backref('psfConfigFiber'))
     #targetTypes = relation(TargetType, backref=backref('pfsConfigFiber'))
-    #inputCatalogs = relation(InputCatalog, backref=backref('pfsDesignFiber'))
+    #inputCatalogs = relation(InputCatalog, backref=backref('pfsConfigFiber'))
 
     def __init__(self, pfsConfigFiberId, pfsConfigId, fiberId,
                  targetId, tract, patch, catId, objId, targetTypeId,
