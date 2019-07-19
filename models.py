@@ -376,7 +376,7 @@ class pfsDesignFiber(Base):
 
     def __init__(self, pfsDesignFiberId, pfsDesignId, fiberId,
                  targetId, tract, patch, ra, dec, catId, objId, targetTypeId,
-                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_y,
+                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_y, fiberMag_j,
                  etsPriority, etsCostFunction, etsCobraMovement,
                  pfiNominal_x, pfiNominal_y,
                  onSource=True):
@@ -589,6 +589,7 @@ class pfsConfigFiber(Base):
 
     def __init__(self, pfsConfigFiberId, pfsConfigId, fiberId,
                  targetId, tract, patch, catId, objId, targetTypeId,
+                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_y, fiberMag_j,
                  pfiNominal_x, pfiNominal_y, pfiCenter_x, pfiCenter_y, pfiDiff_x, pfiDiff_y,
                  mcsCenter_x, mcsCenter_y, motorMapSummary, configTime,
                  onSource=True):
