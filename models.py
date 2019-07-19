@@ -199,7 +199,7 @@ class Target(Base):
     priority = Column(Float(precision=24))
     targetTypeId = Column(Integer, ForeignKey('TargetType.targetTypeId'))
     catId = Column(Integer, ForeignKey('InputCatalog.catId'))
-    catObjId = Column(BigInteger, autoincrement=True)
+    catObjId = Column(BigInteger)
     fiberMag_g = Column(Float(precision=24))
     fiberMag_r = Column(Float(precision=24))
     fiberMag_i = Column(Float(precision=24))
@@ -222,7 +222,7 @@ class Target(Base):
     inputCatalogs = relation(InputCatalog, backref=backref('Target'))
     qaTypes = relation(QAType, backref=backref('Target'))
 
-    def __init__(self, programId, objId, ra, dec, tract, patch, priority, targetTypeId, catId,
+    def __init__(self, programId, objId, ra, dec, tract, patch, priority, targetTypeId, catId, catObjId,
                  fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_y,
                  fiberMag_j, fiducialExptime, photz, mediumResolution,
                  QATypeId, QALambdaMin, QALambdaMax, QAThreshold, QALineFlux,
@@ -236,6 +236,7 @@ class Target(Base):
         self.priority = priority
         self.targetTypeId = targetTypeId
         self.catId = catId
+        self.catObjId = catObjId
         self.fiberMag_g = fiberMag_g
         self.fiberMag_r = fiberMag_r
         self.fiberMag_i = fiberMag_i
@@ -584,8 +585,8 @@ class pfsConfigFiber(Base):
     pfsConfigs = relation(pfsConfig, backref=backref('psfConfigFiber'))
     targets = relation(Target, backref=backref('psfConfigFiber'))
     fiberPositions = relation(FiberPosition, backref=backref('psfConfigFiber'))
-    #targetTypes = relation(TargetType, backref=backref('pfsDesignFiber'))
-    #inputCatalogs = relation(InputCatalog, backref=backref('pfsDesignFiber'))
+    #targetTypes = relation(TargetType, backref=backref('pfsConfigFiber'))
+    #inputCatalogs = relation(InputCatalog, backref=backref('pfsConfigFiber'))
 
     def __init__(self, pfsConfigFiberId, pfsConfigId, fiberId,
                  targetId, tract, patch, catId, objId, targetTypeId,
