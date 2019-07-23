@@ -987,7 +987,7 @@ class VisitsToCombine(Base):
     __tablename__ = 'VisitsToCombine'
 
     visitsToCombineId = Column(BigInteger, primary_key=True, autoincrement=True)
-    targetid = Column(BigInteger, ForeignKey('Target.targetId'))
+    targetId = Column(BigInteger, ForeignKey('Target.targetId'))
     visit = Column(Integer, ForeignKey('Visit.visit'))
     pfsVisitHash = Column(BigInteger, ForeignKey('VisitHash.pfsVisitHash'))
 
