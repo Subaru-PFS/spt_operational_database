@@ -478,12 +478,15 @@ class mcsData(Base):
     frameId = Column(Integer, index=True)
     moveId = Column(Integer)
     fiberId = Column(Integer)
+    #fiberId = Column(Integer, ForeignKey('FiberPosition.fiberId'))
     centroidx = Column(Float(precision=24))
     centroidy = Column(Float(precision=24))
     fwhmx = Column(Float(precision=24))
     fwhmy = Column(Float(precision=24))
     bgvalue = Column(Float(precision=24))
     peakvalue = Column(Float(precision=24))
+
+    #fiberPositions = relation(FiberPosition, backref=backref('mcsData'))
 
     def __init__(self, mcsId, datatime, frameId, moveId, fiberId,
                  centroidx, centroidy, fwhmx, fwhmy, bgvalue, peakvalue):
