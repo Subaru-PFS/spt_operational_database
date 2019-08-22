@@ -471,7 +471,7 @@ class mcsData(Base):
 
     mcsId = Column(Integer, primary_key=True, autoincrement=True)
     datatime = Column(DateTime)
-    frameId = Column(Integer)
+    frameId = Column(Integer, index=True)
     moveId = Column(Integer)
     fiberId = Column(Integer)
     centroidx = Column(Float(precision=24))
