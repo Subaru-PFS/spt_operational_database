@@ -491,9 +491,9 @@ class mcsexposure(Base):
     __tablename__ = 'mcsexposure'
 
     mcsexposureid = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=True)
-    frameid = Column(Integer, index=True)
+    frameid = Column(Integer, index=True, nullable=False)
     starttime = Column(DateTime)
-    exptime = Column(Float)
+    exptime = Column(Float, nullable=False)
     altitude = Column(Float)
     azimuth = Column(Float)
     insrot = Column(Float)
