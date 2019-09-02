@@ -468,6 +468,7 @@ class Visit(Base):
         self.visitTypeId = visitTypeId
         self.description = description
 
+
 class mcsboresight(Base):
 
     __tablename__ = 'mcsboresight'
@@ -483,6 +484,29 @@ class mcsboresight(Base):
         self.datatime = datatime
         self.x = x
         self.y = y
+
+
+class mcsexposure(Base):
+
+    __tablename__ = 'mcsexposure'
+
+    mcsexposureid = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=True)
+    frameid = Column(Integer, index=True)
+    starttime = Column(DateTime)
+    exptime = Column(Float)
+    altitude = Column(Float)
+    azimuth = Column(Float)
+    insrot = Column(Float)
+
+    def __init__(self, mcsexposureid, frameid, starttime, exptime, altitude, azimuth, insrot):
+        self.mcsexposureid = mcsexposureid
+        self.frameid = frameid
+        self.starttime = starttime
+        self.exptime = exptime
+        self.altitude = altitude
+        self.azimuth = azimuth
+        self.insrot = insrot
+
 
 class mcsData(Base):
 
