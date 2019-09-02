@@ -468,6 +468,21 @@ class Visit(Base):
         self.visitTypeId = visitTypeId
         self.description = description
 
+class mcsboresight(Base):
+
+    __tablename__ = 'mcsboresight'
+
+    mcsboresightid = Column(Integer, primary_key=True, autoincrement=True)
+    visitid = Column(Integer)
+    datatime = Column(DateTime)
+    x = Column(Float)
+    y = Column(Float)
+
+    def __init__(self, visitid, datatime, x, y):
+        self.visitid = visitid
+        self.datatime = datatime
+        self.x = x
+        self.y = y
 
 class mcsData(Base):
 
