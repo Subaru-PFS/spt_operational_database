@@ -201,7 +201,7 @@ class cobra_position(Base):
 
 class fiducial_fiber_position(Base):
     __tablename__ = 'fiducial_fiber_position'
-    ffId = Column(Integer, primary_key=True, autoincrement=False)
+    ff_id = Column(Integer, primary_key=True, autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'))
     ff = Column(Integer)
     fff = Column(Integer)
@@ -213,8 +213,8 @@ class fiducial_fiber_position(Base):
 
     fiber_positions = relation(fiber_position, backref=backref('fiducial_fiber_position'))
 
-    def __init__(self, ffId, fiber_id, ff, fff, fftype, fft, x, y, version):
-        self.ffId = ffId
+    def __init__(self, ff_id, fiber_id, ff, fff, fftype, fft, x, y, version):
+        self.ff_id = ff_id
         self.fiber_id = fiber_id
         self.ff = ff
         self.fff = fff
@@ -247,7 +247,7 @@ class target(Base):
     fiber_mag_j = Column(REAL)
     fiducial_exptime = Column(REAL)
     photz = Column(REAL)
-    medium_resolution = Column(Boolean)
+    is_medium_resolution = Column(Boolean)
     qa_type_id = Column(Integer, ForeignKey('qa_type.qa_type_id'))
     qa_lambda_min = Column(REAL)
     qa_lambda_max = Column(REAL)
@@ -258,12 +258,12 @@ class target(Base):
 
     programs = relation(program, backref=backref('target'))
     target_types = relation(target_type, backref=backref('target'))
-    inputCatalogs = relation(input_catalog, backref=backref('target'))
+    input_catalogs = relation(input_catalog, backref=backref('target'))
     qa_types = relation(qa_type, backref=backref('target'))
 
     def __init__(self, program_id, objId, ra, dec, tract, patch, priority, target_type_id, cat_id, cat_obj_id,
                  fiber_mag_g, fiber_mag_r, fiber_mag_i, fiber_mag_z, fiber_mag_y,
-                 fiber_mag_j, fiducial_exptime, photz, medium_resolution,
+                 fiber_mag_j, fiducial_exptime, photz, is_medium_resolution,
                  qa_type_id, qa_lambda_min, qa_lambda_max, qa_threshold, qa_line_flux,
                  completeness=0.0, is_finished=False):
         self.program_id = program_id
@@ -284,7 +284,7 @@ class target(Base):
         self.fiber_mag_j = fiber_mag_j
         self.fiducial_exptime = fiducial_exptime
         self.photz = photz
-        self.medium_resolution = medium_resolution
+        self.is_medium_resolution = is_medium_resolution
         self.qa_type_id = qa_type_id
         self.qa_lambda_min = qa_lambda_min
         self.qa_lambda_max = qa_lambda_max
@@ -624,7 +624,7 @@ class pfs_config(Base):
         self.min_exptime = min_exptime
         self.alloc_num_iter = alloc_num_iter
         self.alloc_elapsetime = alloc_elapsetime
-        self.alloc_rms_sdScatter = alloc_rms_scatter
+        self.alloc_rms_scatter = alloc_rms_scatter
         self.alloc_exectime = alloc_exectime
         self.is_observed = is_observed
 
@@ -713,7 +713,7 @@ class cobra_config(Base):
     iteration = Column(Integer)
     motor_num_step_theta = Column(Integer)
     motor_num_step_phi = Column(Integer)
-    mcsId = Column(Integer, ForeignKey('mcs_data.mcs_id'))
+    mcs_id = Column(Integer, ForeignKey('mcs_data.mcs_id'))
     pfi_nominal_x = Column(REAL)
     pfi_nominal_y = Column(REAL)
     pfi_center_x = Column(REAL)
@@ -793,7 +793,7 @@ class exposure(Base):
     beam_switch_mode_id = Column(Integer, ForeignKey('beam_switch_mode.beam_switch_mode_id'))
     beam_switch_offset_ra = Column(REAL)
     beam_switch_offset_dec = Column(REAL)
-    medium_resolution = Column(Boolean)
+    is_medium_resolution = Column(Boolean)
 
     visits = relation(visit, backref=backref('exposure'))
     pfs_configs = relation(pfs_config, backref=backref('exposure'))
@@ -805,7 +805,7 @@ class exposure(Base):
                  mjd_start, mjd_end, airmass, seeing, transp, background, moon_phase, moon_alt, moon_sep,
                  throughput, cloud_condition_id, guide_error_dx, guide_error_dy, focusing_error,
                  insrot_start, insrot_end, beam_switch_mode_id=0, beam_switch_offset_ra=0.0, beam_switch_offset_dec=0.0,
-                 medium_resolution=False
+                 is_medium_resolution=False
                  ):
         self.frame_id = frame_id
         self.visit_id = visit_id
@@ -837,7 +837,7 @@ class exposure(Base):
         self.beam_switch_mode_id = beam_switch_mode_id
         self.beam_switch_offset_ra = beam_switch_offset_ra
         self.beam_switch_offset_dec = beam_switch_offset_dec
-        self.medium_resolution = medium_resolution
+        self.is_medium_resolution = is_medium_resolution
 
 
 class obs_fiber(Base):
@@ -1031,7 +1031,7 @@ class pfs_object(Base):
     flux_calib_id = Column(Integer, ForeignKey('flux_calib.flux_calib_id'))
     flags = Column(Integer)
     qa_type_id = Column(Integer, ForeignKey('qa_type.qa_type_id'))
-    qa_Value = Column(REAL)
+    qa_value = Column(REAL)
 
     targets = relation(target, backref=backref('pfs_object'))
     flux_calibs = relation(flux_calib, backref=backref('pfs_object'))
