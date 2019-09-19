@@ -181,8 +181,8 @@ class cobra_position(Base):
 
     fiber_positions = relation(fiber_position, backref=backref('cobra_position'))
 
-    def __init__(self, cobraId, fiber_id, fld, cf, mf, cm, mod, x, y, r, sp, fh, sfib, fiber_id_lna, version):
-        self.cobraId = cobraId
+    def __init__(self, cobra_id, fiber_id, fld, cf, mf, cm, mod, x, y, r, sp, fh, sfib, fiber_id_lna, version):
+        self.cobra_id = cobra_id
         self.fiber_id = fiber_id
         self.fld = fld
         self.cf = cf
@@ -261,13 +261,13 @@ class target(Base):
     input_catalogs = relation(input_catalog, backref=backref('target'))
     qa_types = relation(qa_type, backref=backref('target'))
 
-    def __init__(self, program_id, objId, ra, dec, tract, patch, priority, target_type_id, cat_id, cat_obj_id,
+    def __init__(self, program_id, obj_id, ra, dec, tract, patch, priority, target_type_id, cat_id, cat_obj_id,
                  fiber_mag_g, fiber_mag_r, fiber_mag_i, fiber_mag_z, fiber_mag_y,
                  fiber_mag_j, fiducial_exptime, photz, is_medium_resolution,
                  qa_type_id, qa_lambda_min, qa_lambda_max, qa_threshold, qa_line_flux,
                  completeness=0.0, is_finished=False):
         self.program_id = program_id
-        self.objId = objId
+        self.obj_id = obj_id
         self.ra = ra
         self.dec = dec
         self.tract = tract
@@ -635,7 +635,7 @@ class pfs_config_fiber(Base):
     pfs_config_fiber_id = Column(BigInteger, primary_key=True, autoincrement=False)
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'))
-    targetId = Column(BigInteger, ForeignKey('target.target_id'))
+    target_id = Column(BigInteger, ForeignKey('target.target_id'))
     tract = Column(Integer)
     patch = Column(String)
     ra = Column(FLOAT)
@@ -734,7 +734,7 @@ class cobra_config(Base):
         self.fiber_id = fiber_id
         self.iteration = iteration
         self.motor_num_step_theta = motor_num_step_theta
-        self.motor_Num_step_phi = motor_num_step_phi
+        self.motor_num_step_phi = motor_num_step_phi
         self.mcs_id = mcs_id
         self.pfi_nominal_x = pfi_nominal_x
         self.pfi_nominal_y = pfi_nominal_y
@@ -809,7 +809,7 @@ class exposure(Base):
                  ):
         self.frame_id = frame_id
         self.visit_id = visit_id
-        self.sepctrograph = spectrograph
+        self.spectrograph = spectrograph
         self.arm = arm
         self.arm_num = arm_num
         self.pfs_config_id = pfs_config_id
@@ -891,7 +891,7 @@ class sky_model(Base):
         self.sky_model_id = sky_model_id
         self.frame_id = frame_id
         self.visit_id = visit_id
-        self.sepctrograph = spectrograph
+        self.spectrograph = spectrograph
         self.arm = arm
         self.arm_num = arm_num
 
@@ -913,7 +913,7 @@ class psf_model(Base):
         self.psf_model_id = psf_model_id
         self.frame_id = frame_id
         self.visit_id = visit_id
-        self.sepctrograph = spectrograph
+        self.spectrograph = spectrograph
         self.arm = arm
         self.arm_num = arm_num
 
@@ -1050,7 +1050,7 @@ class pfs_object(Base):
         self.pfs_visit_hash = pfs_visit_hash
         self.cum_texp = cum_texp
         self.process_datetime = process_datetime
-        self.drp2d_vesion = drp2d_vesion
+        self.drp2d_version = drp2d_version
         self.flux_calib_id = flux_calib_id
         self.flags = flags
         self.qa_type_id = qa_type_id
@@ -1069,10 +1069,10 @@ class visits_to_combine(Base):
     visits = relation(visit, backref=backref('visits_to_combine'))
     visit_hashs = relation(visit_hash, backref=backref('visits_to_combine'))
 
-    def __init__(self, targetId, visit, pfsVisitHash):
-        self.targetId = targetId
+    def __init__(self, target_id, visit, pfs_visit_hash):
+        self.target_id = target_id
         self.visit = visit
-        self.pfsVisitHash = pfsVisitHash
+        self.pfs_visit_hash = pfs_visit_hash
 
 
 class line_list(Base):
