@@ -6,130 +6,165 @@ from sqlalchemy.orm import sessionmaker, relation, backref
 Base = declarative_base()
 
 
-class Proposal(Base):
-    __tablename__ = 'Proposal'
+class proposal(Base):
+    __tablename__ = 'proposal'
 
-    proposalId = Column(String, primary_key=True, autoincrement=False)
+    proposal_id = Column(String, primary_key=True, autoincrement=False)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
 
-    def __init__(self, proposalId):
-        self.proposalId = proposalId
-
-
-class Program(Base):
-    __tablename__ = 'Program'
-
-    programId = Column(Integer, primary_key=True, autoincrement=False)
-    name = Column(String)
-    description = Column(String)
-    proposalId = Column(String, ForeignKey('Proposal.proposalId'))
-    filler = Column(Boolean)
-
-    proposals = relation(Proposal, backref=backref('Program'))
-
-    def __init__(self, programId, name, description, proposalId, filler):
-        self.programId = programId
-        self.name = name
-        self.description = description
-        self.proposalId = proposalId
-        self.filler = filler
+    def __init__(self, proposal_id, created_at, updated_at):
+        self.proposal_id = proposal_id
+        self.created_at = created_at
+        self.updated_at = updated_at
 
 
-class TargetType(Base):
-    __tablename__ = 'TargetType'
+class program(Base):
+    __tablename__ = 'program'
 
-    targetTypeId = Column(Integer, primary_key=True, autoincrement=False)
-    name = Column(String)
-    description = Column(String)
+    program_id = Column(Integer, primary_key=True, autoincrement=False)
+    program_name = Column(String)
+    program_description = Column(String)
+    proposal_id = Column(String, ForeignKey('proposal.proposal_id'))
+    is_filler = Column(Boolean)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
 
-    def __init__(self, targetTypeId, name, description):
-        self.targetTypeId = targetTypeId
-        self.name = name
-        self.description = description
+    proposals = relation(proposal, backref=backref('program'))
 
-
-class ObjType(Base):
-    __tablename__ = 'ObjType'
-
-    objTypeId = Column(Integer, primary_key=True, autoincrement=False)
-    name = Column(String)
-    description = Column(String)
-
-    def __init__(self, objTypeId, name, description):
-        self.objTypeId = objTypeId
-        self.name = name
-        self.description = description
+    def __init__(self, program_id, program_name, program_description, proposal_id,
+                 is_filler, created_at, updated_at):
+        self.program_id = program_id
+        self.program_name = program_name
+        self.program_description = program_description
+        self.proposal_id = proposal_id
+        self.is_filler = is_filler
+        self.created_at = created_at
+        self.updated_at = updated_at
 
 
-class StarType(Base):
-    __tablename__ = 'StarType'
+class target_type(Base):
+    __tablename__ = 'target_type'
 
-    starTypeId = Column(Integer, primary_key=True, autoincrement=False)
-    name = Column(String)
-    description = Column(String)
+    target_type_id = Column(Integer, primary_key=True, autoincrement=False)
+    target_type_name = Column(String)
+    target_type_description = Column(String)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
 
-    def __init__(self, starTypeId, name, description):
-        self.starTypeId = starTypeId
-        self.name = name
-        self.description = description
-
-
-class QAType(Base):
-    __tablename__ = 'QAType'
-
-    QATypeId = Column(Integer, primary_key=True, autoincrement=False)
-    name = Column(String)
-    description = Column(String)
-
-    def __init__(self, QATypeId, name, description):
-        self.QATypeId = QATypeId
-        self.name = name
-        self.description = description
+    def __init__(self, target_type_id, target_type_name, target_type_description, created_at, updated_at):
+        self.target_type_id = target_type_id
+        self.target_type_name = target_type_name
+        self.target_type_description = target_type_description
+        self.created_at = created_at
+        self.updated_at = updated_at
 
 
-class InputCatalog(Base):
-    __tablename__ = "InputCatalog"
+class obj_type(Base):
+    __tablename__ = 'obj_type'
 
-    catId = Column(Integer, primary_key=True, autoincrement=False)
-    name = Column(String)
-    description = Column(String)
+    obj_type_id = Column(Integer, primary_key=True, autoincrement=False)
+    obj_type_name = Column(String)
+    obj_type_description = Column(String)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
 
-    def __init__(self, catId, name, description):
-        self.catId = catId
-        self.name = name
-        self.description = description
-
-
-class CloudCondition(Base):
-    __tablename__ = 'CloudCondition'
-
-    cloudConditionId = Column(Integer, primary_key=True, autoincrement=False)
-    name = Column(String)
-    description = Column(String)
-
-    def __init__(self, cloudConditionId, name, description):
-        self.cloudConditionId = cloudConditionId
-        self.name = name
-        self.description = description
+    def __init__(self, obj_type_id, obj_type_name, obj_type_description, created_at, updated_at):
+        self.obj_type_Id = obj_type_id
+        self.obj_type_name = obj_type_name
+        self.obj_type_description = obj_type_description
+        self.created_at = created_at
+        self.updated_at = updated_at
 
 
-class FiberPosition(Base):
-    __tablename__ = 'FiberPosition'
-    fiberId = Column(Integer, primary_key=True, autoincrement=False)
+class star_type(Base):
+    __tablename__ = 'star_type'
+
+    star_type_id = Column(Integer, primary_key=True, autoincrement=False)
+    star_type_name = Column(String)
+    star_type_description = Column(String)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
+
+    def __init__(self, star_type_id, star_type_name, star_type_description, created_at, updated_at):
+        self.star_type_id = star_type_id
+        self.star_type_name = star_type_name
+        self.star_type_description = star_type_description
+        self.created_at = created_at
+        self.updated_at = updated_at
+
+
+class qa_type(Base):
+    __tablename__ = 'qa_type'
+
+    qa_type_id = Column(Integer, primary_key=True, autoincrement=False)
+    qa_type_name = Column(String)
+    qa_type_description = Column(String)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
+
+    def __init__(self, qa_type_id, qa_type_name, qa_type_description, created_at, updated_at):
+        self.qa_type_id = qa_type_id
+        self.qa_type_name = qa_type_name
+        self.qa_type_description = qa_type_description
+        self.created_at = created_at
+        self.updated_at = updated_at
+
+
+class input_catalog(Base):
+    __tablename__ = "input_catalog"
+
+    cat_id = Column(Integer, primary_key=True, autoincrement=False)
+    input_catalog_name = Column(String)
+    input_catalog_description = Column(String)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
+
+    def __init__(self, cat_id, input_catalog_name, input_catalog_description,
+                 created_at, updated_at):
+        self.cat_id = cat_id
+        self.input_catalog_name = input_catalog_name
+        self.input_catalog_description = input_catalog_description
+        self.created_at = created_at
+        self.updated_at = updated_at
+
+
+class cloud_condition(Base):
+    __tablename__ = 'cloud_condition'
+
+    cloud_condition_id = Column(Integer, primary_key=True, autoincrement=False)
+    cloud_condition_name = Column(String)
+    cloud_condition_description = Column(String)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
+
+    def __init__(self, cloud_condition_id, cloud_condition_name, cloud_condition_description,
+                 created_at, updated_at):
+        self.cloud_condition_id = cloud_condition_id
+        self.cloud_condition_name = cloud_condition_name
+        self.cloud_condition_description = cloud_condition_description
+        self.created_at = created_at
+        self.updated_at = updated_at
+
+
+class fiber_position(Base):
+    __tablename__ = 'fiber_position'
+    fiber_id = Column(Integer, primary_key=True, autoincrement=False)
     ftype = Column(String)
     x = Column(REAL)
     y = Column(REAL)
 
-    def __init__(self, fiberId, ftype, x, y):
-        self.fiberId = fiberId
+    def __init__(self, fiber_id, ftype, x, y):
+        self.fiber_id = fiber_id
         self.ftype = ftype
         self.x = x
         self.y = y
 
 
-class CobraPosition(Base):
-    __tablename__ = 'CobraPosition'
-    cobraId = Column(Integer, primary_key=True, autoincrement=False)
-    fiberId = Column(Integer, ForeignKey('FiberPosition.fiberId'))
+class cobra_position(Base):
+    __tablename__ = 'cobra_position'
+    cobra_id = Column(Integer, primary_key=True, autoincrement=False)
+    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'))
     fld = Column(Integer)
     cf = Column(Integer)
     mf = Column(Integer)
@@ -141,14 +176,14 @@ class CobraPosition(Base):
     sp = Column(Integer)
     fh = Column(Integer)
     sfib = Column(Integer)
-    fiberIdLNA = Column(String)
+    fiber_id_lna = Column(String)
     version = Column(String, primary_key=True, autoincrement=False)
 
-    fiberPositions = relation(FiberPosition, backref=backref('CobraPosition'))
+    fiber_positions = relation(fiber_position, backref=backref('cobra_position'))
 
-    def __init__(self, cobraId, fiberId, fld, cf, mf, cm, mod, x, y, r, sp, fh, sfib, fiberIdLNA, version):
-        self.cobraId = cobraId
-        self.fiberId = fiberId
+    def __init__(self, cobra_id, fiber_id, fld, cf, mf, cm, mod, x, y, r, sp, fh, sfib, fiber_id_lna, version):
+        self.cobra_id = cobra_id
+        self.fiber_id = fiber_id
         self.fld = fld
         self.cf = cf
         self.mf = mf
@@ -160,14 +195,14 @@ class CobraPosition(Base):
         self.sp = sp
         self.fh = fh
         self.sfib = sfib
-        self.fiberIdLNA = fiberIdLNA
+        self.fiber_id_lna = fiber_id_lna
         self.version = version
 
 
-class FiducialFiberPosition(Base):
-    __tablename__ = 'FiducialFiberPosition'
-    ffId = Column(Integer, primary_key=True, autoincrement=False)
-    fiberId = Column(Integer, ForeignKey('FiberPosition.fiberId'))
+class fiducial_fiber_position(Base):
+    __tablename__ = 'fiducial_fiber_position'
+    ff_id = Column(Integer, primary_key=True, autoincrement=False)
+    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'))
     ff = Column(Integer)
     fff = Column(Integer)
     fftype = Column(String)
@@ -176,11 +211,11 @@ class FiducialFiberPosition(Base):
     y = Column(REAL)
     version = Column(String, primary_key=True, autoincrement=False)
 
-    fiberPositions = relation(FiberPosition, backref=backref('FiducialFiberPosition'))
+    fiber_positions = relation(fiber_position, backref=backref('fiducial_fiber_position'))
 
-    def __init__(self, ffId, fiberId, ff, fff, fftype, fft, x, y, version):
-        self.ffId = ffId
-        self.fiberId = fiberId
+    def __init__(self, ff_id, fiber_id, ff, fff, fftype, fft, x, y, version):
+        self.ff_id = ff_id
+        self.fiber_id = fiber_id
         self.ff = ff
         self.fff = fff
         self.fftype = fftype
@@ -190,649 +225,648 @@ class FiducialFiberPosition(Base):
         self.version = version
 
 
-class Target(Base):
-    __tablename__ = 'Target'
+class target(Base):
+    __tablename__ = 'target'
 
-    targetId = Column(BigInteger, primary_key=True, autoincrement=True)
-    programId = Column(Integer, ForeignKey('Program.programId'))
-    objId = Column(BigInteger)
+    target_id = Column(BigInteger, primary_key=True, autoincrement=True)
+    program_id = Column(Integer, ForeignKey('program.program_id'))
+    obj_id = Column(BigInteger)
     ra = Column(FLOAT)
     dec = Column(FLOAT)
     tract = Column(Integer)
     patch = Column(String)
     priority = Column(REAL)
-    targetTypeId = Column(Integer, ForeignKey('TargetType.targetTypeId'))
-    catId = Column(Integer, ForeignKey('InputCatalog.catId'))
-    catObjId = Column(BigInteger)
-    fiberMag_g = Column(REAL)
-    fiberMag_r = Column(REAL)
-    fiberMag_i = Column(REAL)
-    fiberMag_z = Column(REAL)
-    fiberMag_y = Column(REAL)
-    fiberMag_j = Column(REAL)
-    fiducialExptime = Column(REAL)
+    target_type_id = Column(Integer, ForeignKey('target_type.target_type_id'))
+    cat_id = Column(Integer, ForeignKey('input_catalog.cat_id'))
+    cat_obj_id = Column(BigInteger)
+    fiber_mag_g = Column(REAL)
+    fiber_mag_r = Column(REAL)
+    fiber_mag_i = Column(REAL)
+    fiber_mag_z = Column(REAL)
+    fiber_mag_y = Column(REAL)
+    fiber_mag_j = Column(REAL)
+    fiducial_exptime = Column(REAL)
     photz = Column(REAL)
-    mediumResolution = Column(Boolean)
-    QATypeId = Column(Integer, ForeignKey('QAType.QATypeId'))
-    QALambdaMin = Column(REAL)
-    QALambdaMax = Column(REAL)
-    QAThreshold = Column(REAL)
-    QALineFlux = Column(REAL)
+    is_medium_resolution = Column(Boolean)
+    qa_type_id = Column(Integer, ForeignKey('qa_type.qa_type_id'))
+    qa_lambda_min = Column(REAL)
+    qa_lambda_max = Column(REAL)
+    qa_threshold = Column(REAL)
+    qa_line_flux = Column(REAL)
     completeness = Column(REAL)
-    finished = Column(Boolean)
+    is_finished = Column(Boolean)
 
-    programs = relation(Program, backref=backref('Target'))
-    targetTypes = relation(TargetType, backref=backref('Target'))
-    inputCatalogs = relation(InputCatalog, backref=backref('Target'))
-    qaTypes = relation(QAType, backref=backref('Target'))
+    programs = relation(program, backref=backref('target'))
+    target_types = relation(target_type, backref=backref('target'))
+    input_catalogs = relation(input_catalog, backref=backref('target'))
+    qa_types = relation(qa_type, backref=backref('target'))
 
-    def __init__(self, programId, objId, ra, dec, tract, patch, priority, targetTypeId, catId, catObjId,
-                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_y,
-                 fiberMag_j, fiducialExptime, photz, mediumResolution,
-                 QATypeId, QALambdaMin, QALambdaMax, QAThreshold, QALineFlux,
-                 completeness=0.0, finished=False):
-        self.programId = programId
-        self.objId = objId
+    def __init__(self, program_id, obj_id, ra, dec, tract, patch, priority, target_type_id, cat_id, cat_obj_id,
+                 fiber_mag_g, fiber_mag_r, fiber_mag_i, fiber_mag_z, fiber_mag_y,
+                 fiber_mag_j, fiducial_exptime, photz, is_medium_resolution,
+                 qa_type_id, qa_lambda_min, qa_lambda_max, qa_threshold, qa_line_flux,
+                 completeness=0.0, is_finished=False):
+        self.program_id = program_id
+        self.obj_id = obj_id
         self.ra = ra
         self.dec = dec
         self.tract = tract
         self.patch = patch
         self.priority = priority
-        self.targetTypeId = targetTypeId
-        self.catId = catId
-        self.catObjId = catObjId
-        self.fiberMag_g = fiberMag_g
-        self.fiberMag_r = fiberMag_r
-        self.fiberMag_i = fiberMag_i
-        self.fiberMag_z = fiberMag_z
-        self.fiberMag_y = fiberMag_y
-        self.fiberMag_j = fiberMag_j
-        self.fiducialExptime = fiducialExptime
+        self.target_type_id = target_type_id
+        self.cat_id = cat_id
+        self.cat_obj_id = cat_obj_id
+        self.fiber_mag_g = fiber_mag_g
+        self.fiber_mag_r = fiber_mag_r
+        self.fiber_mag_i = fiber_mag_i
+        self.fiber_mag_z = fiber_mag_z
+        self.fiber_mag_y = fiber_mag_y
+        self.fiber_mag_j = fiber_mag_j
+        self.fiducial_exptime = fiducial_exptime
         self.photz = photz
-        self.mediumResolution = mediumResolution
-        self.QATypeId = QATypeId
-        self.QALambdaMin = QALambdaMin
-        self.QALambdaMax = QALambdaMax
-        self.QAThreshold = QAThreshold
-        self.QALineFlux = QALineFlux
+        self.is_medium_resolution = is_medium_resolution
+        self.qa_type_id = qa_type_id
+        self.qa_lambda_min = qa_lambda_min
+        self.qa_lambda_max = qa_lambda_max
+        self.qa_threshold = qa_threshold
+        self.qa_line_flux = qa_line_flux
         self.completeness = completeness
-        self.finished = finished
+        self.is_finished = is_finished
 
 
-class GuideStars(Base):
-    __tablename__ = 'GuideStars'
-    guideStarId = Column(BigInteger, primary_key=True, autoincrement=False)
+class guide_stars(Base):
+    __tablename__ = 'guide_stars'
+    guide_star_id = Column(BigInteger, primary_key=True, autoincrement=False)
     ra = Column(FLOAT)
     dec = Column(FLOAT)
-    catId = Column(Integer, ForeignKey('InputCatalog.catId'))
-    objTypeId = Column(Integer, ForeignKey('ObjType.objTypeId'))
+    cat_id = Column(Integer, ForeignKey('input_catalog.cat_id'))
+    obj_type_id = Column(Integer, ForeignKey('obj_type.obj_type_id'))
     mag_agc = Column(REAL)
     flux_agc = Column(REAL)
     flags = Column(Integer)
 
-    inputCatalogs = relation(InputCatalog, backref=backref('GuideStars'))
-    objTypes = relation(ObjType, backref=backref('GuideStars'))
+    input_catalogs = relation(input_catalog, backref=backref('guide_stars'))
+    obj_types = relation(obj_type, backref=backref('guide_stars'))
 
-    def __init__(self, guideStarId, ra, dec, catId, mag_agc, flux_agc, flags):
-        self.guideStarId = guideStarId
+    def __init__(self, guide_star_id, ra, dec, cat_id, mag_agc, flux_agc, flags):
+        self.guide_star_id = guide_star_id
         self.ra = ra
         self.dec = dec
-        self.catId = catId
+        self.cat_id = cat_id
         self.mag_agc = mag_agc
         self.flux_agc = flux_agc
         self.flags = flags
 
 
-class Tile(Base):
-    __tablename__ = 'Tile'
+class tile(Base):
+    __tablename__ = 'tile'
 
-    tileId = Column(Integer, primary_key=True, autoincrement=True)
-    programId = Column(Integer, ForeignKey('Program.programId'))
+    tile_id = Column(Integer, primary_key=True, autoincrement=True)
+    program_id = Column(Integer, ForeignKey('program.program_id'))
     tile = Column(Integer)
-    raCenter = Column(FLOAT)
-    decCenter = Column(FLOAT)
+    ra_center = Column(FLOAT)
+    dec_center = Column(FLOAT)
     pa = Column(REAL)
-    finished = Column(Boolean)
+    is_finished = Column(Boolean)
 
-    programs = relation(Program, backref=backref('Tile'))
+    programs = relation(program, backref=backref('tile'))
 
-    def __init__(self, programId, tile, raCenter, decCenter, pa, finished):
-        self.programId = programId
+    def __init__(self, program_id, tile, ra_center, dec_center, pa, is_finished):
+        self.program_id = program_id
         self.tile = tile
-        self.raCenter = raCenter
-        self.decCenter = decCenter
+        self.ra_center = ra_center
+        self.dec_center = dec_center
         self.pa = pa
-        self.finished = finished
+        self.is_finished = is_finished
 
 
-class pfsDesign(Base):
-    __tablename__ = 'pfsDesign'
+class pfs_design(Base):
+    __tablename__ = 'pfs_design'
 
-    pfsDesignId = Column(BigInteger, primary_key=True, autoincrement=False)
-    tileId = Column(Integer, ForeignKey('Tile.tileId'))
-    raCenter = Column(FLOAT)
-    decCenter = Column(FLOAT)
-    paConfig = Column(REAL)
-    numSciDesigned = Column(Integer)
-    numCalDesigned = Column(Integer)
-    numSkyDesigned = Column(Integer)
-    numGuideStars = Column(Integer)
+    pfs_design_id = Column(BigInteger, primary_key=True, autoincrement=False)
+    tile_id = Column(Integer, ForeignKey('tile.tile_id'))
+    ra_center = Column(FLOAT)
+    dec_center = Column(FLOAT)
+    pa_config = Column(REAL)
+    num_sci_designed = Column(Integer)
+    num_cal_designed = Column(Integer)
+    num_sky_designed = Column(Integer)
+    num_guide_stars = Column(Integer)
     exptime = Column(REAL)
-    minExptime = Column(REAL)
-    etsVersion = Column(String)
-    etsAssigner = Column(String)
-    etsExectime = Column(DateTime)
-    obsolete = Column(Boolean)
+    min_exptime = Column(REAL)
+    ets_version = Column(String)
+    ets_assigner = Column(String)
+    ets_exectime = Column(DateTime)
+    is_obsolete = Column(Boolean)
 
-    tiles = relation(Tile, backref=backref('pfsDesign'))
+    tiles = relation(tile, backref=backref('pfs_design'))
 
-    def __init__(self, pfsDesignId, tileId, raCenter, decCenter, paConfig,
-                 numSciDesigned, numCalDesigned, numSkyDesigned, numGuideStars,
-                 exptime, minExptime, etsVersion, etsAssgner, etsExectime, obsolete=False):
-        self.pfsDesignId = pfsDesignId
-        self.tileId = tileId
-        self.raCenter = raCenter
-        self.decCenter = decCenter
-        self.paConfig = paConfig
-        self.numSciDesigned = numSciDesigned
-        self.numCalDesigned = numCalDesigned
-        self.numSkyDesigned = numSkyDesigned
-        self.numGuideStars = numGuideStars
+    def __init__(self, pfs_design_id, tile_id, ra_center, dec_center, pa_config,
+                 num_sci_designed, num_cal_designed, num_sky_designed, num_guide_stars,
+                 exptime, min_exptime, ets_version, ets_assgner, ets_exectime, is_obsolete=False):
+        self.pfs_design_id = pfs_design_id
+        self.tile_id = tile_id
+        self.ra_center = ra_center
+        self.dec_center = dec_center
+        self.pa_config = paConfig
+        self.num_sci_designed = num_sci_designed
+        self.num_cal_designed = num_cal_designed
+        self.num_sky_designed = num_sky_designed
+        self.num_guide_stars = num_guide_stars
         self.exptime = exptime
-        self.minExptime = minExptime
-        self.etsVersion = etsVersion
-        self.etsAssigner = etsAssigner
-        self.etsExectime = etsExectime
-        self.obsolete = obsolete
+        self.min_exptime = min_exptime
+        self.ets_version = ets_version
+        self.ets_assigner = ets_assigner
+        self.ets_exectime = ets_exectime
+        self.is_obsolete = is_obsolete
 
 
-class pfsDesignFiber(Base):
-    __tablename__ = 'pfsDesignFiber'
+class pfs_design_fiber(Base):
+    __tablename__ = 'pfs_design_fiber'
 
-    pfsDesignFiberId = Column(BigInteger, primary_key=True, autoincrement=True)
-    pfsDesignId = Column(BigInteger, ForeignKey('pfsDesign.pfsDesignId'))
-    fiberId = Column(Integer, ForeignKey('FiberPosition.fiberId'))
-    targetId = Column(BigInteger, ForeignKey('Target.targetId'))
+    pfs_design_fiber_id = Column(BigInteger, primary_key=True, autoincrement=True)
+    pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'))
+    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'))
+    target_id = Column(BigInteger, ForeignKey('target.target_id'))
     tract = Column(Integer)
     patch = Column(String)
     ra = Column(FLOAT)
     dec = Column(FLOAT)
-    catId = Column(Integer)
-    objId = Column(BigInteger)
-    targetTypeId = Column(Integer)
-    fiberMag_g = Column(REAL)
-    fiberMag_r = Column(REAL)
-    fiberMag_i = Column(REAL)
-    fiberMag_z = Column(REAL)
-    fiberMag_y = Column(REAL)
-    fiberMag_j = Column(REAL)
-    etsPriority = Column(Integer)
-    etsCostFunction = Column(String)
-    etsCobraMovement = Column(String)
-    pfiNominal_x = Column(REAL)
-    pfiNominal_y = Column(REAL)
-    onSource = Column(Boolean)
+    cat_id = Column(Integer)
+    obj_id = Column(BigInteger)
+    target_type_id = Column(Integer)
+    fiber_mag_g = Column(REAL)
+    fiber_mag_r = Column(REAL)
+    fiber_mag_i = Column(REAL)
+    fiber_mag_z = Column(REAL)
+    fiber_mag_y = Column(REAL)
+    fiber_mag_j = Column(REAL)
+    ets_priority = Column(Integer)
+    ets_cost_function = Column(String)
+    ets_cobra_movement = Column(String)
+    pfi_nominal_x = Column(REAL)
+    pfi_nominal_y = Column(REAL)
+    is_on_source = Column(Boolean)
 
-    pfsDesigns = relation(pfsDesign, backref=backref('pfsDesignFiber'))
-    targets = relation(Target, backref=backref('pfsDesignFiber'))
-    fiberPositions = relation(FiberPosition, backref=backref('pfsDesignFiber'))
-    #targetTypes = relation(TargetType, backref=backref('pfsDesignFiber'))
-    #inputCatalogs = relation(InputCatalog, backref=backref('pfsDesignFiber'))
+    pfs_designs = relation(pfs_design, backref=backref('pfs_design_fiber'))
+    targets = relation(target, backref=backref('pfs_design_fiber'))
+    fiber_positions = relation(fiber_position, backref=backref('pfs_design_fiber'))
+    #target_type = relation(target_type, backref=backref('pfs_design_fiber'))
+    #input_catalogs = relation(input_catalog, backref=backref('pfs_design_fiber'))
 
-    def __init__(self, pfsDesignFiberId, pfsDesignId, fiberId,
-                 targetId, tract, patch, ra, dec, catId, objId, targetTypeId,
-                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_y, fiberMag_j,
-                 etsPriority, etsCostFunction, etsCobraMovement,
-                 pfiNominal_x, pfiNominal_y,
-                 onSource=True):
-        self.pfsDesignFiberId = (pfsDesignId << 12) + fiberId
-        self.pfsDesignId = pfsDesignId
-        self.fiberId = fiberId
-        self.targetId = targetId
+    def __init__(self, pfs_design_fiber_id, pfs_design_id, fiber_id,
+                 target_id, tract, patch, ra, dec, cat_d, obj_id, target_type_id,
+                 fiber_mag_g, fiber_mag_r, fiber_mag_i, fiber_mag_z, fiber_mag_y, fiber_mag_j,
+                 ets_priority, ets_cost_function, ets_cobra_movement,
+                 pfi_nominal_x, pfi_nominal_y,
+                 is_on_source=True):
+        self.pfs_design_fiber_id = (pfs_design_id << 12) + fiber_id
+        self.pfs_design_id = pfs_design_id
+        self.fiber_id = fiber_id
+        self.target_id = target_id
         self.tract = tract
         self.patch = patch
         self.ra = ra
         self.dec = dec
-        self.catId = catId
-        self.objId = objId
-        self.targetTypeId = targetTypeId
-        self.fiberMag_g = fiberMag_g
-        self.fiberMag_r = fiberMag_r
-        self.fiberMag_i = fiberMag_i
-        self.fiberMag_z = fiberMag_z
-        self.fiberMag_y = fiberMag_y
-        self.fiberMag_j = fiberMag_j
-        self.etsPriority = etsPriority
-        self.etsCostFunction = etsCostFunction
-        self.etsCobraMovement = etsCobraMovement
-        self.pfiNominal_x = pfiNominal_x
-        self.pfiNominal_y = pfiNominal_y
-        self.onSource = onSource
+        self.cat_id = cat_id
+        self.obj_id = obj_id
+        self.target_type_id = target_type_id
+        self.fiber_mag_g = fiber_mag_g
+        self.fiber_mag_r = fiber_mag_r
+        self.fiber_mag_i = fiber_mag_i
+        self.fiber_mag_z = fiber_mag_z
+        self.fiber_mag_y = fiber_mag_y
+        self.fiber_mag_j = fiber_mag_j
+        self.ets_priority = ets_priority
+        self.ets_cost_function = ets_cost_function
+        self.ets_cobra_movement = ets_cobra_movement
+        self.pfi_nominal_x = pfi_nominal_x
+        self.pfi_nominal_y = pfi_nominal_y
+        self.is_on_source = is_on_source
 
 
-class Calib(Base):
-    __tablename__ = 'Calib'
+class calib(Base):
+    __tablename__ = 'calib'
 
-    calibId = Column(Integer, primary_key=True, autoincrement=False)
-    calibType = Column(String)
-    calibDate = Column(DateTime)
-    pfsDesignId = Column(BigInteger, ForeignKey('pfsDesign.pfsDesignId'))
+    calib_id = Column(Integer, primary_key=True, autoincrement=False)
+    calib_iype = Column(String)
+    calib_date = Column(DateTime)
+    pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'))
     spectrograph = Column(Integer)
     arm = Column(String)
     exptime = Column(REAL)
-    visitsInUse = Column(String)
+    visits_in_use = Column(String)
 
-    pfsDesigns = relation(pfsDesign, backref=backref('Calib'))
+    pfs_designs = relation(pfs_design, backref=backref('calib'))
 
-    def __init__(self, calibId, calibType, calibDate, pfsDesignId, spectrogarph, arm,
-                 exptime, visitsInUse):
-        self.calibId = calibId
-        self.calibType = calibType
-        self.calibDate = calibDate
-        self.pfsDesignId = pfsDesignId
+    def __init__(self, calib_id, calib_type, calib_date, pfs_design_id, spectrogarph, arm,
+                 exptime, visits_in_use):
+        self.calib_id = calib_id
+        self.calib_type = calib_type
+        self.calib_date = calib_date
+        self.pfs_design_id = pfs_design_id
         self.spectrograph = spectrograph
         self.arm = arm
         self.exptime = exptime
-        self.visitsInUse = visitsInUse
+        self.visits_in_use = visits_in_use
 
 
-class FluxCalib(Base):
-    __tablename__ = 'FluxCalib'
+class flux_calib(Base):
+    __tablename__ = 'flux_calib'
 
-    fluxCalibId = Column(Integer, primary_key=True, autoincrement=False)
-    fluxCalibType = Column(String)
-    fluxCalibDate = Column(DateTime)
-    fluxCalibStarTeff = Column(REAL)
-    fluxCalibStarLogg = Column(REAL)
-    fluxCalibStarZ = Column(REAL)
+    flux_calib_id = Column(Integer, primary_key=True, autoincrement=False)
+    flux_calib_type = Column(String)
+    flux_calib_date = Column(DateTime)
+    flux_calib_star_teff = Column(REAL)
+    flux_calib_star_logg = Column(REAL)
+    flux_calib_star_z = Column(REAL)
 
-    def __init__(self, fluxCalibId, fluxCalibType, fluxCalibDate,
-                 fluxCalibStarTeff, fluxCalibStarLogg, fluxCalibStarZ):
-        self.fluxCalibId = fluxCalibId
-        self.fluxCalibType = fluxCalibType
-        self.fluxCalibDate = fluxCalibDate
-        self.fluxCalibStarTeff = fluxCalibStarTeff
-        self.fluxCalibStarLogg = fluxCalibStarLogg
-        self.fluxCalibStarZ = fluxCalibStarZ
-
-
-class Visit(Base):
-    __tablename__ = 'Visit'
-
-    visit = Column(Integer, primary_key=True, autoincrement=False)
-    visitTypeId = Column(Integer)
-    description = Column(String)
-
-    def __init__(self, visit, visitTypeId, description):
-        self.visit = visit
-        self.visitTypeId = visitTypeId
-        self.description = description
+    def __init__(self, flux_calib_id, flux_calib_type, flux_calib_date,
+                 flux_calib_star_teff, flux_calib_star_logg, flux_calib_star_z):
+        self.flux_calib_id = flux_calib_id
+        self.flux_calib_type = flux_calib_type
+        self.flux_calib_date = flux_calib_date
+        self.flux_calib_star_teff = flux_calib_star_teff
+        self.flux_calib_star_logg = flux_calib_star_logg
+        self.flux_calib_star_z = flux_calib_star_z
 
 
-class mcsboresight(Base):
+class visit(Base):
+    __tablename__ = 'visit'
 
-    __tablename__ = 'mcsboresight'
+    visit_id = Column(Integer, primary_key=True, autoincrement=False)
+    visit_type = Column(Integer)
+    visit_description = Column(String)
 
-    mcsboresightid = Column(Integer, primary_key=True, autoincrement=True)
-    visitid = Column(Integer)
+    def __init__(self, visit_id, visit_type, visit_description):
+        self.visit_id = visit_id
+        self.visit_type = visit_type
+        self.visit_description = visit_description
+
+
+class mcs_boresight(Base):
+
+    __tablename__ = 'mcs_boresight'
+
+    mcs_boresight_id = Column(Integer, primary_key=True, autoincrement=True)
+    visit_id = Column(Integer)
     datatime = Column(DateTime)
     x = Column(REAL)
     y = Column(REAL)
 
-    def __init__(self, visitid, datatime, x, y):
-        self.visitid = visitid
+    def __init__(self, visit_id, datatime, x, y):
+        self.visit_id = visit_id
         self.datatime = datatime
         self.x = x
         self.y = y
 
 
-class mcsexposure(Base):
+class mcs_exposure(Base):
 
-    __tablename__ = 'mcsexposure'
+    __tablename__ = 'mcs_exposure'
 
-    mcsexposureid = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=True)
-    frameid = Column(Integer, index=True, nullable=False)
+    mcs_exposure_id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=True)
+    frame_id = Column(Integer, index=True, nullable=False)
     starttime = Column(DateTime)
-    exptime = Column(REAL, nullable=False)
+    mcs_exptime = Column(REAL, nullable=False)
     altitude = Column(REAL)
     azimuth = Column(REAL)
     insrot = Column(REAL)
 
-    def __init__(self, mcsexposureid, frameid, starttime, exptime, altitude, azimuth, insrot):
-        self.mcsexposureid = mcsexposureid
-        self.frameid = frameid
+    def __init__(self, mcs_exposure_id, frame_id, starttime, mcs_exptime, altitude, azimuth, insrot):
+        self.mcs_exposure_id = mcs_exposure_id
+        self.frame_id = frame_id
         self.starttime = starttime
-        self.exptime = exptime
+        self.mcs_exptime = mcs_exptime
         self.altitude = altitude
         self.azimuth = azimuth
         self.insrot = insrot
 
 
-class mcsData(Base):
+class mcs_data(Base):
 
-    __tablename__ = 'mcsData'
+    __tablename__ = 'mcs_data'
 
-    mcsId = Column(Integer, primary_key=True, autoincrement=True)
+    mcs_id = Column(Integer, primary_key=True, autoincrement=True)
     datatime = Column(DateTime)
-    frameId = Column(Integer, index=True)
-    moveId = Column(Integer)
-    fiberId = Column(Integer)
-    #fiberId = Column(Integer, ForeignKey('FiberPosition.fiberId'))
-    centroidx = Column(REAL)
-    centroidy = Column(REAL)
-    fwhmx = Column(REAL)
-    fwhmy = Column(REAL)
+    frame_id = Column(Integer, index=True)
+    move_id = Column(Integer)
+    fiber_id = Column(Integer)
+    #fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'))
+    centroid_x = Column(REAL)
+    centroid_y = Column(REAL)
+    fwhm_x = Column(REAL)
+    fwhm_y = Column(REAL)
     bgvalue = Column(REAL)
     peakvalue = Column(REAL)
 
-    #fiberPositions = relation(FiberPosition, backref=backref('mcsData'))
+    #fiber_positions = relation(fiber_position, backref=backref('mcsData'))
 
-    def __init__(self, mcsId, datatime, frameId, moveId, fiberId,
-                 centroidx, centroidy, fwhmx, fwhmy, bgvalue, peakvalue):
-        self.mcsId = mcsId
+    def __init__(self, mcs_id, datatime, frame_id, move_id, fiber_id,
+                 centroid_x, centroid_y, fwhm_x, fwhm_y, bgvalue, peakvalue):
+        self.mcs_id = mcs_id
         self.datatime = datatime
-        self.frameId = frameId
-        self.moveId = moveId
-        self.fiberId = fiberId
-        self.centroidx = centroidx
-        self.centroidy = centroidy
-        self.fwhmx = fwhmx
-        self.fwhmy = fwhmy
+        self.frame_id = frame_id
+        self.move_id = move_id
+        self.fiber_id = fiber_id
+        self.centroid_x = centroid_x
+        self.centroid_y = centroid_y
+        self.fwhm_x = fwhm_x
+        self.fwhm_y = fwhm_y
         self.bgvalue = bgvalue
         self.peakvalue = peakvalue
 
 
-class pfsConfig(Base):
-    __tablename__ = 'pfsConfig'
+class pfs_config(Base):
+    __tablename__ = 'pfs_config'
 
-    pfsConfigId = Column(Integer, primary_key=True, autoincrement=True)
-    pfsDesignId = Column(BigInteger, ForeignKey('pfsDesign.pfsDesignId'))
-    visit0 = Column(Integer, ForeignKey('Visit.visit'))
-    raCenter = Column(FLOAT)
-    decCenter = Column(FLOAT)
-    paConfig = Column(REAL)
-    telEl = Column(REAL)
-    insRot = Column(REAL)
-    numSciAllocated = Column(Integer)
-    numCalAllocated = Column(Integer)
-    numSkyAllocated = Column(Integer)
-    numGuideStars = Column(Integer)
+    pfs_config_id = Column(Integer, primary_key=True, autoincrement=True)
+    pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'))
+    visit0 = Column(Integer, ForeignKey('visit.visit_id'))
+    ra_center = Column(FLOAT)
+    dec_center = Column(FLOAT)
+    pa_config = Column(REAL)
+    tel_el = Column(REAL)
+    insrot = Column(REAL)
+    num_sci_allocated = Column(Integer)
+    num_cal_allocated = Column(Integer)
+    num_sky_allocated = Column(Integer)
+    num_guide_stars = Column(Integer)
     exptime = Column(REAL)
-    minExptime = Column(REAL)
-    allocNumIter = Column(Integer)
-    allocElapsetime = Column(REAL)
-    allocRmsScatter = Column(REAL)
-    allocExectime = Column(DateTime)
-    observed = Column(Boolean)
+    min_exptime = Column(REAL)
+    alloc_num_ter = Column(Integer)
+    alloc_elapsetime = Column(REAL)
+    alloc_rms_scatter = Column(REAL)
+    alloc_exectime = Column(DateTime)
+    is_observed = Column(Boolean)
 
-    pfsDesigns = relation(pfsDesign, backref=backref('pfsConfig'))
+    pfs_designs = relation(pfs_design, backref=backref('pfs_config'))
 
-    visits = relation(Visit, backref=backref('pfsConfig'))
+    visits = relation(visit, backref=backref('pfs_config'))
 
-    def __init__(self, pfsConfigId, pfsDesignId, visit0, raCenter, decCenter, paConfig, telEl, insRot,
-                 numSciAllocated, numCalAllocated, numSkyAllocated, numGuideStars,
-                 exptime, minExptime, allocNumIter, allocElapsetime, allocRmsScatter, allocExectime,
-                 observed=False):
-        self.pfsConfigId = pfsConfigId
-        self.pfsDesignId = pfsDesignId
+    def __init__(self, pfs_config_id, pfs_design_id, visit0, ra_center, dec_center, pa_config, tel_el, ins_rot,
+                 num_sci_allocated, num_cal_allocated, num_sky_allocated, num_guide_stars,
+                 exptime, min_exptime, alloc_num_iter, alloc_elapsetime, alloc_rms_scatter, alloc_exectime,
+                 is_observed=False):
+        self.pfs_config_id = pfs_config_id
+        self.pfs_design_id = pfs_design_id
         self.visit0 = visit0
-        self.raCenter = raCenter
-        self.decCenter = decCenter
-        self.paConfig = paConfig
-        self.telEl = telEl
-        self.insRot = insRot
-        self.numSciAllocated = numSciAllocated
-        self.numCalAllocated = numCalAllocated
-        self.numSkyAllocated = numSkyAllocated
-        self.numGuideStars = numGuideStars
+        self.ra_center = ra_center
+        self.dec_center = dec_center
+        self.pa_config = pa_config
+        self.tel_el = tel_el
+        self.ins_rot = ins_rot
+        self.num_sci_allocated = num_sci_allocated
+        self.num_cal_allocated = num_cal_allocated
+        self.num_sky_allocated = num_sky_allocated
+        self.num_guide_stars = num_guide_stars
         self.exptime = exptime
-        self.minExptime = minExptime
-        self.allocNumIter = allocNumIter
-        self.allocElapsetime = allocElapsetime
-        self.allocRmsScatter = allocRmsScatter
-        self.allocExectime = allocExectime
-        self.observed = observed
+        self.min_exptime = min_exptime
+        self.alloc_num_iter = alloc_num_iter
+        self.alloc_elapsetime = alloc_elapsetime
+        self.alloc_rms_scatter = alloc_rms_scatter
+        self.alloc_exectime = alloc_exectime
+        self.is_observed = is_observed
 
 
-class pfsConfigFiber(Base):
-    __tablename__ = 'pfsConfigFiber'
+class pfs_config_fiber(Base):
+    __tablename__ = 'pfs_config_fiber'
 
-    pfsConfigFiberId = Column(BigInteger, primary_key=True, autoincrement=False)
-    pfsConfigId = Column(BigInteger, ForeignKey('pfsConfig.pfsConfigId'))
-    fiberId = Column(Integer, ForeignKey('FiberPosition.fiberId'))
-    targetId = Column(BigInteger, ForeignKey('Target.targetId'))
+    pfs_config_fiber_id = Column(BigInteger, primary_key=True, autoincrement=False)
+    pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
+    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'))
+    target_id = Column(BigInteger, ForeignKey('target.target_id'))
     tract = Column(Integer)
     patch = Column(String)
     ra = Column(FLOAT)
     dec = Column(FLOAT)
-    catId = Column(Integer)
-    objId = Column(BigInteger)
-    targetTypeId = Column(Integer)
-    fiberMag_g = Column(REAL)
-    fiberMag_r = Column(REAL)
-    fiberMag_i = Column(REAL)
-    fiberMag_z = Column(REAL)
-    fiberMag_y = Column(REAL)
-    fiberMag_j = Column(REAL)
-    pfiNominal_x = Column(REAL)
-    pfiNominal_y = Column(REAL)
-    pfiCenter_x = Column(REAL)
-    pfiCenter_y = Column(REAL)
-    pfiDiff_x = Column(REAL)
-    pfiDiff_y = Column(REAL)
-    mcsCenter_x = Column(REAL)
-    mcsCenter_y = Column(REAL)
-    motorMapSummary = Column(String)
-    configTime = Column(REAL)
-    onSource = Column(Boolean)
+    cat_id = Column(Integer)
+    obj_id = Column(BigInteger)
+    target_type_id = Column(Integer)
+    fiber_mag_g = Column(REAL)
+    fiber_mag_r = Column(REAL)
+    fiber_mag_i = Column(REAL)
+    fiber_mag_z = Column(REAL)
+    fiber_mag_y = Column(REAL)
+    fiber_mag_j = Column(REAL)
+    pfi_nominal_x = Column(REAL)
+    pfi_nominal_y = Column(REAL)
+    pfi_center_x = Column(REAL)
+    pfi_center_y = Column(REAL)
+    pfi_diff_x = Column(REAL)
+    pfi_diff_y = Column(REAL)
+    mcs_center_x = Column(REAL)
+    mcs_center_y = Column(REAL)
+    motor_map_summary = Column(String)
+    config_time = Column(REAL)
+    is_on_source = Column(Boolean)
 
-    pfsConfigs = relation(pfsConfig, backref=backref('psfConfigFiber'))
-    targets = relation(Target, backref=backref('psfConfigFiber'))
-    fiberPositions = relation(FiberPosition, backref=backref('psfConfigFiber'))
-    #targetTypes = relation(TargetType, backref=backref('pfsConfigFiber'))
-    #inputCatalogs = relation(InputCatalog, backref=backref('pfsConfigFiber'))
+    pfs_configs = relation(pfs_config, backref=backref('psf_config_fiber'))
+    targets = relation(target, backref=backref('psf_config_fiber'))
+    fiber_positions = relation(fiber_position, backref=backref('psf_config_fiber'))
+    #target_types = relation(target_type, backref=backref('pfs_config_fiber'))
+    #input_catalogs = relation(input_catalog, backref=backref('pfs_config_fiber'))
 
-    def __init__(self, pfsConfigFiberId, pfsConfigId, fiberId,
-                 targetId, tract, patch, catId, objId, targetTypeId,
-                 fiberMag_g, fiberMag_r, fiberMag_i, fiberMag_z, fiberMag_y, fiberMag_j,
-                 pfiNominal_x, pfiNominal_y, pfiCenter_x, pfiCenter_y, pfiDiff_x, pfiDiff_y,
-                 mcsCenter_x, mcsCenter_y, motorMapSummary, configTime,
-                 onSource=True):
-        #self.pfsConfigFiberId = pfsConfigFiberId
-        self.pfsConfigFiberId = (pfsConfigId << 12) + fiberId
-        self.pfsConfigId = pfsConfigId
-        self.fiberId = fiberId
-        self.targetId = targetId
+    def __init__(self, pfs_config_fiber_id, pfs_config_id, fiber_id,
+                 target_id, tract, patch, cat_id, obj_id, target_type_id,
+                 fiber_mag_g, fiber_mag_r, fiber_mag_i, fiber_mag_z, fiber_mag_y, fiber_mag_j,
+                 pfi_nominal_x, pfi_nominal_y, pfi_center_x, pfi_center_y, pfi_diff_x, pfi_diff_y,
+                 mcs_center_x, mcs_center_y, motor_map_summary, config_time,
+                 is_on_source=True):
+        self.pfs_config_fiber_id = (pfs_config_id << 12) + fiber_id
+        self.pfs_config_id = pfs_config_id
+        self.fiber_id = fiber_id
+        self.target_id = target_id
         self.tract = tract
         self.patch = patch
         self.ra = ra
         self.dec = dec
-        self.catId = catId
-        self.objId = objId
-        self.targetTypeId = targetTypeId
-        self.fiberMag_g = fiberMag_g
-        self.fiberMag_r = fiberMag_r
-        self.fiberMag_i = fiberMag_i
-        self.fiberMag_z = fiberMag_z
-        self.fiberMag_y = fiberMag_y
-        self.fiberMag_j = fiberMag_j
-        self.pfiNominal_x = pfiNominal_x
-        self.pfiNominal_y = pfiNominal_y
-        self.pfiCenter_x = pfiCenter_x
-        self.pfiCenter_y = pfiCenter_y
-        self.pfiDiff_x = pfiDiff_x
-        self.pfiDiff_y = pfiDiff_y
-        self.mcsCenter_x = mcsCenter_x
-        self.mcsCenter_y = mcsCenter_y
-        self.motorMapSummary = motorMapSummary
-        self.configTime = configTime
-        self.onSource = onSource
+        self.cat_id = cat_id
+        self.obj_id = obj_id
+        self.target_type_id = target_type_id
+        self.fiber_mag_g = fiber_mag_g
+        self.fiber_mag_r = fiber_mag_r
+        self.fiber_mag_i = fiber_mag_i
+        self.fiber_mag_z = fiber_mag_z
+        self.fiber_mag_y = fiber_mag_y
+        self.fiber_mag_j = fiber_mag_j
+        self.pfi_nominal_x = pfi_nominal_x
+        self.pfi_nominal_y = pfi_nominal_y
+        self.pfi_center_x = pfi_center_x
+        self.pfi_center_y = pfi_center_y
+        self.pfi_diff_x = pfi_diff_x
+        self.pfi_diff_y = pfi_diff_y
+        self.mcs_center_x = mcs_center_x
+        self.mcs_center_y = mcs_center_y
+        self.motor_map_summary = motor_map_summary
+        self.config_time = config_time
+        self.is_on_source = is_on_source
 
 
-class CobraConfig(Base):
-    __tablename__ = 'CobraConfig'
+class cobra_config(Base):
+    __tablename__ = 'cobra_config'
 
-    cobraConfigId = Column(BigInteger, primary_key=True, autoincrement=True)
-    pfsConfigFiberId = Column(BigInteger, ForeignKey('pfsConfigFiber.pfsConfigFiberId'))
-    pfsConfigId = Column(BigInteger)
-    fiberId = Column(Integer)
+    cobra_config_id = Column(BigInteger, primary_key=True, autoincrement=True)
+    pfs_config_fiber_id = Column(BigInteger, ForeignKey('pfs_config_fiber.pfs_config_fiber_id'))
+    pfs_config_id = Column(BigInteger)
+    fiber_id = Column(Integer)
     iteration = Column(Integer)
-    motorNumStepTheta = Column(Integer)
-    motorNumStepPhi = Column(Integer)
-    mcsId = Column(Integer, ForeignKey('mcsData.mcsId'))
-    pfiNominal_x = Column(REAL)
-    pfiNominal_y = Column(REAL)
-    pfiCenter_x = Column(REAL)
-    pfiCenter_y = Column(REAL)
-    pfiDiff_x = Column(REAL)
-    pfiDiff_y = Column(REAL)
-    mcsCenter_x = Column(REAL)
-    mcsCenter_y = Column(REAL)
+    motor_num_step_theta = Column(Integer)
+    motor_num_step_phi = Column(Integer)
+    mcs_id = Column(Integer, ForeignKey('mcs_data.mcs_id'))
+    pfi_nominal_x = Column(REAL)
+    pfi_nominal_y = Column(REAL)
+    pfi_center_x = Column(REAL)
+    pfi_center_y = Column(REAL)
+    pfi_diff_x = Column(REAL)
+    pfi_diff_y = Column(REAL)
+    mcs_center_x = Column(REAL)
+    mcs_center_y = Column(REAL)
     exectime = Column(DateTime)
 
-    def __init__(self, cobraConfigId, pfsConfigFiberId, pfsConfigId, fiberId, iteration,
-                 motorNumStepTheta, motorNumStepPhi, mcsId,
-                 pfiNominal_x, pfiNominal_y, pfiCenter_x, pfiCenter_y, pfiDiff_x, pfiDiff_y,
-                 mcsCenter_x, mcsCenter_y, exectime):
-        self.cobraConfigId = cobraConfigId
-        self.pfsConfigFiberId = pfsConfigFiberId
-        self.pfsConfigId = pfsConfigId
-        self.fiberId = fiberId
+    def __init__(self, cobra_config_id, pfs_config_fiber_id, pfs_config_id, fiber_id, iteration,
+                 motor_num_step_theta, motor_num_step_phi, mcs_id,
+                 pfi_nominal_x, pfi_nominal_y, pfi_center_x, pfi_center_y, pfi_diff_x, pfi_diff_y,
+                 mcs_center_x, mcs_center_y, exectime):
+        self.cobra_config_id = cobra_config_id
+        self.pfs_config_fiber_id = pfs_config_fiber_id
+        self.pfs_config_id = pfs_config_id
+        self.fiber_id = fiber_id
         self.iteration = iteration
-        self.motorNumStepTheta = motorNumStepTheta
-        self.motorNumStepPhi = motorNumStepPhi
-        self.mcsId = mcsId
-        self.pfiNominal_x = pfiNominal_x
-        self.pfiNominal_y = pfiNominal_y
-        self.pfiCenter_x = pfiCenter_x
-        self.pfiCenter_y = pfiCenter_y
-        self.pfiDiff_x = pfiDiff_x
-        self.pfiDiff_y = pfiDiff_y
-        self.mcsCenter_x = mcsCenter_x
-        self.mcsCenter_y = mcsCenter_y
+        self.motor_num_step_theta = motor_num_step_theta
+        self.motor_num_step_phi = motor_num_step_phi
+        self.mcs_id = mcs_id
+        self.pfi_nominal_x = pfi_nominal_x
+        self.pfi_nominal_y = pfi_nominal_y
+        self.pfi_center_x = pfi_center_x
+        self.pfi_center_y = pfi_center_y
+        self.pfi_diff_x = pfi_diff_x
+        self.pfi_diff_y = pfi_diff_y
+        self.mcs_center_x = mcs_center_x
+        self.mcs_center_y = mcs_center_y
         self.exectime = exectime
 
 
-class BeamSwitchMode(Base):
-    __tablename__ = 'BeamSwitchMode'
+class beam_switch_mode(Base):
+    __tablename__ = 'beam_switch_mode'
 
-    beamSwitchModeId = Column(Integer, primary_key=True, autoincrement=False)
-    name = Column(String)
-    description = Column(String)
+    beam_switch_mode_id = Column(Integer, primary_key=True, autoincrement=False)
+    beam_switch_mode_name = Column(String)
+    beam_switch_mode_description = Column(String)
 
-    def __init__(self, beamSwitchModeId, name, description):
-        self.beamSwitchModeId = beamSwitchModeId
-        self.name = name
-        self.description = description
+    def __init__(self, beam_switch_mode_id, beam_switch_mode_name, beam_switch_mode_description):
+        self.beam_switch_mode_id = beam_switch_mode_id
+        self.beam_switch_mode_name = beam_switch_mode_name
+        self.beam_switch_mode_description = beam_switch_mode_description
 
 
-class Exposure(Base):
-    __tablename__ = 'Exposure'
+class exposure(Base):
+    __tablename__ = 'exposure'
 
-    frameId = Column(String, primary_key=True, autoincrement=False)
-    visit = Column(Integer, ForeignKey('Visit.visit'))
+    frame_id = Column(String, primary_key=True, autoincrement=False)
+    visit_id = Column(Integer, ForeignKey('visit.visit_id'))
     spectrograph = Column(Integer)
     arm = Column(String)
-    armNum = Column(Integer)
-    pfsConfigId = Column(BigInteger, ForeignKey('pfsConfig.pfsConfigId'))
+    arm_num = Column(Integer)
+    pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
     ra_tel = Column(FLOAT)
     dec_tel = Column(FLOAT)
     exptime = Column(REAL)
-    timeObsStart = Column(DateTime)
-    timeObsEnd = Column(DateTime)
-    mjdStart = Column(REAL)
-    mjdEnd = Column(REAL)
+    time_obs_start = Column(DateTime)
+    time_obs_end = Column(DateTime)
+    mjd_start = Column(REAL)
+    mjd_end = Column(REAL)
     airmass = Column(REAL)
     seeing = Column(REAL)
     transp = Column(REAL)
     background = Column(REAL)
-    moonPhase = Column(REAL)
-    moonAlt = Column(REAL)
-    moonSep = Column(REAL)
+    moon_phase = Column(REAL)
+    moon_alt = Column(REAL)
+    moon_sep = Column(REAL)
     throughput = Column(REAL)
-    cloudConditionId = Column(Integer, ForeignKey('CloudCondition.cloudConditionId'))
+    cloud_condition_id = Column(Integer, ForeignKey('cloud_condition.cloud_condition_id'))
     focusing_error = Column(REAL)
-    insRotStart = Column(REAL)
-    insRotEnd = Column(REAL)
-    guideError_dx = Column(REAL)
-    guideError_dy = Column(REAL)
-    beamSwitchModeId = Column(Integer, ForeignKey('BeamSwitchMode.beamSwitchModeId'))
-    beamSwitchOffsetRA = Column(REAL)
-    beamSwitchOffsetDec = Column(REAL)
-    mediumResolution = Column(Boolean)
+    insrot_start = Column(REAL)
+    insrot_end = Column(REAL)
+    guide_error_dx = Column(REAL)
+    guide_error_dy = Column(REAL)
+    beam_switch_mode_id = Column(Integer, ForeignKey('beam_switch_mode.beam_switch_mode_id'))
+    beam_switch_offset_ra = Column(REAL)
+    beam_switch_offset_dec = Column(REAL)
+    is_medium_resolution = Column(Boolean)
 
-    visits = relation(Visit, backref=backref('Exposure'))
-    pfsConfigs = relation(pfsConfig, backref=backref('Exposure'))
-    cloudConditions = relation(CloudCondition, backref=backref('Exposure'))
-    beamSwitchModes = relation(BeamSwitchMode, backref=backref('Exposure'))
+    visits = relation(visit, backref=backref('exposure'))
+    pfs_configs = relation(pfs_config, backref=backref('exposure'))
+    cloud_conditions = relation(cloud_condition, backref=backref('exposure'))
+    beam_switch_modes = relation(beam_switch_mode, backref=backref('exposure'))
 
-    def __init__(self, frameId, visit, spectrograph, arm, armNum,
-                 pfsConfigId, ra_tel, dec_tel, exptime, timeObsStart, timeObsEnd,
-                 mjdStart, mjdEnd, airmass, seeing, transp, background, moonPhase, moonAlt, moonSep,
-                 throughput, cloudConditionId, guideError_dx, guideError_dy, focusing_error,
-                 insRotStart, insRotEnd, beamSwitchModeId=0, beamSwitchOffsetRA=0.0, beamSwitchOffsetDec=0.0,
-                 mediumResolution=False
+    def __init__(self, frame_id, visit_id, spectrograph, arm, arm_num,
+                 pfs_config_id, ra_tel, dec_tel, exptime, time_obs_start, time_obs_end,
+                 mjd_start, mjd_end, airmass, seeing, transp, background, moon_phase, moon_alt, moon_sep,
+                 throughput, cloud_condition_id, guide_error_dx, guide_error_dy, focusing_error,
+                 insrot_start, insrot_end, beam_switch_mode_id=0, beam_switch_offset_ra=0.0, beam_switch_offset_dec=0.0,
+                 is_medium_resolution=False
                  ):
-        self.frameId = frameId
-        self.visit = visit
-        self.sepctrograph = spectrograph
+        self.frame_id = frame_id
+        self.visit_id = visit_id
+        self.spectrograph = spectrograph
         self.arm = arm
-        self.armNum = armNum
-        self.pfsConfigId = pfsConfigId
+        self.arm_num = arm_num
+        self.pfs_config_id = pfs_config_id
         self.ra_tel = ra_tel
         self.dec_tel = dec_tel
         self.exptime = exptime
-        self.timeObsStart = timeObsStart
-        self.timeObsEnd = timeObsEnd
-        self.mjdStart = mjdStart
-        self.mjdEnd = mjdEnd
+        self.time_obs_start = time_obs_start
+        self.time_obs_end = time_obs_end
+        self.mjd_start = mjd_start
+        self.mjd_end = mjd_end
         self.airmass = airmass
         self.seeing = seeing
         self.transp = transp
         self.background = background
-        self.moonPhase = moonPhase
-        self.moonAlt = moonAlt
-        self.moonSep = moonSep
+        self.moon_phase = moon_phase
+        self.moon_alt = moon_alt
+        self.moon_sep = moon_sep
         self.throughput = throughput
-        self.cloudConditionId = cloudConditionId
+        self.cloud_condition_id = cloud_condition_id
         self.focusing_error = focusing_error
-        self.insRotStart = insRotStart
-        self.insRotEnd = insRotEnd
-        self.guideError_dx = guideError_dx
-        self.guideError_dy = guideError_dy
-        self.beamSwitchModeId = beamSwitchModeId
-        self.beamSwitchOffsetRA = beamSwitchOffsetRA
-        self.beamSwitchOffsetDec = beamSwitchOffsetDec
-        self.mediumResolution = mediumResolution
+        self.insrot_start = insrot_start
+        self.insrot_end = insrot_end
+        self.guide_error_dx = guide_error_dx
+        self.guide_error_dy = guide_error_dy
+        self.beam_switch_mode_id = beam_switch_mode_id
+        self.beam_switch_offset_ra = beam_switch_offset_ra
+        self.beam_switch_offset_dec = beam_switch_offset_dec
+        self.is_medium_resolution = is_medium_resolution
 
 
-class ObsFiber(Base):
-    __tablename__ = 'ObsFiber'
+class obs_fiber(Base):
+    __tablename__ = 'obs_fiber'
 
-    obsFiberId = Column(BigInteger, primary_key=True, autoincrement=True)
-    frameId = Column(String, ForeignKey('Exposure.frameId'))
-    visit = Column(Integer, ForeignKey('Visit.visit'))
-    pfsConfigFiberId = Column(BigInteger, ForeignKey('pfsConfigFiber.pfsConfigFiberId'))
-    fiberId = Column(Integer)
-    targetId = Column(BigInteger, ForeignKey('Target.targetId'))
+    obsfiber_id = Column(BigInteger, primary_key=True, autoincrement=True)
+    frame_id = Column(String, ForeignKey('exposure.frame_id'))
+    visit_id = Column(Integer, ForeignKey('visit.visit_id'))
+    pfs_config_fiber_id = Column(BigInteger, ForeignKey('pfs_config_fiber.pfs_config_fiber_id'))
+    fiber_id = Column(Integer)
+    target_id = Column(BigInteger, ForeignKey('target.target_id'))
     exptime = Column(REAL)
     cum_nexp = Column(Integer)
     cum_texp = Column(REAL)
     delta_pfi_x = Column(REAL)
     delta_pfi_y = Column(REAL)
 
-    visits = relation(Visit, backref=backref('ObsFiber'))
-    exposures = relation(Exposure, backref=backref('ObsFiber'))
-    pfsConfigFibers = relation(pfsConfigFiber, backref=backref('ObsFiber'))
-    targets = relation(Target, backref=backref('ObsFiber'))
+    visits = relation(visit, backref=backref('obs_fiber'))
+    exposures = relation(exposure, backref=backref('obs_fiber'))
+    pfs_config_fibers = relation(pfs_config_fiber, backref=backref('obs_fiber'))
+    targets = relation(target, backref=backref('obs_fiber'))
 
-    def __init__(self, frameId, visit, pfsConfigFiberId, fiberId, targetId,
+    def __init__(self, frame_id, visit_id, pfs_config_fiber_id, fiber_id, target_id,
                  exptime, cum_nexp, cum_texp, delta_pfi_x, delta_pfi_y):
-        self.frameId = frameId
-        self.visit = visit
-        self.pfsConfigFiberId = pfsConfigFiberId
-        self.fiberId = fiberId
-        self.targetId = targetId
+        self.frame_id = frame_id
+        self.visit_id = visit_id
+        self.pfs_config_fiber_id = pfs_config_fiber_id
+        self.fiber_id = fiber_id
+        self.target_id = target_id
         self.exptime = exptime
         self.cum_nexp = cum_nexp
         self.cum_texp = cum_texp
@@ -840,345 +874,347 @@ class ObsFiber(Base):
         self.delta_pfi_y = delta_pfi_y
 
 
-class SkyModel(Base):
-    __tablename__ = 'SkyModel'
+class sky_model(Base):
+    __tablename__ = 'sky_model'
 
-    skyModelId = Column(Integer, primary_key=True, autoincrement=False)
-    frameId = Column(String, ForeignKey('Exposure.frameId'))
-    visit = Column(Integer, ForeignKey('Visit.visit'))
+    sky_model_id = Column(Integer, primary_key=True, autoincrement=False)
+    frame_id = Column(String, ForeignKey('exposure.frame_id'))
+    visit = Column(Integer, ForeignKey('visit.visit_id'))
     spectrograph = Column(Integer)
     arm = Column(String)
-    armNum = Column(Integer)
+    arm_num = Column(Integer)
 
-    visits = relation(Visit, backref=backref('SkyModel'))
-    exposures = relation(Exposure, backref=backref('SkyModel'))
+    visits = relation(visit, backref=backref('sky_model'))
+    exposures = relation(exposure, backref=backref('sky_model'))
 
-    def __init__(self, skyModelId, frameId, visit, spectrograph, arm, armNum):
-        self.skyModelId = skyModelId
-        self.frameId = frameId
-        self.visit = visit
-        self.sepctrograph = spectrograph
-        self.arm = arm
-        self.armNum = armNum
-
-
-class PsfModel(Base):
-    __tablename__ = 'PsfModel'
-
-    psfModelId = Column(Integer, primary_key=True, autoincrement=False)
-    frameId = Column(String, ForeignKey('Exposure.frameId'))
-    visit = Column(Integer, ForeignKey('Visit.visit'))
-    spectrograph = Column(Integer)
-    arm = Column(String)
-    armNum = Column(Integer)
-
-    visits = relation(Visit, backref=backref('PsfModel'))
-    exposures = relation(Exposure, backref=backref('PsfModel'))
-
-    def __init__(self, psfModelId, frameId, visit, spectrograph, arm, armNum):
-        self.psfModelId = psfModelId
-        self.frameId = frameId
-        self.visit = visit
-        self.sepctrograph = spectrograph
-        self.arm = arm
-        self.armNum = armNum
-
-
-class pfsArm(Base):
-    __tablename__ = 'pfsArm'
-
-    pfsArmId = Column(Integer, primary_key=True, autoincrement=True)
-    frameId = Column(String, ForeignKey('Exposure.frameId'), unique=True)
-    visit = Column(Integer, ForeignKey('Visit.visit'))
-    spectrograph = Column(Integer)
-    arm = Column(String)
-    armNum = Column(Integer)
-    calibFlatId = Column(Integer, ForeignKey('Calib.calibId'))
-    calibBiasId = Column(Integer, ForeignKey('Calib.calibId'))
-    calibDarkId = Column(Integer, ForeignKey('Calib.calibId'))
-    calibArcsId = Column(Integer, ForeignKey('Calib.calibId'))
-    pfsConfigId = Column(BigInteger, ForeignKey('pfsConfig.pfsConfigId'))
-    skyModelId = Column(Integer, ForeignKey('SkyModel.skyModelId'))
-    psfModelId = Column(Integer, ForeignKey('PsfModel.psfModelId'))
-    flags = Column(Integer)
-    processDate = Column(DateTime)
-    DRP2DVersion = Column(String)
-
-    visits = relation(Visit, backref=backref('pfsArm'))
-    exposures = relation(Exposure, backref=backref('pfsArm'))
-    # calibs = relation(Calib, backref=backref('pfsArm'))
-    pfsConfigs = relation(pfsConfig, backref=backref('pfsArm'))
-    skyModels = relation(SkyModel, backref=backref('pfsArm'))
-    psfModels = relation(PsfModel, backref=backref('pfsArm'))
-
-    def __init__(self, pfsArmId, frameId, visit, spectrograph, arm, armNum,
-                 calibFlatId, calibBiasId, calibDarkId, calibArcsId,
-                 skyModelId, psfModelId, flags,
-                 processDate, DRP2DVersion):
-        self.pfsArmId = pfsArmId
-        self.frameId = frameId
-        self.visit = visit
+    def __init__(self, sky_model_id, frame_id, visit_id, spectrograph, arm, arm_num):
+        self.sky_model_id = sky_model_id
+        self.frame_id = frame_id
+        self.visit_id = visit_id
         self.spectrograph = spectrograph
         self.arm = arm
-        self.armNum = armNum
-        self.calibFlatId = calibFlatId
-        self.calibBiasId = calibBiasId
-        self.calibDarkId = calibDarkId
-        self.calibArcsId = calibArcsId
-        self.pfsConfigId = pfsConfigId
-        self.skyModelId = skyModelId
-        self.psfModelId = psfModelId
-        self.flags = flags
-        self.processDate = processDate
-        self.DRP2DVersion = DRP2DVersion
+        self.arm_num = arm_num
 
 
-class pfsArmObj(Base):
-    __tablename__ = 'pfsArmObj'
+class psf_model(Base):
+    __tablename__ = 'psf_model'
 
-    pfsArmObjId = Column(BigInteger, primary_key=True, autoincrement=True)
-    pfsArmId = Column(Integer, ForeignKey('pfsArm.pfsArmId'))
-    frameId = Column(String)
-    visit = Column(Integer, ForeignKey('Visit.visit'))
+    psf_model_id = Column(Integer, primary_key=True, autoincrement=False)
+    frame_id = Column(String, ForeignKey('exposure.frame_id'))
+    visit_id = Column(Integer, ForeignKey('visit.visit_id'))
     spectrograph = Column(Integer)
     arm = Column(String)
-    armNum = Column(Integer)
-    fiberId = Column(Integer, ForeignKey('FiberPosition.fiberId'))
-    pfsConfigFiberId = Column(BigInteger, ForeignKey('pfsConfigFiber.pfsConfigFiberId'))
-    flags = Column(Integer)
-    QATypeId = Column(Integer, ForeignKey('QAType.QATypeId'))
-    QAValue = Column(REAL)
+    arm_num = Column(Integer)
 
-    visits = relation(Visit, backref=backref('pfsArmObj'))
-    pfsArms = relation(pfsArm, backref=backref('pfsArmObj'))
-    pfsConfigFibers = relation(pfsConfigFiber, backref=backref('psfArmObj'))
-    fiberPositions = relation(FiberPosition, backref=backref('pfsArmObj'))
-    qaTypes = relation(QAType, backref=backref('pfsArmObj'))
+    visits = relation(visit, backref=backref('psf_model'))
+    exposures = relation(exposure, backref=backref('psf_model'))
 
-    def __init__(self, pfsArmId, visit, spectrograph, arm, armNum,
-                 fiberId, pfsConfigFiberId, flags, QATypeId, QAValue):
-        self.pfsArmId = pfsArmId
-        self.visit = visit
+    def __init__(self, psf_model_id, frame_id, visit_id, spectrograph, arm, arm_num):
+        self.psf_model_id = psf_model_id
+        self.frame_id = frame_id
+        self.visit_id = visit_id
         self.spectrograph = spectrograph
         self.arm = arm
-        self.armNum = armNum
-        self.fiberId = fiberId
-        self.pfsConfigFiberId = pfsConfigFiberId
+        self.arm_num = arm_num
+
+
+class pfs_arm(Base):
+    __tablename__ = 'pfs_arm'
+
+    pfs_arm_id = Column(Integer, primary_key=True, autoincrement=True)
+    frame_id = Column(String, ForeignKey('exposure.frame_id'), unique=True)
+    visit_id = Column(Integer, ForeignKey('visit.visit_id'))
+    spectrograph = Column(Integer)
+    arm = Column(String)
+    arm_num = Column(Integer)
+    calib_flat_id = Column(Integer, ForeignKey('calib.calib_id'))
+    calib_bias_id = Column(Integer, ForeignKey('calib.calib_id'))
+    calib_dark_id = Column(Integer, ForeignKey('calib.calib_id'))
+    calib_arcs_id = Column(Integer, ForeignKey('calib.calib_id'))
+    pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
+    sky_model_id = Column(Integer, ForeignKey('sky_model.sky_model_id'))
+    psf_model_id = Column(Integer, ForeignKey('psf_model.psf_model_id'))
+    flags = Column(Integer)
+    process_datetime = Column(DateTime)
+    drp2d_version = Column(String)
+
+    visits = relation(visit, backref=backref('pfs_arm'))
+    exposures = relation(exposure, backref=backref('pfs_arm'))
+    # calibs = relation(calib, backref=backref('pfs_arm'))
+    pfs_configs = relation(pfs_config, backref=backref('pfs_arm'))
+    sky_models = relation(sky_model, backref=backref('pfs_arm'))
+    psf_models = relation(psf_model, backref=backref('pfs_arm'))
+
+    def __init__(self, pfs_arm_id, frame_id, visit_id, spectrograph, arm, arm_num,
+                 calib_flat_id, calib_bias_id, calib_dark_id, calib_arcs_id,
+                 sky_model_id, psf_model_id, flags,
+                 process_datetime, drp2d_version):
+        self.pfs_arm_id = pfs_arm_id
+        self.frame_id = frame_id
+        self.visit_id = visit_id
+        self.spectrograph = spectrograph
+        self.arm = arm
+        self.arm_num = arm_num
+        self.calib_flat_id = calib_flat_id
+        self.calib_bias_id = calib_bias_id
+        self.calib_dark_id = calib_dark_id
+        self.calib_arcs_id = calib_arcs_id
+        self.pfs_config_id = pfs_config_id
+        self.sky_model_id = sky_model_id
+        self.psf_model_id = psf_model_id
         self.flags = flags
-        self.QATypeId = QATypeId
-        self.QAValue = QAValue
+        self.process_datetime = process_datetime
+        self.drp2d_version = drp2d_version
 
 
-class VisitHash(Base):
-    __tablename__ = 'VisitHash'
+class pfs_arm_obj(Base):
+    __tablename__ = 'pfs_arm_obj'
 
-    pfsVisitHash = Column(BigInteger, primary_key=True, autoincrement=False)
-    nVisit = Column(Integer)
-#    visit = Column(Integer, ForeignKey('Visit.visit'))
-#    visits = relation(Visit, backref=backref('VisitHash'))
+    pfs_arm_obj_id = Column(BigInteger, primary_key=True, autoincrement=True)
+    pfs_arm_id = Column(Integer, ForeignKey('pfs_arm.pfs_arm_id'))
+    frame_id = Column(String)
+    visit_id = Column(Integer, ForeignKey('visit.visit_id'))
+    spectrograph = Column(Integer)
+    arm = Column(String)
+    arm_num = Column(Integer)
+    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'))
+    pfs_config_fiber_id = Column(BigInteger, ForeignKey('pfs_config_fiber.pfs_config_fiber_id'))
+    flags = Column(Integer)
+    qa_type_id = Column(Integer, ForeignKey('qa_type.qa_type_id'))
+    qa_value = Column(REAL)
 
-    def __init__(self, pfsVisitHash, nVisit):
-        self.pfsVisitHash = pfsVisitHash
-        self.nVisit = nVisit
+    visits = relation(visit, backref=backref('pfs_arm_obj'))
+    pfs_arms = relation(pfs_arm, backref=backref('pfs_arm_obj'))
+    pfs_config_fibers = relation(pfs_config_fiber, backref=backref('psf_arm_obj'))
+    fiber_positions = relation(fiber_position, backref=backref('pfs_arm_obj'))
+    qa_types = relation(qa_type, backref=backref('pfs_arm_obj'))
+
+    def __init__(self, pfs_arm_id, visit_id, spectrograph, arm, arm_num,
+                 fiber_id, pfs_config_fiber_id, flags, qa_type_id, qa_value):
+        self.pfs_arm_id = pfs_arm_id
+        self.visit_id = visit_id
+        self.spectrograph = spectrograph
+        self.arm = arm
+        self.arm_num = armNum
+        self.fiber_id = fiber_id
+        self.pfs_config_fiber_id = pfs_config_fiber_id
+        self.flags = flags
+        self.qa_type_id = qa_type_id
+        self.qa_value = qa_value
 
 
-class pfsObject(Base):
-    __tablename__ = 'pfsObject'
+class visit_hash(Base):
+    __tablename__ = 'visit_hash'
 
-    pfsObjectId = Column(BigInteger, primary_key=True, autoincrement=True)
-    targetId = Column(BigInteger, ForeignKey('Target.targetId'))
+    pfs_visit_hash = Column(BigInteger, primary_key=True, autoincrement=False)
+    n_visit = Column(Integer)
+
+    def __init__(self, pfs_visit_hash, n_visit):
+        self.pfs_visit_hash = pfs_visit_hash
+        self.n_visit = n_visit
+
+
+class pfs_object(Base):
+    __tablename__ = 'pfs_object'
+
+    pfs_object_id = Column(BigInteger, primary_key=True, autoincrement=True)
+    target_id = Column(BigInteger, ForeignKey('target.target_id'))
     tract = Column(Integer)
     patch = Column(String)
-    catId = Column(Integer)
-    objId = Column(BigInteger)
-    nVisit = Column(Integer)
-    pfsVisitHash = Column(BigInteger, ForeignKey('VisitHash.pfsVisitHash'))
+    cat_id = Column(Integer)
+    obj_id = Column(BigInteger)
+    n_visit = Column(Integer)
+    pfs_visit_hash = Column(BigInteger, ForeignKey('visit_hash.pfs_visit_hash'))
     cum_texp = Column(REAL)
-    processDate = Column(DateTime)
-    DRP2DVersion = Column(String)
-    fluxCalibId = Column(Integer, ForeignKey('FluxCalib.fluxCalibId'))
+    process_datetime = Column(DateTime)
+    drp2d_version = Column(String)
+    flux_calib_id = Column(Integer, ForeignKey('flux_calib.flux_calib_id'))
     flags = Column(Integer)
-    QATypeId = Column(Integer, ForeignKey('QAType.QATypeId'))
-    QAValue = Column(REAL)
+    qa_type_id = Column(Integer, ForeignKey('qa_type.qa_type_id'))
+    qa_value = Column(REAL)
 
-    targets = relation(Target, backref=backref('pfsObject'))
-    fluxCalibs = relation(FluxCalib, backref=backref('pfsObject'))
-    qaTypes = relation(QAType, backref=backref('pfsObject'))
-    visitHashs = relation(VisitHash, backref=backref('pfsObject'))
+    targets = relation(target, backref=backref('pfs_object'))
+    flux_calibs = relation(flux_calib, backref=backref('pfs_object'))
+    qa_types = relation(qa_type, backref=backref('pfs_object'))
+    visit_hashs = relation(visit_hash, backref=backref('pfs_object'))
 
-    def __init__(self, pfsObjectId, targetId, tract, patch, catId, objId, nVisit, pfsVisitHash,
-                 cum_texp, processDate, DRP2DVersion, fluxCalibId, flags, QATypeId, QAValue):
-        self.pfsObjectId = pfsObjectId
-        self.targetId = targetId
+    def __init__(self, pfs_object_id, target_id, tract, patch, cat_id, obj_id, n_visit, pfs_visit_hash,
+                 cum_texp, process_datetime, drp2d_version, flux_calib_id, flags, qa_type_id, qa_value):
+        self.pfs_object_id = pfs_object_id
+        self.target_id = target_id
         self.tract = tract
         self.patch = patch
-        self.catId = catId
-        self.objId = objId
-        self.nVisit = nVisit
-        self.pfsVisitHash = pfsVisitHash
+        self.cat_id = cat_id
+        self.obj_id = obj_id
+        self.n_visit = n_visit
+        self.pfs_visit_hash = pfs_visit_hash
         self.cum_texp = cum_texp
-        self.processDate = processDate
-        self.DRP2DVesion = DRP2DVesion
-        self.fluxCalibId = fluxCalibId
+        self.process_datetime = process_datetime
+        self.drp2d_version = drp2d_version
+        self.flux_calib_id = flux_calib_id
         self.flags = flags
-        self.QATypeId = QATypeId
-        self.QAValue = QAValue
+        self.qa_type_id = qa_type_id
+        self.qa_value = qa_value
 
 
-class VisitsToCombine(Base):
-    __tablename__ = 'VisitsToCombine'
+class visits_to_combine(Base):
+    __tablename__ = 'visits_to_combine'
 
-    visitsToCombineId = Column(BigInteger, primary_key=True, autoincrement=True)
-    targetId = Column(BigInteger, ForeignKey('Target.targetId'))
-    visit = Column(Integer, ForeignKey('Visit.visit'))
-    pfsVisitHash = Column(BigInteger, ForeignKey('VisitHash.pfsVisitHash'))
+    visits_to_combine_id = Column(BigInteger, primary_key=True, autoincrement=True)
+    target_id = Column(BigInteger, ForeignKey('target.target_id'))
+    visit = Column(Integer, ForeignKey('visit.visit_id'))
+    pfs_visit_hash = Column(BigInteger, ForeignKey('visit_hash.pfs_visit_hash'))
 
-    targets = relation(Target, backref=backref('VisitsToCombine'))
-    visits = relation(Visit, backref=backref('VisitsToCombine'))
-    visitHashs = relation(VisitHash, backref=backref('VisitsToCombine'))
+    targets = relation(target, backref=backref('visits_to_combine'))
+    visits = relation(visit, backref=backref('visits_to_combine'))
+    visit_hashs = relation(visit_hash, backref=backref('visits_to_combine'))
 
-    def __init__(self, targetId, visit, pfsVisitHash):
-        self.targetId = targetId
+    def __init__(self, target_id, visit, pfs_visit_hash):
+        self.target_id = target_id
         self.visit = visit
-        self.pfsVisitHash = pfsVisitHash
+        self.pfs_visit_hash = pfs_visit_hash
 
 
-class LineList(Base):
-    __tablename__ = 'LineList'
+class line_list(Base):
+    __tablename__ = 'line_list'
 
-    lineId = Column(Integer, primary_key=True, autoincrement=False)
-    name = Column(String)
-    wavelength = Column(REAL)
+    line_id = Column(Integer, primary_key=True, autoincrement=False)
+    line_name = Column(String)
+    line_wavelength = Column(REAL)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
 
-    def __init__(self, lineId, name, wavelength):
-        self.lineId = lineId
-        self.name = name
-        self.wavelength = wavelength
+    def __init__(self, line_id, line_name, line_wavelength, created_at, updated_at):
+        self.line_id = line_id
+        self.line_name = line_name
+        self.line_wavelength = line_wavelength
+        self.created_at = created_at
+        self.updated_at = updated_at
 
 
-class Drp1D(Base):
-    __tablename__ = 'Drp1D'
+class drp1d(Base):
+    __tablename__ = 'drp1d'
 
-    drp1DId = Column(Integer, primary_key=True, autoincrement=True)
-    pfsObjectId = Column(BigInteger, ForeignKey('pfsObject.pfsObjectId'))
+    drp1d_id = Column(Integer, primary_key=True, autoincrement=True)
+    pfs_object_id = Column(BigInteger, ForeignKey('pfs_object.pfs_object_id'))
     z_best = Column(REAL)
     z_best_err = Column(REAL)
     z_best_reliability = Column(REAL)
-    objTypeId = Column(Integer, ForeignKey('ObjType.objTypeId'))
+    obj_type_id = Column(Integer, ForeignKey('obj_type.obj_type_id'))
     flags = Column(Integer)
-    processDate = Column(DateTime)
-    DRP1DVersion = Column(String)
+    process_datetime = Column(DateTime)
+    drp1d_version = Column(String)
 
-    pfsObjects = relation(pfsObject, backref=backref('Drp1D'))
-    objTypes = relation(ObjType, backref=backref('Drp1D'))
+    pfs_objects = relation(pfs_object, backref=backref('drp1d'))
+    obj_types = relation(obj_type, backref=backref('drp1d'))
 
-    def __init__(self, drp1DId, pfsObjectId, z_best, z_best_err, z_best_reliability,
-                 objTypeId, flags, processDate, DRP1DVersion):
-        self.drp1DId = drp1DId
-        self.pfsObjectId = pfsObjectId
+    def __init__(self, drp1d_id, pfs_object_id, z_best, z_best_err, z_best_reliability,
+                 obj_type_id, flags, process_datetime, drp1d_version):
+        self.drp1d_id = drp1d_id
+        self.pfs_object_id = pfs_object_id
         self.z_best = z_best
         self.z_best_err = z_best_err
         self.z_best_reliability = z_best_reliability
-        self.objTypeId = objTypeId
+        self.obj_type_id = obj_type_id
         self.flags = flags
-        self.processDate = processDate
-        self.DRP1DVersion = DRP1DVersion
+        self.process_datetime = process_datetime
+        self.drp1d_version = drp1d_version
 
 
-class Drp1DRedshift(Base):
-    __tablename__ = 'Drp1DRedshift'
+class drp1d_redshift(Base):
+    __tablename__ = 'drp1d_redshift'
 
-    drp1DRedshiftId = Column(BigInteger, primary_key=True, autoincrement=True)
-    drp1DId = Column(Integer, ForeignKey('Drp1D.drp1DId'))
+    drp1d_redshift_id = Column(BigInteger, primary_key=True, autoincrement=True)
+    drp1d_id = Column(Integer, ForeignKey('drp1d.drp1d_id'))
     z = Column(REAL)
     z_err = Column(REAL)
     zrank = Column(REAL)
     reliability = Column(REAL)
-    specClass = Column(String)
-    specSubclass = Column(String)
+    spec_class = Column(String)
+    spec_subclass = Column(String)
 
-    def __init__(self, drp1DRedshiftId, drp1DId, z, z_err, zrank, reliability, specClass, specSubclass):
-        self.drp1DRedshiftId = drp1DRedshiftId
-        self.drp1DId = drp1DId
+    def __init__(self, drp1d_redshift_id, drp1d_id, z, z_err, zrank, reliability, spec_Class, spec_subclass):
+        self.drp1d_redshift_id = drp1d_redshift_id
+        self.drp1d_id = drp1d_id
         self.z = z
         self.z_err = z_err
         self.zrank = zrank
         self.reliability = reliability
-        self.specClass = specClass
-        self.specSubclass = specSubclass
+        self.spec_class = spec_class
+        self.spec_subclass = spec_subclass
 
 
-class Drp1DLine(Base):
-    __tablename__ = 'Drp1DLine'
+class drp1d_line(Base):
+    __tablename__ = 'drp1d_line'
 
-    drp1DLineId = Column(BigInteger, primary_key=True, autoincrement=True)
-    drp1DId = Column(Integer, ForeignKey('Drp1D.drp1DId'))
-    lineId = Column(Integer, ForeignKey('LineList.lineId'))
-    lineName = Column(String)
-    lineWave = Column(REAL)
-    lineZ = Column(REAL)
-    lineZ_err = Column(REAL)
-    lineSigma = Column(REAL)
-    lineSigma_err = Column(REAL)
-    lineVel = Column(REAL)
-    lineVel_err = Column(REAL)
-    lineFlux = Column(REAL)
-    lineFlux_err = Column(REAL)
-    lineEW = Column(REAL)
-    lineEW_err = Column(REAL)
-    lineContLevel = Column(REAL)
-    lineContLevel_err = Column(REAL)
+    drp1d_line_id = Column(BigInteger, primary_key=True, autoincrement=True)
+    drp1d_id = Column(Integer, ForeignKey('drp1d.drp1d_id'))
+    line_id = Column(Integer, ForeignKey('line_list.line_id'))
+    line_name = Column(String)
+    line_wave = Column(REAL)
+    line_z = Column(REAL)
+    line_z_err = Column(REAL)
+    line_sigma = Column(REAL)
+    line_sigma_err = Column(REAL)
+    line_vel = Column(REAL)
+    line_vel_err = Column(REAL)
+    line_flux = Column(REAL)
+    line_flux_err = Column(REAL)
+    line_ew = Column(REAL)
+    line_ew_err = Column(REAL)
+    line_cont_level = Column(REAL)
+    line_cont_level_err = Column(REAL)
 
-    lineLists = relation(LineList, backref=backref('specLine'))
+    line_lists = relation(line_list, backref=backref('drp1d_line'))
 
-    def __init__(self, drp1DLineId, drp1DId, lineId, lineName, lineWave, lineZ, lineZ_err, lineSigma, lineSigma_err, lineVel, lineVel_err, lineFlux, lineFlux_err, lineEW, lineEW_err, lineContLevel, lineContLevel_err):
-        self.drp1DLineId = drp1DLineId
-        self.drp1DId = drp1DId
-        self.lineId = lineId
-        self.lineName = lineName
-        self.lineWave = lineWave
-        self.lineZ = lineZ
-        self.lineZ_err = lineZ_err
-        self.lineSigma = lineSigma
-        self.lineSigma_err = lineSigma_err
-        self.lineVel = lineVel
-        self.lineVel_err = lineVel_err
-        self.lineFlux = lineFlux
-        self.lineFlux_err = lineFlux_err
-        self.lineEW = lineEW
-        self.lineEW_err = lineEW_err
-        self.lineContLevel = lineContLevel
-        self.lineContLevel_err = lineContLevel_err
+    def __init__(self, drp1d_line_id, drp1d_id, line_id, line_name, line_wave, line_z, line_z_err, line_sigma, line_sigma_err, line_vel, line_vel_err, line_flux, line_flux_err, line_ew, line_ew_err, line_cont_level, line_cont_level_err):
+        self.drp1d_line_id = drp1d_line_id
+        self.drp1d_id = drp1d_id
+        self.line_id = lineId
+        self.line_name = line_name
+        self.line_wave = line_wave
+        self.line_z = line_z
+        self.line_z_err = line_z_err
+        self.line_sigma = line_sigma
+        self.line_sigma_err = line_sigma_err
+        self.line_vel = line_vel
+        self.line_vel_err = line_vel_err
+        self.line_flux = line_flux
+        self.line_flux_err = line_flux_err
+        self.line_ew = line_ew
+        self.line_ew_err = line_ew_err
+        self.line_cont_level = line_cont_level
+        self.line_cont_level_err = line_cont_level_err
 
 
-class DrpGA(Base):
-    __tablename__ = 'DrpGA'
+class drp_ga(Base):
+    __tablename__ = 'drp_ga'
 
-    drpGAId = Column(Integer, primary_key=True, autoincrement=True)
-    pfsObjectId = Column(BigInteger, ForeignKey('pfsObject.pfsObjectId'), primary_key=True)
-    starTypeId = Column(Integer, ForeignKey('StarType.starTypeId'))
+    drp_ga_id = Column(Integer, primary_key=True, autoincrement=True)
+    pfs_object_id = Column(BigInteger, ForeignKey('pfs_object.pfs_object_id'), primary_key=True)
+    star_type_id = Column(Integer, ForeignKey('star_type.star_type_id'))
     velocity = Column(REAL)
     metallicity = Column(REAL)
     logg = Column(REAL)
     teff = Column(REAL)
     flags = Column(Integer)
-    processDate = Column(DateTime)
-    DRPGAVersion = Column(String)
+    process_datetime = Column(DateTime)
+    drp_ga_version = Column(String)
 
-    pfsObjects = relation(pfsObject, backref=backref('DrpGA'))
-    starTypes = relation(StarType, backref=backref('DrpGA'))
+    pfs_objects = relation(pfs_object, backref=backref('drp_ga'))
+    star_types = relation(star_type, backref=backref('drp_ga'))
 
-    def __init__(self, drpGAId, starTypeId, velocity, metallicity, logg, teff,
-                 flags, processDate, pipelneStellarVersion):
-        self.drpGAId = drpGAId
-        self.starTypeId = startTypeId
+    def __init__(self, drp_ga_id, star_type_id, velocity, metallicity, logg, teff,
+                 flags, process_datetime, drp_ga_version):
+        self.drp_ga_id = drp_ga_id
+        self.star_type_id = start_type_id
         self.velocity = velocity
         self.metallicity = metallicity
         self.logg = logg
         self.teff = teff
         self.flags = flags
-        self.processDate = processDate
-        self.DRPGAVersion = DRPGAVersion
+        self.process_datetime = process_datetime
+        self.drp_ga_version = drp_ga_version
 
 
 def make_database(dbinfo):
