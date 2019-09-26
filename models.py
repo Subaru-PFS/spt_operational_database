@@ -653,8 +653,6 @@ class pfs_config_fiber(Base):
     pfi_nominal_y = Column(REAL)
     pfi_center_x = Column(REAL)
     pfi_center_y = Column(REAL)
-    pfi_diff_x = Column(REAL)
-    pfi_diff_y = Column(REAL)
     mcs_center_x = Column(REAL)
     mcs_center_y = Column(REAL)
     motor_map_summary = Column(String)
@@ -670,7 +668,7 @@ class pfs_config_fiber(Base):
     def __init__(self, pfs_config_fiber_id, pfs_config_id, fiber_id,
                  target_id, tract, patch, cat_id, obj_id, target_type_id,
                  fiber_mag_g, fiber_mag_r, fiber_mag_i, fiber_mag_z, fiber_mag_y, fiber_mag_j,
-                 pfi_nominal_x, pfi_nominal_y, pfi_center_x, pfi_center_y, pfi_diff_x, pfi_diff_y,
+                 pfi_nominal_x, pfi_nominal_y, pfi_center_x, pfi_center_y,
                  mcs_center_x, mcs_center_y, motor_map_summary, config_time,
                  is_on_source=True):
         self.pfs_config_fiber_id = (pfs_config_id << 12) + fiber_id
@@ -694,8 +692,6 @@ class pfs_config_fiber(Base):
         self.pfi_nominal_y = pfi_nominal_y
         self.pfi_center_x = pfi_center_x
         self.pfi_center_y = pfi_center_y
-        self.pfi_diff_x = pfi_diff_x
-        self.pfi_diff_y = pfi_diff_y
         self.mcs_center_x = mcs_center_x
         self.mcs_center_y = mcs_center_y
         self.motor_map_summary = motor_map_summary
@@ -718,15 +714,13 @@ class cobra_config(Base):
     pfi_nominal_y = Column(REAL)
     pfi_center_x = Column(REAL)
     pfi_center_y = Column(REAL)
-    pfi_diff_x = Column(REAL)
-    pfi_diff_y = Column(REAL)
     mcs_center_x = Column(REAL)
     mcs_center_y = Column(REAL)
     exectime = Column(DateTime)
 
     def __init__(self, cobra_config_id, pfs_config_fiber_id, pfs_config_id, fiber_id, iteration,
                  motor_num_step_theta, motor_num_step_phi, mcs_id,
-                 pfi_nominal_x, pfi_nominal_y, pfi_center_x, pfi_center_y, pfi_diff_x, pfi_diff_y,
+                 pfi_nominal_x, pfi_nominal_y, pfi_center_x, pfi_center_y,
                  mcs_center_x, mcs_center_y, exectime):
         self.cobra_config_id = cobra_config_id
         self.pfs_config_fiber_id = pfs_config_fiber_id
@@ -740,8 +734,6 @@ class cobra_config(Base):
         self.pfi_nominal_y = pfi_nominal_y
         self.pfi_center_x = pfi_center_x
         self.pfi_center_y = pfi_center_y
-        self.pfi_diff_x = pfi_diff_x
-        self.pfi_diff_y = pfi_diff_y
         self.mcs_center_x = mcs_center_x
         self.mcs_center_y = mcs_center_y
         self.exectime = exectime
