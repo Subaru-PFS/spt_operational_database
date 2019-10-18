@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column, BigInteger, Integer, String, FLOAT, ForeignKey, DateTime, Boolean, REAL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relation, backref
+from sqlalchemy import UniqueConstraint, ForeignKeyConstraint
 
 Base = declarative_base()
 
@@ -9,7 +10,7 @@ Base = declarative_base()
 class proposal(Base):
     __tablename__ = 'proposal'
 
-    proposal_id = Column(String, primary_key=True, autoincrement=False)
+    proposal_id = Column(String, primary_key=True, unique=True, autoincrement=False)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
 
@@ -22,7 +23,7 @@ class proposal(Base):
 class program(Base):
     __tablename__ = 'program'
 
-    program_id = Column(Integer, primary_key=True, autoincrement=False)
+    program_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     program_name = Column(String)
     program_description = Column(String)
     proposal_id = Column(String, ForeignKey('proposal.proposal_id'))
@@ -46,7 +47,7 @@ class program(Base):
 class target_type(Base):
     __tablename__ = 'target_type'
 
-    target_type_id = Column(Integer, primary_key=True, autoincrement=False)
+    target_type_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     target_type_name = Column(String)
     target_type_description = Column(String)
     created_at = Column(DateTime)
@@ -63,7 +64,7 @@ class target_type(Base):
 class obj_type(Base):
     __tablename__ = 'obj_type'
 
-    obj_type_id = Column(Integer, primary_key=True, autoincrement=False)
+    obj_type_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     obj_type_name = Column(String)
     obj_type_description = Column(String)
     created_at = Column(DateTime)
@@ -80,7 +81,7 @@ class obj_type(Base):
 class star_type(Base):
     __tablename__ = 'star_type'
 
-    star_type_id = Column(Integer, primary_key=True, autoincrement=False)
+    star_type_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     star_type_name = Column(String)
     star_type_description = Column(String)
     created_at = Column(DateTime)
@@ -97,7 +98,7 @@ class star_type(Base):
 class qa_type(Base):
     __tablename__ = 'qa_type'
 
-    qa_type_id = Column(Integer, primary_key=True, autoincrement=False)
+    qa_type_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     qa_type_name = Column(String)
     qa_type_description = Column(String)
     created_at = Column(DateTime)
@@ -114,7 +115,7 @@ class qa_type(Base):
 class input_catalog(Base):
     __tablename__ = "input_catalog"
 
-    cat_id = Column(Integer, primary_key=True, autoincrement=False)
+    cat_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     input_catalog_name = Column(String)
     input_catalog_description = Column(String)
     created_at = Column(DateTime)
@@ -132,7 +133,7 @@ class input_catalog(Base):
 class cloud_condition(Base):
     __tablename__ = 'cloud_condition'
 
-    cloud_condition_id = Column(Integer, primary_key=True, autoincrement=False)
+    cloud_condition_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     cloud_condition_name = Column(String)
     cloud_condition_description = Column(String)
     created_at = Column(DateTime)
@@ -149,7 +150,7 @@ class cloud_condition(Base):
 
 class fiber_position(Base):
     __tablename__ = 'fiber_position'
-    fiber_id = Column(Integer, primary_key=True, autoincrement=False)
+    fiber_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     ftype = Column(String)
     x = Column(REAL)
     y = Column(REAL)
@@ -228,7 +229,7 @@ class fiducial_fiber_position(Base):
 class target(Base):
     __tablename__ = 'target'
 
-    target_id = Column(BigInteger, primary_key=True, autoincrement=True)
+    target_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=True)
     program_id = Column(Integer, ForeignKey('program.program_id'))
     obj_id = Column(BigInteger)
     ra = Column(FLOAT)
@@ -296,7 +297,7 @@ class target(Base):
 
 class guide_stars(Base):
     __tablename__ = 'guide_stars'
-    guide_star_id = Column(BigInteger, primary_key=True, autoincrement=False)
+    guide_star_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=False)
     ra = Column(FLOAT)
     dec = Column(FLOAT)
     cat_id = Column(Integer, ForeignKey('input_catalog.cat_id'))
@@ -321,7 +322,7 @@ class guide_stars(Base):
 class tile(Base):
     __tablename__ = 'tile'
 
-    tile_id = Column(Integer, primary_key=True, autoincrement=True)
+    tile_id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
     program_id = Column(Integer, ForeignKey('program.program_id'))
     tile = Column(Integer)
     ra_center = Column(FLOAT)
@@ -343,7 +344,7 @@ class tile(Base):
 class pfs_design(Base):
     __tablename__ = 'pfs_design'
 
-    pfs_design_id = Column(BigInteger, primary_key=True, autoincrement=False)
+    pfs_design_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=False)
     tile_id = Column(Integer, ForeignKey('tile.tile_id'))
     ra_center = Column(FLOAT)
     dec_center = Column(FLOAT)
@@ -383,10 +384,10 @@ class pfs_design(Base):
 
 class pfs_design_fiber(Base):
     __tablename__ = 'pfs_design_fiber'
+    __table_args__ = (UniqueConstraint('pfs_design_id', 'fiber_id'), {})
 
-    pfs_design_fiber_id = Column(BigInteger, primary_key=True, autoincrement=True)
-    pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'))
-    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'))
+    pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'), primary_key=True, autoincrement=False)
+    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
     tract = Column(Integer)
     patch = Column(String)
@@ -408,19 +409,16 @@ class pfs_design_fiber(Base):
     pfi_nominal_y = Column(REAL)
     is_on_source = Column(Boolean)
 
-    pfs_designs = relation(pfs_design, backref=backref('pfs_design_fiber'))
-    targets = relation(target, backref=backref('pfs_design_fiber'))
-    fiber_positions = relation(fiber_position, backref=backref('pfs_design_fiber'))
-    #target_type = relation(target_type, backref=backref('pfs_design_fiber'))
-    #input_catalogs = relation(input_catalog, backref=backref('pfs_design_fiber'))
+    pfs_designs = relation(pfs_design, backref=backref('psf_design_fiber'))
+    targets = relation(target, backref=backref('psf_design_fiber'))
+    fiber_positions = relation(fiber_position, backref=backref('psf_design_fiber'))
 
-    def __init__(self, pfs_design_fiber_id, pfs_design_id, fiber_id,
+    def __init__(self, pfs_design_id, fiber_id,
                  target_id, tract, patch, ra, dec, cat_d, obj_id, target_type_id,
                  fiber_mag_g, fiber_mag_r, fiber_mag_i, fiber_mag_z, fiber_mag_y, fiber_mag_j,
                  ets_priority, ets_cost_function, ets_cobra_movement,
                  pfi_nominal_x, pfi_nominal_y,
                  is_on_source=True):
-        self.pfs_design_fiber_id = (pfs_design_id << 12) + fiber_id
         self.pfs_design_id = pfs_design_id
         self.fiber_id = fiber_id
         self.target_id = target_id
@@ -448,7 +446,7 @@ class pfs_design_fiber(Base):
 class calib(Base):
     __tablename__ = 'calib'
 
-    calib_id = Column(Integer, primary_key=True, autoincrement=False)
+    calib_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     calib_iype = Column(String)
     calib_date = Column(DateTime)
     pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'))
@@ -474,7 +472,7 @@ class calib(Base):
 class flux_calib(Base):
     __tablename__ = 'flux_calib'
 
-    flux_calib_id = Column(Integer, primary_key=True, autoincrement=False)
+    flux_calib_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     flux_calib_type = Column(String)
     flux_calib_date = Column(DateTime)
     flux_calib_star_teff = Column(REAL)
@@ -494,7 +492,7 @@ class flux_calib(Base):
 class visit(Base):
     __tablename__ = 'visit'
 
-    visit_id = Column(Integer, primary_key=True, autoincrement=False)
+    visit_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     visit_type = Column(Integer)
     visit_description = Column(String)
 
@@ -508,8 +506,7 @@ class mcs_boresight(Base):
 
     __tablename__ = 'mcs_boresight'
 
-    mcs_boresight_id = Column(Integer, primary_key=True, autoincrement=True)
-    visit_id = Column(Integer)
+    visit_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     datatime = Column(DateTime)
     x = Column(REAL)
     y = Column(REAL)
@@ -525,17 +522,17 @@ class mcs_exposure(Base):
 
     __tablename__ = 'mcs_exposure'
 
-    mcs_exposure_id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=True)
-    frame_id = Column(Integer, index=True, nullable=False)
+    frame_id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=False)
+    visit_id = Column(Integer)
     starttime = Column(DateTime)
-    mcs_exptime = Column(REAL, nullable=False)
+    mcs_exptime = Column(REAL)
     altitude = Column(REAL)
     azimuth = Column(REAL)
     insrot = Column(REAL)
 
-    def __init__(self, mcs_exposure_id, frame_id, starttime, mcs_exptime, altitude, azimuth, insrot):
-        self.mcs_exposure_id = mcs_exposure_id
+    def __init__(self, frame_id, visit_id, starttime, mcs_exptime, altitude, azimuth, insrot):
         self.frame_id = frame_id
+        self.visit_id = visit_id
         self.starttime = starttime
         self.mcs_exptime = mcs_exptime
         self.altitude = altitude
@@ -546,41 +543,37 @@ class mcs_exposure(Base):
 class mcs_data(Base):
 
     __tablename__ = 'mcs_data'
+    __table_args__ = (UniqueConstraint('frame_id', 'fiber_id'), {})
 
-    mcs_id = Column(Integer, primary_key=True, autoincrement=True)
-    datatime = Column(DateTime)
-    frame_id = Column(Integer, index=True)
+    frame_id = Column(Integer, ForeignKey('mcs_exposure.frame_id'), primary_key=True, index=True, autoincrement=False)
+    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     move_id = Column(Integer)
-    fiber_id = Column(Integer)
-    #fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'))
     centroid_x = Column(REAL)
     centroid_y = Column(REAL)
     fwhm_x = Column(REAL)
     fwhm_y = Column(REAL)
     bgvalue = Column(REAL)
     peakvalue = Column(REAL)
+    datatime = Column(DateTime)
 
-    #fiber_positions = relation(fiber_position, backref=backref('mcsData'))
-
-    def __init__(self, mcs_id, datatime, frame_id, move_id, fiber_id,
-                 centroid_x, centroid_y, fwhm_x, fwhm_y, bgvalue, peakvalue):
-        self.mcs_id = mcs_id
-        self.datatime = datatime
+    def __init__(self, frame_id, fiber_id, move_id, centroid_x, centroid_y,
+                 fwhm_x, fwhm_y, bgvalue, peakvalue, datatime):
         self.frame_id = frame_id
-        self.move_id = move_id
         self.fiber_id = fiber_id
+        self.move_id = move_id
         self.centroid_x = centroid_x
         self.centroid_y = centroid_y
         self.fwhm_x = fwhm_x
         self.fwhm_y = fwhm_y
         self.bgvalue = bgvalue
         self.peakvalue = peakvalue
+        self.datatime = datatime
 
 
 class pfs_config(Base):
     __tablename__ = 'pfs_config'
 
-    pfs_config_id = Column(Integer, primary_key=True, autoincrement=True)
+    pfs_config_id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
     pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'))
     visit0 = Column(Integer, ForeignKey('visit.visit_id'))
     ra_center = Column(FLOAT)
@@ -631,10 +624,10 @@ class pfs_config(Base):
 
 class pfs_config_fiber(Base):
     __tablename__ = 'pfs_config_fiber'
+    __table_args__ = (UniqueConstraint('pfs_config_id', 'fiber_id'), {})
 
-    pfs_config_fiber_id = Column(BigInteger, primary_key=True, autoincrement=False)
-    pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
-    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'))
+    pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'), primary_key=True, autoincrement=False)
+    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
     tract = Column(Integer)
     patch = Column(String)
@@ -662,16 +655,13 @@ class pfs_config_fiber(Base):
     pfs_configs = relation(pfs_config, backref=backref('psf_config_fiber'))
     targets = relation(target, backref=backref('psf_config_fiber'))
     fiber_positions = relation(fiber_position, backref=backref('psf_config_fiber'))
-    #target_types = relation(target_type, backref=backref('pfs_config_fiber'))
-    #input_catalogs = relation(input_catalog, backref=backref('pfs_config_fiber'))
 
-    def __init__(self, pfs_config_fiber_id, pfs_config_id, fiber_id,
+    def __init__(self, pfs_config_id, fiber_id,
                  target_id, tract, patch, cat_id, obj_id, target_type_id,
                  fiber_mag_g, fiber_mag_r, fiber_mag_i, fiber_mag_z, fiber_mag_y, fiber_mag_j,
                  pfi_nominal_x, pfi_nominal_y, pfi_center_x, pfi_center_y,
                  mcs_center_x, mcs_center_y, motor_map_summary, config_time,
                  is_on_source=True):
-        self.pfs_config_fiber_id = (pfs_config_id << 12) + fiber_id
         self.pfs_config_id = pfs_config_id
         self.fiber_id = fiber_id
         self.target_id = target_id
@@ -701,15 +691,17 @@ class pfs_config_fiber(Base):
 
 class cobra_config(Base):
     __tablename__ = 'cobra_config'
+    __table_args__ = (UniqueConstraint('frame_id', 'fiber_id'),
+                      ForeignKeyConstraint(['frame_id', 'fiber_id'],
+                                           ['mcs_data.frame_id', 'mcs_data.fiber_id']),
+                      {})
 
-    cobra_config_id = Column(BigInteger, primary_key=True, autoincrement=True)
-    pfs_config_fiber_id = Column(BigInteger, ForeignKey('pfs_config_fiber.pfs_config_fiber_id'))
-    pfs_config_id = Column(BigInteger)
-    fiber_id = Column(Integer)
+    frame_id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=False)
+    fiber_id = Column(Integer, primary_key=True, autoincrement=False)
+    pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
     iteration = Column(Integer)
     motor_num_step_theta = Column(Integer)
     motor_num_step_phi = Column(Integer)
-    mcs_id = Column(Integer, ForeignKey('mcs_data.mcs_id'))
     pfi_nominal_x = Column(REAL)
     pfi_nominal_y = Column(REAL)
     pfi_center_x = Column(REAL)
@@ -718,18 +710,16 @@ class cobra_config(Base):
     mcs_center_y = Column(REAL)
     exectime = Column(DateTime)
 
-    def __init__(self, cobra_config_id, pfs_config_fiber_id, pfs_config_id, fiber_id, iteration,
-                 motor_num_step_theta, motor_num_step_phi, mcs_id,
+    def __init__(self, pfs_config_id, frame_id, fiber_id,
+                 iteration, motor_num_step_theta, motor_num_step_phi,
                  pfi_nominal_x, pfi_nominal_y, pfi_center_x, pfi_center_y,
                  mcs_center_x, mcs_center_y, exectime):
-        self.cobra_config_id = cobra_config_id
-        self.pfs_config_fiber_id = pfs_config_fiber_id
         self.pfs_config_id = pfs_config_id
+        self.frame_id = frame_id
         self.fiber_id = fiber_id
         self.iteration = iteration
         self.motor_num_step_theta = motor_num_step_theta
         self.motor_num_step_phi = motor_num_step_phi
-        self.mcs_id = mcs_id
         self.pfi_nominal_x = pfi_nominal_x
         self.pfi_nominal_y = pfi_nominal_y
         self.pfi_center_x = pfi_center_x
@@ -742,7 +732,7 @@ class cobra_config(Base):
 class beam_switch_mode(Base):
     __tablename__ = 'beam_switch_mode'
 
-    beam_switch_mode_id = Column(Integer, primary_key=True, autoincrement=False)
+    beam_switch_mode_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     beam_switch_mode_name = Column(String)
     beam_switch_mode_description = Column(String)
 
@@ -755,7 +745,7 @@ class beam_switch_mode(Base):
 class exposure(Base):
     __tablename__ = 'exposure'
 
-    frame_id = Column(String, primary_key=True, autoincrement=False)
+    frame_id = Column(String, primary_key=True, unique=True, autoincrement=False)
     visit_id = Column(Integer, ForeignKey('visit.visit_id'))
     spectrograph = Column(Integer)
     arm = Column(String)
@@ -834,13 +824,12 @@ class exposure(Base):
 
 class obs_fiber(Base):
     __tablename__ = 'obs_fiber'
+    __table_args__ = (UniqueConstraint('frame_id', 'fiber_id'), {})
 
-    obsfiber_id = Column(BigInteger, primary_key=True, autoincrement=True)
-    frame_id = Column(String, ForeignKey('exposure.frame_id'))
+    frame_id = Column(String, ForeignKey('exposure.frame_id'), primary_key=True, autoincrement=False)
+    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     visit_id = Column(Integer, ForeignKey('visit.visit_id'))
-    pfs_config_fiber_id = Column(BigInteger, ForeignKey('pfs_config_fiber.pfs_config_fiber_id'))
-    fiber_id = Column(Integer)
-    target_id = Column(BigInteger, ForeignKey('target.target_id'))
+    target_id = Column(BigInteger)
     exptime = Column(REAL)
     cum_nexp = Column(Integer)
     cum_texp = Column(REAL)
@@ -849,15 +838,13 @@ class obs_fiber(Base):
 
     visits = relation(visit, backref=backref('obs_fiber'))
     exposures = relation(exposure, backref=backref('obs_fiber'))
-    pfs_config_fibers = relation(pfs_config_fiber, backref=backref('obs_fiber'))
-    targets = relation(target, backref=backref('obs_fiber'))
+    fiber_positions = relation(fiber_position, backref=backref('obs_fiber'))
 
-    def __init__(self, frame_id, visit_id, pfs_config_fiber_id, fiber_id, target_id,
+    def __init__(self, frame_id, fiber_id, visit_id, target_id,
                  exptime, cum_nexp, cum_texp, delta_pfi_x, delta_pfi_y):
         self.frame_id = frame_id
-        self.visit_id = visit_id
-        self.pfs_config_fiber_id = pfs_config_fiber_id
         self.fiber_id = fiber_id
+        self.visit_id = visit_id
         self.target_id = target_id
         self.exptime = exptime
         self.cum_nexp = cum_nexp
@@ -869,7 +856,7 @@ class obs_fiber(Base):
 class sky_model(Base):
     __tablename__ = 'sky_model'
 
-    sky_model_id = Column(Integer, primary_key=True, autoincrement=False)
+    sky_model_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     frame_id = Column(String, ForeignKey('exposure.frame_id'))
     visit = Column(Integer, ForeignKey('visit.visit_id'))
     spectrograph = Column(Integer)
@@ -891,7 +878,7 @@ class sky_model(Base):
 class psf_model(Base):
     __tablename__ = 'psf_model'
 
-    psf_model_id = Column(Integer, primary_key=True, autoincrement=False)
+    psf_model_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     frame_id = Column(String, ForeignKey('exposure.frame_id'))
     visit_id = Column(Integer, ForeignKey('visit.visit_id'))
     spectrograph = Column(Integer)
@@ -913,8 +900,7 @@ class psf_model(Base):
 class pfs_arm(Base):
     __tablename__ = 'pfs_arm'
 
-    pfs_arm_id = Column(Integer, primary_key=True, autoincrement=True)
-    frame_id = Column(String, ForeignKey('exposure.frame_id'), unique=True)
+    frame_id = Column(String, ForeignKey('exposure.frame_id'), primary_key=True, unique=True, autoincrement=False)
     visit_id = Column(Integer, ForeignKey('visit.visit_id'))
     spectrograph = Column(Integer)
     arm = Column(String)
@@ -932,16 +918,14 @@ class pfs_arm(Base):
 
     visits = relation(visit, backref=backref('pfs_arm'))
     exposures = relation(exposure, backref=backref('pfs_arm'))
-    # calibs = relation(calib, backref=backref('pfs_arm'))
     pfs_configs = relation(pfs_config, backref=backref('pfs_arm'))
     sky_models = relation(sky_model, backref=backref('pfs_arm'))
     psf_models = relation(psf_model, backref=backref('pfs_arm'))
 
-    def __init__(self, pfs_arm_id, frame_id, visit_id, spectrograph, arm, arm_num,
+    def __init__(self, frame_id, visit_id, spectrograph, arm, arm_num,
                  calib_flat_id, calib_bias_id, calib_dark_id, calib_arcs_id,
                  sky_model_id, psf_model_id, flags,
                  process_datetime, drp2d_version):
-        self.pfs_arm_id = pfs_arm_id
         self.frame_id = frame_id
         self.visit_id = visit_id
         self.spectrograph = spectrograph
@@ -961,35 +945,31 @@ class pfs_arm(Base):
 
 class pfs_arm_obj(Base):
     __tablename__ = 'pfs_arm_obj'
+    __table_args__ = (UniqueConstraint('frame_id', 'fiber_id'), {})
 
-    pfs_arm_obj_id = Column(BigInteger, primary_key=True, autoincrement=True)
-    pfs_arm_id = Column(Integer, ForeignKey('pfs_arm.pfs_arm_id'))
-    frame_id = Column(String)
+    frame_id = Column(String, ForeignKey('exposure.frame_id'), primary_key=True, autoincrement=False)
+    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     visit_id = Column(Integer, ForeignKey('visit.visit_id'))
     spectrograph = Column(Integer)
     arm = Column(String)
     arm_num = Column(Integer)
-    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'))
-    pfs_config_fiber_id = Column(BigInteger, ForeignKey('pfs_config_fiber.pfs_config_fiber_id'))
     flags = Column(Integer)
     qa_type_id = Column(Integer, ForeignKey('qa_type.qa_type_id'))
     qa_value = Column(REAL)
 
     visits = relation(visit, backref=backref('pfs_arm_obj'))
-    pfs_arms = relation(pfs_arm, backref=backref('pfs_arm_obj'))
-    pfs_config_fibers = relation(pfs_config_fiber, backref=backref('psf_arm_obj'))
+    exposures = relation(exposure, backref=backref('pfs_arm_obj'))
     fiber_positions = relation(fiber_position, backref=backref('pfs_arm_obj'))
     qa_types = relation(qa_type, backref=backref('pfs_arm_obj'))
 
-    def __init__(self, pfs_arm_id, visit_id, spectrograph, arm, arm_num,
-                 fiber_id, pfs_config_fiber_id, flags, qa_type_id, qa_value):
-        self.pfs_arm_id = pfs_arm_id
+    def __init__(self, frame_id, fiber_id, visit_id, spectrograph, arm, arm_num,
+                 flags, qa_type_id, qa_value):
+        self.frame_id = frame_id
+        self.fiber_id = fiber_id
         self.visit_id = visit_id
         self.spectrograph = spectrograph
         self.arm = arm
         self.arm_num = armNum
-        self.fiber_id = fiber_id
-        self.pfs_config_fiber_id = pfs_config_fiber_id
         self.flags = flags
         self.qa_type_id = qa_type_id
         self.qa_value = qa_value
@@ -998,7 +978,7 @@ class pfs_arm_obj(Base):
 class visit_hash(Base):
     __tablename__ = 'visit_hash'
 
-    pfs_visit_hash = Column(BigInteger, primary_key=True, autoincrement=False)
+    pfs_visit_hash = Column(BigInteger, primary_key=True, unique=True, autoincrement=False)
     n_visit = Column(Integer)
 
     def __init__(self, pfs_visit_hash, n_visit):
@@ -1009,7 +989,7 @@ class visit_hash(Base):
 class pfs_object(Base):
     __tablename__ = 'pfs_object'
 
-    pfs_object_id = Column(BigInteger, primary_key=True, autoincrement=True)
+    pfs_object_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=True)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
     tract = Column(Integer)
     patch = Column(String)
@@ -1051,26 +1031,23 @@ class pfs_object(Base):
 
 class visits_to_combine(Base):
     __tablename__ = 'visits_to_combine'
+    __table_args__ = (UniqueConstraint('visit_id', 'pfs_visit_hash'), {})
 
-    visits_to_combine_id = Column(BigInteger, primary_key=True, autoincrement=True)
-    target_id = Column(BigInteger, ForeignKey('target.target_id'))
-    visit = Column(Integer, ForeignKey('visit.visit_id'))
-    pfs_visit_hash = Column(BigInteger, ForeignKey('visit_hash.pfs_visit_hash'))
+    visit_id = Column(Integer, ForeignKey('visit.visit_id'), primary_key=True, autoincrement=False)
+    pfs_visit_hash = Column(BigInteger, ForeignKey('visit_hash.pfs_visit_hash'), primary_key=True, autoincrement=False)
 
-    targets = relation(target, backref=backref('visits_to_combine'))
     visits = relation(visit, backref=backref('visits_to_combine'))
     visit_hashs = relation(visit_hash, backref=backref('visits_to_combine'))
 
-    def __init__(self, target_id, visit, pfs_visit_hash):
-        self.target_id = target_id
-        self.visit = visit
+    def __init__(self, visit_id, pfs_visit_hash):
+        self.visit_id = visit_id
         self.pfs_visit_hash = pfs_visit_hash
 
 
 class line_list(Base):
     __tablename__ = 'line_list'
 
-    line_id = Column(Integer, primary_key=True, autoincrement=False)
+    line_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     line_name = Column(String)
     line_wavelength = Column(REAL)
     created_at = Column(DateTime)
@@ -1086,23 +1063,19 @@ class line_list(Base):
 
 class drp1d(Base):
     __tablename__ = 'drp1d'
+    __table_args__ = (UniqueConstraint('pfs_object_id', 'process_datetime'), {})
 
-    drp1d_id = Column(Integer, primary_key=True, autoincrement=True)
-    pfs_object_id = Column(BigInteger, ForeignKey('pfs_object.pfs_object_id'))
+    pfs_object_id = Column(BigInteger, ForeignKey('pfs_object.pfs_object_id'), primary_key=True, autoincrement=False)
     z_best = Column(REAL)
     z_best_err = Column(REAL)
     z_best_reliability = Column(REAL)
     obj_type_id = Column(Integer, ForeignKey('obj_type.obj_type_id'))
     flags = Column(Integer)
-    process_datetime = Column(DateTime)
+    process_datetime = Column(DateTime, primary_key=True, autoincrement=False)
     drp1d_version = Column(String)
 
-    pfs_objects = relation(pfs_object, backref=backref('drp1d'))
-    obj_types = relation(obj_type, backref=backref('drp1d'))
-
-    def __init__(self, drp1d_id, pfs_object_id, z_best, z_best_err, z_best_reliability,
+    def __init__(self, pfs_object_id, z_best, z_best_err, z_best_reliability,
                  obj_type_id, flags, process_datetime, drp1d_version):
-        self.drp1d_id = drp1d_id
         self.pfs_object_id = pfs_object_id
         self.z_best = z_best
         self.z_best_err = z_best_err
@@ -1115,33 +1088,41 @@ class drp1d(Base):
 
 class drp1d_redshift(Base):
     __tablename__ = 'drp1d_redshift'
+    __table_args__ = (UniqueConstraint('pfs_object_id', 'process_datetime'),
+                      ForeignKeyConstraint(['pfs_object_id', 'process_datetime'],
+                                           ['drp1d.pfs_object_id', 'drp1d.process_datetime']),
+                      {})
 
-    drp1d_redshift_id = Column(BigInteger, primary_key=True, autoincrement=True)
-    drp1d_id = Column(Integer, ForeignKey('drp1d.drp1d_id'))
+    pfs_object_id = Column(BigInteger, primary_key=True, autoincrement=False)
     z = Column(REAL)
     z_err = Column(REAL)
     zrank = Column(REAL)
     reliability = Column(REAL)
     spec_class = Column(String)
     spec_subclass = Column(String)
+    process_datetime = Column(DateTime, primary_key=True, autoincrement=False)
 
-    def __init__(self, drp1d_redshift_id, drp1d_id, z, z_err, zrank, reliability, spec_Class, spec_subclass):
-        self.drp1d_redshift_id = drp1d_redshift_id
-        self.drp1d_id = drp1d_id
+    def __init__(self, pfs_object_id, z, z_err, zrank, reliability, spec_Class, spec_subclass, process_datetime):
+        self.pfs_object_id = pfs_object_id
         self.z = z
         self.z_err = z_err
         self.zrank = zrank
         self.reliability = reliability
         self.spec_class = spec_class
         self.spec_subclass = spec_subclass
+        self.process_datetime = process_datetime
 
 
 class drp1d_line(Base):
     __tablename__ = 'drp1d_line'
+    __table_args__ = (UniqueConstraint('pfs_object_id', 'line_id'), {})
+    __table_args__ = (UniqueConstraint('pfs_object_id', 'process_datetime', 'line_id'),
+                      ForeignKeyConstraint(['pfs_object_id', 'process_datetime'],
+                                           ['drp1d.pfs_object_id', 'drp1d.process_datetime']),
+                      {})
 
-    drp1d_line_id = Column(BigInteger, primary_key=True, autoincrement=True)
-    drp1d_id = Column(Integer, ForeignKey('drp1d.drp1d_id'))
-    line_id = Column(Integer, ForeignKey('line_list.line_id'))
+    pfs_object_id = Column(BigInteger, primary_key=True, autoincrement=False)
+    line_id = Column(Integer, ForeignKey('line_list.line_id'), primary_key=True, autoincrement=False)
     line_name = Column(String)
     line_wave = Column(REAL)
     line_z = Column(REAL)
@@ -1156,11 +1137,10 @@ class drp1d_line(Base):
     line_ew_err = Column(REAL)
     line_cont_level = Column(REAL)
     line_cont_level_err = Column(REAL)
+    process_datetime = Column(DateTime, primary_key=True, autoincrement=False)
 
-    line_lists = relation(line_list, backref=backref('drp1d_line'))
-
-    def __init__(self, drp1d_line_id, drp1d_id, line_id, line_name, line_wave, line_z, line_z_err, line_sigma, line_sigma_err, line_vel, line_vel_err, line_flux, line_flux_err, line_ew, line_ew_err, line_cont_level, line_cont_level_err):
-        self.drp1d_line_id = drp1d_line_id
+    def __init__(self, pfs_object_id, line_id, line_name, line_wave, line_z, line_z_err, line_sigma, line_sigma_err, line_vel, line_vel_err, line_flux, line_flux_err, line_ew, line_ew_err, line_cont_level, line_cont_level_err, process_datetime):
+        self.pfs_object_id = pfs_object_id
         self.drp1d_id = drp1d_id
         self.line_id = lineId
         self.line_name = line_name
@@ -1177,28 +1157,26 @@ class drp1d_line(Base):
         self.line_ew_err = line_ew_err
         self.line_cont_level = line_cont_level
         self.line_cont_level_err = line_cont_level_err
+        self.process_datetime = process_datetime
 
 
 class drp_ga(Base):
     __tablename__ = 'drp_ga'
+    __table_args__ = (UniqueConstraint('pfs_object_id', 'process_datetime'), {})
 
-    drp_ga_id = Column(Integer, primary_key=True, autoincrement=True)
-    pfs_object_id = Column(BigInteger, ForeignKey('pfs_object.pfs_object_id'), primary_key=True)
+    pfs_object_id = Column(BigInteger, ForeignKey('pfs_object.pfs_object_id'), primary_key=True, autoincrement=False)
     star_type_id = Column(Integer, ForeignKey('star_type.star_type_id'))
     velocity = Column(REAL)
     metallicity = Column(REAL)
     logg = Column(REAL)
     teff = Column(REAL)
     flags = Column(Integer)
-    process_datetime = Column(DateTime)
+    process_datetime = Column(DateTime, primary_key=True, autoincrement=False)
     drp_ga_version = Column(String)
 
-    pfs_objects = relation(pfs_object, backref=backref('drp_ga'))
-    star_types = relation(star_type, backref=backref('drp_ga'))
-
-    def __init__(self, drp_ga_id, star_type_id, velocity, metallicity, logg, teff,
+    def __init__(self, pfs_object_id, star_type_id, velocity, metallicity, logg, teff,
                  flags, process_datetime, drp_ga_version):
-        self.drp_ga_id = drp_ga_id
+        self.pfs_object_id = pfs_object_id
         self.star_type_id = start_type_id
         self.velocity = velocity
         self.metallicity = metallicity
