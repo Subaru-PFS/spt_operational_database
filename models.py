@@ -798,7 +798,7 @@ class sps_exposure(Base):
     frame_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     tel_visit_id = Column(Integer, ForeignKey('tel_visit.tel_visit_id'))
     spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
-    exptime = Column(REAL)
+    sps_exptime = Column(REAL)
     is_medium_resolution = Column(Boolean)
 
     tel_visits = relation(tel_visit, backref=backref('sps_exposure'))
@@ -808,12 +808,12 @@ class sps_exposure(Base):
     beam_switch_modes = relation(beam_switch_mode, backref=backref('sps_exposure'))
 
     def __init__(self, frame_id, tel_visit_id, spectrograph_id,
-                 exptime, is_medium_resolution=False
+                 sps_exptime, is_medium_resolution=False
                  ):
         self.frame_id = frame_id
         self.tel_visit_id = tel_visit_id
         self.spectrograph_id = spectrograph_id
-        self.exptime = exptime
+        self.sps_exptime = sps_exptime
         self.is_medium_resolution = is_medium_resolution
 
 
