@@ -361,9 +361,9 @@ class pfs_design(Base):
 
     pfs_design_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=False)
     tile_id = Column(Integer, ForeignKey('tile.tile_id'))
-    ra_center = Column(FLOAT)
-    dec_center = Column(FLOAT)
-    pa_config = Column(REAL)
+    ra_center_designed = Column(FLOAT)
+    dec_center_designed = Column(FLOAT)
+    pa_designed = Column(REAL)
     num_sci_designed = Column(Integer)
     num_cal_designed = Column(Integer)
     num_sky_designed = Column(Integer)
@@ -377,14 +377,14 @@ class pfs_design(Base):
 
     tiles = relation(tile, backref=backref('pfs_design'))
 
-    def __init__(self, pfs_design_id, tile_id, ra_center, dec_center, pa_config,
+    def __init__(self, pfs_design_id, tile_id, ra_center_designed, dec_center_designed, pa_designed,
                  num_sci_designed, num_cal_designed, num_sky_designed, num_guide_stars,
                  exptime, min_exptime, ets_version, ets_assgner, ets_exectime, is_obsolete=False):
         self.pfs_design_id = pfs_design_id
         self.tile_id = tile_id
-        self.ra_center = ra_center
-        self.dec_center = dec_center
-        self.pa_config = paConfig
+        self.ra_center_designed = ra_center_designed
+        self.dec_center_designed = dec_center_designed
+        self.pa_designed = pa_designed
         self.num_sci_designed = num_sci_designed
         self.num_cal_designed = num_cal_designed
         self.num_sky_designed = num_sky_designed
@@ -475,19 +475,6 @@ class flux_calib(Base):
         self.flux_calib_star_z = flux_calib_star_z
 
 
-class visit(Base):
-    __tablename__ = 'visit'
-
-    visit_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
-    visit_type = Column(Integer)
-    visit_description = Column(String)
-
-    def __init__(self, visit_id, visit_type, visit_description):
-        self.visit_id = visit_id
-        self.visit_type = visit_type
-        self.visit_description = visit_description
-
-
 class pfi_visit(Base):
     __tablename__ = 'pfi_visit'
 
@@ -574,12 +561,10 @@ class pfs_config(Base):
 
     pfs_config_id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
     pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'))
-    visit0 = Column(Integer, ForeignKey('visit.visit_id'))
-    ra_center = Column(FLOAT)
-    dec_center = Column(FLOAT)
+    visit0 = Column(Integer)
+    ra_center_config = Column(FLOAT)
+    dec_center_config = Column(FLOAT)
     pa_config = Column(REAL)
-    tel_el = Column(REAL)
-    insrot = Column(REAL)
     num_sci_allocated = Column(Integer)
     num_cal_allocated = Column(Integer)
     num_sky_allocated = Column(Integer)
@@ -594,20 +579,16 @@ class pfs_config(Base):
 
     pfs_designs = relation(pfs_design, backref=backref('pfs_config'))
 
-    visits = relation(visit, backref=backref('pfs_config'))
-
-    def __init__(self, pfs_config_id, pfs_design_id, visit0, ra_center, dec_center, pa_config, tel_el, ins_rot,
+    def __init__(self, pfs_config_id, pfs_design_id, visit0, ra_center_config, dec_center_config, pa_config,
                  num_sci_allocated, num_cal_allocated, num_sky_allocated, num_guide_stars,
                  exptime, min_exptime, alloc_num_iter, alloc_elapsetime, alloc_rms_scatter, alloc_exectime,
                  is_observed=False):
         self.pfs_config_id = pfs_config_id
         self.pfs_design_id = pfs_design_id
         self.visit0 = visit0
-        self.ra_center = ra_center
-        self.dec_center = dec_center
+        self.ra_center_config = ra_center_config
+        self.dec_center_config = dec_center_config
         self.pa_config = pa_config
-        self.tel_el = tel_el
-        self.ins_rot = ins_rot
         self.num_sci_allocated = num_sci_allocated
         self.num_cal_allocated = num_cal_allocated
         self.num_sky_allocated = num_sky_allocated
@@ -739,20 +720,25 @@ class beam_switch_mode(Base):
         self.beam_switch_mode_description = beam_switch_mode_description
 
 
-class exposure(Base):
-    __tablename__ = 'exposure'
+class tel_visit(Base):
+    __tablename__ = 'tel_visit'
 
-    frame_id = Column(String, primary_key=True, unique=True, autoincrement=False)
-    visit_id = Column(Integer, ForeignKey('visit.visit_id'))
-    spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
+    tel_visit_id = Column(Integer, primary_key=True, autoincrement=False)
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
     ra_tel = Column(FLOAT)
     dec_tel = Column(FLOAT)
-    exptime = Column(REAL)
+    beam_switch_mode_id = Column(Integer, ForeignKey('beam_switch_mode.beam_switch_mode_id'))
+    beam_switch_offset_ra = Column(REAL)
+    beam_switch_offset_dec = Column(REAL)
     time_obs_start = Column(DateTime)
     time_obs_end = Column(DateTime)
     mjd_start = Column(REAL)
     mjd_end = Column(REAL)
+    focusing_error = Column(REAL)
+    insrot_start = Column(REAL)
+    insrot_end = Column(REAL)
+    guide_error_dx = Column(REAL)
+    guide_error_dy = Column(REAL)
     airmass = Column(REAL)
     seeing = Column(REAL)
     transp = Column(REAL)
@@ -762,40 +748,31 @@ class exposure(Base):
     moon_sep = Column(REAL)
     throughput = Column(REAL)
     cloud_condition_id = Column(Integer, ForeignKey('cloud_condition.cloud_condition_id'))
-    focusing_error = Column(REAL)
-    insrot_start = Column(REAL)
-    insrot_end = Column(REAL)
-    guide_error_dx = Column(REAL)
-    guide_error_dy = Column(REAL)
-    beam_switch_mode_id = Column(Integer, ForeignKey('beam_switch_mode.beam_switch_mode_id'))
-    beam_switch_offset_ra = Column(REAL)
-    beam_switch_offset_dec = Column(REAL)
-    is_medium_resolution = Column(Boolean)
 
-    visits = relation(visit, backref=backref('exposure'))
-    spectrographs = relation(spectrograph, backref=backref('exposure'))
-    pfs_configs = relation(pfs_config, backref=backref('exposure'))
-    cloud_conditions = relation(cloud_condition, backref=backref('exposure'))
-    beam_switch_modes = relation(beam_switch_mode, backref=backref('exposure'))
-
-    def __init__(self, frame_id, visit_id, spectrograph_id,
-                 pfs_config_id, ra_tel, dec_tel, exptime, time_obs_start, time_obs_end,
-                 mjd_start, mjd_end, airmass, seeing, transp, background, moon_phase, moon_alt, moon_sep,
-                 throughput, cloud_condition_id, guide_error_dx, guide_error_dy, focusing_error,
-                 insrot_start, insrot_end, beam_switch_mode_id=0, beam_switch_offset_ra=0.0, beam_switch_offset_dec=0.0,
-                 is_medium_resolution=False
+    def __init__(self, tel_visit_id,
+                 pfs_config_id, ra_tel, dec_tel,
+                 beam_switch_mode_id, beam_switch_offset_ra, beam_switch_offset_dec,
+                 time_obs_start, time_obs_end, mjd_start, mjd_end,
+                 guide_error_dx, guide_error_dy, focusing_error, insrot_start, insrot_end,
+                 airmass, seeing, transp, background, moon_phase, moon_alt, moon_sep,
+                 throughput, cloud_condition_id,
                  ):
-        self.frame_id = frame_id
-        self.visit_id = visit_id
-        self.spectrograph_id = spectrograph_id
+        self.tel_visit_id = tel_visit_id
         self.pfs_config_id = pfs_config_id
         self.ra_tel = ra_tel
         self.dec_tel = dec_tel
-        self.exptime = exptime
+        self.beam_switch_mode_id = beam_switch_mode_id
+        self.beam_switch_offset_ra = beam_switch_offset_ra
+        self.beam_switch_offset_dec = beam_switch_offset_dec
         self.time_obs_start = time_obs_start
         self.time_obs_end = time_obs_end
         self.mjd_start = mjd_start
         self.mjd_end = mjd_end
+        self.focusing_error = focusing_error
+        self.insrot_start = insrot_start
+        self.insrot_end = insrot_end
+        self.guide_error_dx = guide_error_dx
+        self.guide_error_dy = guide_error_dy
         self.airmass = airmass
         self.seeing = seeing
         self.transp = transp
@@ -805,14 +782,30 @@ class exposure(Base):
         self.moon_sep = moon_sep
         self.throughput = throughput
         self.cloud_condition_id = cloud_condition_id
-        self.focusing_error = focusing_error
-        self.insrot_start = insrot_start
-        self.insrot_end = insrot_end
-        self.guide_error_dx = guide_error_dx
-        self.guide_error_dy = guide_error_dy
-        self.beam_switch_mode_id = beam_switch_mode_id
-        self.beam_switch_offset_ra = beam_switch_offset_ra
-        self.beam_switch_offset_dec = beam_switch_offset_dec
+
+
+class sps_exposure(Base):
+    __tablename__ = 'sps_exposure'
+
+    frame_id = Column(String, primary_key=True, unique=True, autoincrement=False)
+    tel_visit_id = Column(Integer, ForeignKey('tel_visit.tel_visit_id'))
+    spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
+    exptime = Column(REAL)
+    is_medium_resolution = Column(Boolean)
+
+    tel_visits = relation(tel_visit, backref=backref('sps_exposure'))
+    spectrographs = relation(spectrograph, backref=backref('sps_exposure'))
+    pfs_configs = relation(pfs_config, backref=backref('sps_exposure'))
+    cloud_conditions = relation(cloud_condition, backref=backref('sps_exposure'))
+    beam_switch_modes = relation(beam_switch_mode, backref=backref('sps_exposure'))
+
+    def __init__(self, frame_id, tel_visit_id, spectrograph_id,
+                 exptime, is_medium_resolution=False
+                 ):
+        self.frame_id = frame_id
+        self.tel_visit_id = tel_visit_id
+        self.spectrograph_id = spectrograph_id
+        self.exptime = exptime
         self.is_medium_resolution = is_medium_resolution
 
 
@@ -820,7 +813,7 @@ class obs_fiber(Base):
     __tablename__ = 'obs_fiber'
     __table_args__ = (UniqueConstraint('frame_id', 'fiber_id'), {})
 
-    frame_id = Column(String, ForeignKey('exposure.frame_id'), primary_key=True, autoincrement=False)
+    frame_id = Column(String, ForeignKey('sps_exposure.frame_id'), primary_key=True, autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger)
     exptime = Column(REAL)
@@ -829,7 +822,7 @@ class obs_fiber(Base):
     delta_pfi_x = Column(REAL)
     delta_pfi_y = Column(REAL)
 
-    exposures = relation(exposure, backref=backref('obs_fiber'))
+    sps_exposures = relation(sps_exposure, backref=backref('obs_fiber'))
     fiber_positions = relation(fiber_position, backref=backref('obs_fiber'))
 
     def __init__(self, frame_id, fiber_id, target_id,
@@ -848,17 +841,17 @@ class sky_model(Base):
     __tablename__ = 'sky_model'
 
     sky_model_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
-    frame_id = Column(String, ForeignKey('exposure.frame_id'))
-    visit_id = Column(Integer)
+    frame_id = Column(String, ForeignKey('sps_exposure.frame_id'))
+    tel_visit_id = Column(Integer)
     spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
 
-    exposures = relation(exposure, backref=backref('sky_model'))
+    sps_exposures = relation(sps_exposure, backref=backref('sky_model'))
     spectrographs = relation(spectrograph, backref=backref('sky_model'))
 
-    def __init__(self, sky_model_id, frame_id, visit_id, spectrograph_id):
+    def __init__(self, sky_model_id, frame_id, tel_visit_id, spectrograph_id):
         self.sky_model_id = sky_model_id
         self.frame_id = frame_id
-        self.visit_id = visit_id
+        self.tel_visit_id = tel_visit_id
         self.spectrograph_id = spectrograph_id
 
 
@@ -866,24 +859,24 @@ class psf_model(Base):
     __tablename__ = 'psf_model'
 
     psf_model_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
-    frame_id = Column(String, ForeignKey('exposure.frame_id'))
-    visit_id = Column(Integer)
+    frame_id = Column(String, ForeignKey('sps_exposure.frame_id'))
+    tel_visit_id = Column(Integer)
     spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
 
-    exposures = relation(exposure, backref=backref('psf_model'))
+    sps_exposures = relation(sps_exposure, backref=backref('psf_model'))
     spectrographs = relation(spectrograph, backref=backref('psf_model'))
 
-    def __init__(self, psf_model_id, frame_id, visit_id, spectrograph_id):
+    def __init__(self, psf_model_id, frame_id, tel_visit_id, spectrograph_id):
         self.psf_model_id = psf_model_id
         self.frame_id = frame_id
-        self.visit_id = visit_id
+        self.tel_visit_id = tel_visit_id
         self.spectrograph_id = spectrograph_id
 
 
 class pfs_arm(Base):
     __tablename__ = 'pfs_arm'
 
-    frame_id = Column(String, ForeignKey('exposure.frame_id'), primary_key=True, unique=True, autoincrement=False)
+    frame_id = Column(String, ForeignKey('sps_exposure.frame_id'), primary_key=True, unique=True, autoincrement=False)
     spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
     calib_flat_id = Column(Integer, ForeignKey('calib.calib_id'))
     calib_bias_id = Column(Integer, ForeignKey('calib.calib_id'))
@@ -897,7 +890,7 @@ class pfs_arm(Base):
     drp2d_version = Column(String)
 
     spectrographs = relation(spectrograph, backref=backref('pfs_arm'))
-    exposures = relation(exposure, backref=backref('pfs_arm'))
+    sps_exposures = relation(sps_exposure, backref=backref('pfs_arm'))
     pfs_configs = relation(pfs_config, backref=backref('pfs_arm'))
     sky_models = relation(sky_model, backref=backref('pfs_arm'))
     psf_models = relation(psf_model, backref=backref('pfs_arm'))
@@ -930,7 +923,7 @@ class pfs_arm_obj(Base):
     qa_type_id = Column(Integer, ForeignKey('qa_type.qa_type_id'))
     qa_value = Column(REAL)
 
-    exposures = relation(exposure, backref=backref('pfs_arm_obj'))
+    pfs_arms = relation(pfs_arm, backref=backref('pfs_arm_obj'))
     fiber_positions = relation(fiber_position, backref=backref('pfs_arm_obj'))
     qa_types = relation(qa_type, backref=backref('pfs_arm_obj'))
 
@@ -998,16 +991,16 @@ class pfs_object(Base):
 
 class visits_to_combine(Base):
     __tablename__ = 'visits_to_combine'
-    __table_args__ = (UniqueConstraint('visit_id', 'pfs_visit_hash'), {})
+    __table_args__ = (UniqueConstraint('tel_visit_id', 'pfs_visit_hash'), {})
 
-    visit_id = Column(Integer, ForeignKey('visit.visit_id'), primary_key=True, autoincrement=False)
+    tel_visit_id = Column(Integer, ForeignKey('tel_visit.tel_visit_id'), primary_key=True, autoincrement=False)
     pfs_visit_hash = Column(BigInteger, ForeignKey('visit_hash.pfs_visit_hash'), primary_key=True, autoincrement=False)
 
-    visits = relation(visit, backref=backref('visits_to_combine'))
+    sps_exposures = relation(sps_exposure, backref=backref('visits_to_combine'))
     visit_hashs = relation(visit_hash, backref=backref('visits_to_combine'))
 
-    def __init__(self, visit_id, pfs_visit_hash):
-        self.visit_id = visit_id
+    def __init__(self, tel_visit_id, pfs_visit_hash):
+        self.tel_visit_id = tel_visit_id
         self.pfs_visit_hash = pfs_visit_hash
 
 
