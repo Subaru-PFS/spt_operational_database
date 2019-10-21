@@ -731,17 +731,17 @@ class tel_visit(Base):
     beam_switch_mode_id = Column(Integer, ForeignKey('beam_switch_mode.beam_switch_mode_id'))
     beam_switch_offset_ra = Column(REAL)
     beam_switch_offset_dec = Column(REAL)
-    time_obs_start = Column(DateTime)
-    time_obs_end = Column(DateTime)
-    mjd_start = Column(REAL)
-    mjd_end = Column(REAL)
+    time_exp_start = Column(DateTime)
+    time_exp_end = Column(DateTime)
+    mjd_exp_start = Column(REAL)
+    mjd_exp_end = Column(REAL)
     insrot_start = Column(REAL)
     insrot_end = Column(REAL)
 
     def __init__(self, tel_visit_id,
                  pfs_config_id, ra_tel, dec_tel,
                  beam_switch_mode_id, beam_switch_offset_ra, beam_switch_offset_dec,
-                 time_obs_start, time_obs_end, mjd_start, mjd_end,
+                 time_exp_start, time_exp_end, mjd_exp_start, mjd_exp_end,
                  insrot_start, insrot_end
                  ):
         self.tel_visit_id = tel_visit_id
@@ -751,8 +751,8 @@ class tel_visit(Base):
         self.beam_switch_mode_id = beam_switch_mode_id
         self.beam_switch_offset_ra = beam_switch_offset_ra
         self.beam_switch_offset_dec = beam_switch_offset_dec
-        self.time_obs_start = time_obs_start
-        self.time_obs_end = time_obs_end
+        self.time_exp_start = time_exp_start
+        self.time_exp_end = time_exp_end
         self.mjd_start = mjd_start
         self.mjd_end = mjd_end
         self.insrot_start = insrot_start
