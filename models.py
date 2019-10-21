@@ -226,6 +226,21 @@ class fiducial_fiber_position(Base):
         self.version = version
 
 
+class spectrograph(Base):
+    __tablename__ = 'spectrograph'
+
+    spectrograph_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
+    spectrograph_module = Column(Integer)
+    arm = Column(String(1))
+    arm_num = Column(Integer)
+
+    def __init__(self, spectrograph_id, spectrograph_module, arm, arm_num):
+        self.spectrograph_id = spectrograph_id
+        self.spectrograph_module = spectrograph_module
+        self.arm = arm
+        self.arm_num = arm_num
+
+
 class target(Base):
     __tablename__ = 'target'
 
@@ -422,21 +437,20 @@ class calib(Base):
     calib_iype = Column(String)
     calib_date = Column(DateTime)
     pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'))
-    spectrograph = Column(Integer)
-    arm = Column(String)
+    spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
     exptime = Column(REAL)
     visits_in_use = Column(String)
 
     pfs_designs = relation(pfs_design, backref=backref('calib'))
+    spectrographs = relation(spectrograph, backref=backref('calib'))
 
-    def __init__(self, calib_id, calib_type, calib_date, pfs_design_id, spectrogarph, arm,
+    def __init__(self, calib_id, calib_type, calib_date, pfs_design_id, spectrogarph_id,
                  exptime, visits_in_use):
         self.calib_id = calib_id
         self.calib_type = calib_type
         self.calib_date = calib_date
         self.pfs_design_id = pfs_design_id
-        self.spectrograph = spectrograph
-        self.arm = arm
+        self.spectrograph_id = spectrograph_id
         self.exptime = exptime
         self.visits_in_use = visits_in_use
 
@@ -730,9 +744,7 @@ class exposure(Base):
 
     frame_id = Column(String, primary_key=True, unique=True, autoincrement=False)
     visit_id = Column(Integer, ForeignKey('visit.visit_id'))
-    spectrograph = Column(Integer)
-    arm = Column(String)
-    arm_num = Column(Integer)
+    spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
     ra_tel = Column(FLOAT)
     dec_tel = Column(FLOAT)
@@ -761,11 +773,12 @@ class exposure(Base):
     is_medium_resolution = Column(Boolean)
 
     visits = relation(visit, backref=backref('exposure'))
+    spectrographs = relation(spectrograph, backref=backref('exposure'))
     pfs_configs = relation(pfs_config, backref=backref('exposure'))
     cloud_conditions = relation(cloud_condition, backref=backref('exposure'))
     beam_switch_modes = relation(beam_switch_mode, backref=backref('exposure'))
 
-    def __init__(self, frame_id, visit_id, spectrograph, arm, arm_num,
+    def __init__(self, frame_id, visit_id, spectrograph_id,
                  pfs_config_id, ra_tel, dec_tel, exptime, time_obs_start, time_obs_end,
                  mjd_start, mjd_end, airmass, seeing, transp, background, moon_phase, moon_alt, moon_sep,
                  throughput, cloud_condition_id, guide_error_dx, guide_error_dy, focusing_error,
@@ -774,9 +787,7 @@ class exposure(Base):
                  ):
         self.frame_id = frame_id
         self.visit_id = visit_id
-        self.spectrograph = spectrograph
-        self.arm = arm
-        self.arm_num = arm_num
+        self.spectrograph_id = spectrograph_id
         self.pfs_config_id = pfs_config_id
         self.ra_tel = ra_tel
         self.dec_tel = dec_tel
@@ -842,19 +853,16 @@ class sky_model(Base):
     sky_model_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     frame_id = Column(String, ForeignKey('exposure.frame_id'))
     visit_id = Column(Integer)
-    spectrograph = Column(Integer)
-    arm = Column(String)
-    arm_num = Column(Integer)
+    spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
 
     exposures = relation(exposure, backref=backref('sky_model'))
+    spectrographs = relation(spectrograph, backref=backref('sky_model'))
 
-    def __init__(self, sky_model_id, frame_id, visit_id, spectrograph, arm, arm_num):
+    def __init__(self, sky_model_id, frame_id, visit_id, spectrograph_id):
         self.sky_model_id = sky_model_id
         self.frame_id = frame_id
         self.visit_id = visit_id
-        self.spectrograph = spectrograph
-        self.arm = arm
-        self.arm_num = arm_num
+        self.spectrograph_id = spectrograph_id
 
 
 class psf_model(Base):
@@ -863,19 +871,16 @@ class psf_model(Base):
     psf_model_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     frame_id = Column(String, ForeignKey('exposure.frame_id'))
     visit_id = Column(Integer)
-    spectrograph = Column(Integer)
-    arm = Column(String)
-    arm_num = Column(Integer)
+    spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
 
     exposures = relation(exposure, backref=backref('psf_model'))
+    spectrographs = relation(spectrograph, backref=backref('psf_model'))
 
-    def __init__(self, psf_model_id, frame_id, visit_id, spectrograph, arm, arm_num):
+    def __init__(self, psf_model_id, frame_id, visit_id, spectrograph_id):
         self.psf_model_id = psf_model_id
         self.frame_id = frame_id
         self.visit_id = visit_id
-        self.spectrograph = spectrograph
-        self.arm = arm
-        self.arm_num = arm_num
+        self.spectrograph_id = spectrograph_id
 
 
 class pfs_arm(Base):
@@ -883,9 +888,7 @@ class pfs_arm(Base):
 
     frame_id = Column(String, ForeignKey('exposure.frame_id'), primary_key=True, unique=True, autoincrement=False)
     visit_id = Column(Integer, ForeignKey('visit.visit_id'))
-    spectrograph = Column(Integer)
-    arm = Column(String)
-    arm_num = Column(Integer)
+    spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
     calib_flat_id = Column(Integer, ForeignKey('calib.calib_id'))
     calib_bias_id = Column(Integer, ForeignKey('calib.calib_id'))
     calib_dark_id = Column(Integer, ForeignKey('calib.calib_id'))
@@ -898,20 +901,19 @@ class pfs_arm(Base):
     drp2d_version = Column(String)
 
     visits = relation(visit, backref=backref('pfs_arm'))
+    spectrographs = relation(spectrograph, backref=backref('pfs_arm'))
     exposures = relation(exposure, backref=backref('pfs_arm'))
     pfs_configs = relation(pfs_config, backref=backref('pfs_arm'))
     sky_models = relation(sky_model, backref=backref('pfs_arm'))
     psf_models = relation(psf_model, backref=backref('pfs_arm'))
 
-    def __init__(self, frame_id, visit_id, spectrograph, arm, arm_num,
+    def __init__(self, frame_id, visit_id, spectrograph_id,
                  calib_flat_id, calib_bias_id, calib_dark_id, calib_arcs_id,
                  sky_model_id, psf_model_id, flags,
                  process_datetime, drp2d_version):
         self.frame_id = frame_id
         self.visit_id = visit_id
-        self.spectrograph = spectrograph
-        self.arm = arm
-        self.arm_num = arm_num
+        self.spectrograph_id = spectrograph_id
         self.calib_flat_id = calib_flat_id
         self.calib_bias_id = calib_bias_id
         self.calib_dark_id = calib_dark_id
@@ -931,9 +933,6 @@ class pfs_arm_obj(Base):
     frame_id = Column(String, ForeignKey('exposure.frame_id'), primary_key=True, autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     visit_id = Column(Integer, ForeignKey('visit.visit_id'))
-    spectrograph = Column(Integer)
-    arm = Column(String)
-    arm_num = Column(Integer)
     flags = Column(Integer)
     qa_type_id = Column(Integer, ForeignKey('qa_type.qa_type_id'))
     qa_value = Column(REAL)
@@ -943,14 +942,10 @@ class pfs_arm_obj(Base):
     fiber_positions = relation(fiber_position, backref=backref('pfs_arm_obj'))
     qa_types = relation(qa_type, backref=backref('pfs_arm_obj'))
 
-    def __init__(self, frame_id, fiber_id, visit_id, spectrograph, arm, arm_num,
-                 flags, qa_type_id, qa_value):
+    def __init__(self, frame_id, fiber_id, visit_id, flags, qa_type_id, qa_value):
         self.frame_id = frame_id
         self.fiber_id = fiber_id
         self.visit_id = visit_id
-        self.spectrograph = spectrograph
-        self.arm = arm
-        self.arm_num = armNum
         self.flags = flags
         self.qa_type_id = qa_type_id
         self.qa_value = qa_value
