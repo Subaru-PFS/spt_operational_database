@@ -601,12 +601,6 @@ class pfs_config_fiber(Base):
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'), primary_key=True, autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
-    pfi_nominal_x = Column(REAL)
-    pfi_nominal_y = Column(REAL)
-    pfi_center_x = Column(REAL)
-    pfi_center_y = Column(REAL)
-    mcs_center_x = Column(REAL)
-    mcs_center_y = Column(REAL)
     motor_map_summary = Column(String)
     config_time = Column(REAL)
     is_on_source = Column(Boolean)
@@ -616,18 +610,11 @@ class pfs_config_fiber(Base):
     fiber_positions = relation(fiber_position, backref=backref('psf_config_fiber'))
 
     def __init__(self, pfs_config_id, fiber_id, target_id,
-                 pfi_nominal_x, pfi_nominal_y, pfi_center_x, pfi_center_y,
-                 mcs_center_x, mcs_center_y, motor_map_summary, config_time,
+                 motor_map_summary, config_time,
                  is_on_source=True):
         self.pfs_config_id = pfs_config_id
         self.fiber_id = fiber_id
         self.target_id = target_id
-        self.pfi_nominal_x = pfi_nominal_x
-        self.pfi_nominal_y = pfi_nominal_y
-        self.pfi_center_x = pfi_center_x
-        self.pfi_center_y = pfi_center_y
-        self.mcs_center_x = mcs_center_x
-        self.mcs_center_y = mcs_center_y
         self.motor_map_summary = motor_map_summary
         self.config_time = config_time
         self.is_on_source = is_on_source
