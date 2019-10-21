@@ -887,7 +887,6 @@ class pfs_arm(Base):
     __tablename__ = 'pfs_arm'
 
     frame_id = Column(String, ForeignKey('exposure.frame_id'), primary_key=True, unique=True, autoincrement=False)
-    visit_id = Column(Integer, ForeignKey('visit.visit_id'))
     spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
     calib_flat_id = Column(Integer, ForeignKey('calib.calib_id'))
     calib_bias_id = Column(Integer, ForeignKey('calib.calib_id'))
@@ -900,19 +899,17 @@ class pfs_arm(Base):
     process_datetime = Column(DateTime)
     drp2d_version = Column(String)
 
-    visits = relation(visit, backref=backref('pfs_arm'))
     spectrographs = relation(spectrograph, backref=backref('pfs_arm'))
     exposures = relation(exposure, backref=backref('pfs_arm'))
     pfs_configs = relation(pfs_config, backref=backref('pfs_arm'))
     sky_models = relation(sky_model, backref=backref('pfs_arm'))
     psf_models = relation(psf_model, backref=backref('pfs_arm'))
 
-    def __init__(self, frame_id, visit_id, spectrograph_id,
+    def __init__(self, frame_id, spectrograph_id,
                  calib_flat_id, calib_bias_id, calib_dark_id, calib_arcs_id,
                  sky_model_id, psf_model_id, flags,
                  process_datetime, drp2d_version):
         self.frame_id = frame_id
-        self.visit_id = visit_id
         self.spectrograph_id = spectrograph_id
         self.calib_flat_id = calib_flat_id
         self.calib_bias_id = calib_bias_id
@@ -930,22 +927,19 @@ class pfs_arm_obj(Base):
     __tablename__ = 'pfs_arm_obj'
     __table_args__ = (UniqueConstraint('frame_id', 'fiber_id'), {})
 
-    frame_id = Column(String, ForeignKey('exposure.frame_id'), primary_key=True, autoincrement=False)
+    frame_id = Column(String, ForeignKey('pfs_arm.frame_id'), primary_key=True, autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
-    visit_id = Column(Integer, ForeignKey('visit.visit_id'))
     flags = Column(Integer)
     qa_type_id = Column(Integer, ForeignKey('qa_type.qa_type_id'))
     qa_value = Column(REAL)
 
-    visits = relation(visit, backref=backref('pfs_arm_obj'))
     exposures = relation(exposure, backref=backref('pfs_arm_obj'))
     fiber_positions = relation(fiber_position, backref=backref('pfs_arm_obj'))
     qa_types = relation(qa_type, backref=backref('pfs_arm_obj'))
 
-    def __init__(self, frame_id, fiber_id, visit_id, flags, qa_type_id, qa_value):
+    def __init__(self, frame_id, fiber_id, flags, qa_type_id, qa_value):
         self.frame_id = frame_id
         self.fiber_id = fiber_id
-        self.visit_id = visit_id
         self.flags = flags
         self.qa_type_id = qa_type_id
         self.qa_value = qa_value
