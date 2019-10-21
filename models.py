@@ -604,7 +604,8 @@ class pfs_config(Base):
 
 class pfs_config_fiber(Base):
     __tablename__ = 'pfs_config_fiber'
-    __table_args__ = (UniqueConstraint('pfs_config_id', 'fiber_id'), {})
+    __table_args__ = (UniqueConstraint('pfs_config_id', 'fiber_id'),
+                      {})
 
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'), primary_key=True, autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
@@ -734,28 +735,14 @@ class tel_visit(Base):
     time_obs_end = Column(DateTime)
     mjd_start = Column(REAL)
     mjd_end = Column(REAL)
-    focusing_error = Column(REAL)
     insrot_start = Column(REAL)
     insrot_end = Column(REAL)
-    guide_error_dx = Column(REAL)
-    guide_error_dy = Column(REAL)
-    airmass = Column(REAL)
-    seeing = Column(REAL)
-    transp = Column(REAL)
-    background = Column(REAL)
-    moon_phase = Column(REAL)
-    moon_alt = Column(REAL)
-    moon_sep = Column(REAL)
-    throughput = Column(REAL)
-    cloud_condition_id = Column(Integer, ForeignKey('cloud_condition.cloud_condition_id'))
 
     def __init__(self, tel_visit_id,
                  pfs_config_id, ra_tel, dec_tel,
                  beam_switch_mode_id, beam_switch_offset_ra, beam_switch_offset_dec,
                  time_obs_start, time_obs_end, mjd_start, mjd_end,
-                 guide_error_dx, guide_error_dy, focusing_error, insrot_start, insrot_end,
-                 airmass, seeing, transp, background, moon_phase, moon_alt, moon_sep,
-                 throughput, cloud_condition_id,
+                 insrot_start, insrot_end
                  ):
         self.tel_visit_id = tel_visit_id
         self.pfs_config_id = pfs_config_id
@@ -768,26 +755,47 @@ class tel_visit(Base):
         self.time_obs_end = time_obs_end
         self.mjd_start = mjd_start
         self.mjd_end = mjd_end
-        self.focusing_error = focusing_error
         self.insrot_start = insrot_start
         self.insrot_end = insrot_end
+
+
+class tel_condition(Base):
+    __tablename__ = 'tel_condition'
+
+    tel_visit_id = Column(Integer, ForeignKey('tel_visit.tel_visit_id'), primary_key=True, unique=True, autoincrement=False)
+    focusing_error = Column(REAL)
+    guide_error_dx = Column(REAL)
+    guide_error_dy = Column(REAL)
+    airmass = Column(REAL)
+    moon_phase = Column(REAL)
+    moon_alt = Column(REAL)
+    moon_sep = Column(REAL)
+    seeing = Column(REAL)
+    transp = Column(REAL)
+    cloud_condition_id = Column(Integer, ForeignKey('cloud_condition.cloud_condition_id'))
+
+    def __init__(self, tel_visit_id,
+                 focusing_error, guide_error_dx, guide_error_dy,
+                 airmass, moon_phase, moon_alt, moon_sep, seeing, transp,
+                 cloud_condition_id,
+                 ):
+        self.tel_visit_id = tel_visit_id
+        self.focusing_error = focusing_error
         self.guide_error_dx = guide_error_dx
         self.guide_error_dy = guide_error_dy
         self.airmass = airmass
-        self.seeing = seeing
-        self.transp = transp
-        self.background = background
         self.moon_phase = moon_phase
         self.moon_alt = moon_alt
         self.moon_sep = moon_sep
-        self.throughput = throughput
+        self.seeing = seeing
+        self.transp = transp
         self.cloud_condition_id = cloud_condition_id
 
 
 class sps_exposure(Base):
     __tablename__ = 'sps_exposure'
 
-    frame_id = Column(String, primary_key=True, unique=True, autoincrement=False)
+    frame_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     tel_visit_id = Column(Integer, ForeignKey('tel_visit.tel_visit_id'))
     spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
     exptime = Column(REAL)
@@ -809,11 +817,26 @@ class sps_exposure(Base):
         self.is_medium_resolution = is_medium_resolution
 
 
+class sps_condition(Base):
+    __tablename__ = 'sps_condition'
+
+    frame_id = Column(Integer, ForeignKey('sps_exposure.frame_id'), primary_key=True, autoincrement=False)
+    background = Column(REAL)
+    throughput = Column(REAL)
+
+    def __init__(self, frame_id,
+                 background, throughput,
+                 ):
+        self.frame_id = frame_id
+        self.background = background
+        self.throughput = throughput
+
+
 class obs_fiber(Base):
     __tablename__ = 'obs_fiber'
     __table_args__ = (UniqueConstraint('frame_id', 'fiber_id'), {})
 
-    frame_id = Column(String, ForeignKey('sps_exposure.frame_id'), primary_key=True, autoincrement=False)
+    frame_id = Column(Integer, ForeignKey('sps_exposure.frame_id'), primary_key=True, autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger)
     exptime = Column(REAL)
@@ -841,7 +864,7 @@ class sky_model(Base):
     __tablename__ = 'sky_model'
 
     sky_model_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
-    frame_id = Column(String, ForeignKey('sps_exposure.frame_id'))
+    frame_id = Column(Integer, ForeignKey('sps_exposure.frame_id'))
     tel_visit_id = Column(Integer)
     spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
 
@@ -859,7 +882,7 @@ class psf_model(Base):
     __tablename__ = 'psf_model'
 
     psf_model_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
-    frame_id = Column(String, ForeignKey('sps_exposure.frame_id'))
+    frame_id = Column(Integer, ForeignKey('sps_exposure.frame_id'))
     tel_visit_id = Column(Integer)
     spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
 
@@ -876,7 +899,7 @@ class psf_model(Base):
 class pfs_arm(Base):
     __tablename__ = 'pfs_arm'
 
-    frame_id = Column(String, ForeignKey('sps_exposure.frame_id'), primary_key=True, unique=True, autoincrement=False)
+    frame_id = Column(Integer, ForeignKey('sps_exposure.frame_id'), primary_key=True, unique=True, autoincrement=False)
     spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
     calib_flat_id = Column(Integer, ForeignKey('calib.calib_id'))
     calib_bias_id = Column(Integer, ForeignKey('calib.calib_id'))
@@ -917,7 +940,7 @@ class pfs_arm_obj(Base):
     __tablename__ = 'pfs_arm_obj'
     __table_args__ = (UniqueConstraint('frame_id', 'fiber_id'), {})
 
-    frame_id = Column(String, ForeignKey('pfs_arm.frame_id'), primary_key=True, autoincrement=False)
+    frame_id = Column(Integer, ForeignKey('pfs_arm.frame_id'), primary_key=True, autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     flags = Column(Integer)
     qa_type_id = Column(Integer, ForeignKey('qa_type.qa_type_id'))
