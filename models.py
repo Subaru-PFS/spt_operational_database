@@ -520,21 +520,21 @@ class mcs_data(Base):
     frame_id = Column(Integer, ForeignKey('mcs_exposure.frame_id'), primary_key=True, index=True, autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     move_id = Column(Integer)
-    centroid_x = Column(REAL)
-    centroid_y = Column(REAL)
+    mcs_center_x = Column(REAL)
+    mcs_center_y = Column(REAL)
     fwhm_x = Column(REAL)
     fwhm_y = Column(REAL)
     bgvalue = Column(REAL)
     peakvalue = Column(REAL)
     datatime = Column(DateTime)
 
-    def __init__(self, frame_id, fiber_id, move_id, centroid_x, centroid_y,
+    def __init__(self, frame_id, fiber_id, move_id, mcs_center_x, mcs_center_y,
                  fwhm_x, fwhm_y, bgvalue, peakvalue, datatime):
         self.frame_id = frame_id
         self.fiber_id = fiber_id
         self.move_id = move_id
-        self.centroid_x = centroid_x
-        self.centroid_y = centroid_y
+        self.mcs_center_x = mcs_center_x
+        self.mcs_center_y = mcs_center_y
         self.fwhm_x = fwhm_x
         self.fwhm_y = fwhm_y
         self.bgvalue = bgvalue
@@ -682,14 +682,12 @@ class cobra_config(Base):
     pfi_nominal_y = Column(REAL)
     pfi_center_x = Column(REAL)
     pfi_center_y = Column(REAL)
-    mcs_center_x = Column(REAL)
-    mcs_center_y = Column(REAL)
     exectime = Column(DateTime)
 
     def __init__(self, pfs_config_id, frame_id, fiber_id,
                  iteration, motor_num_step_theta, motor_num_step_phi,
                  pfi_nominal_x, pfi_nominal_y, pfi_center_x, pfi_center_y,
-                 mcs_center_x, mcs_center_y, exectime):
+                 exectime):
         self.pfs_config_id = pfs_config_id
         self.frame_id = frame_id
         self.fiber_id = fiber_id
@@ -698,8 +696,6 @@ class cobra_config(Base):
         self.pfi_nominal_y = pfi_nominal_y
         self.pfi_center_x = pfi_center_x
         self.pfi_center_y = pfi_center_y
-        self.mcs_center_x = mcs_center_x
-        self.mcs_center_y = mcs_center_y
         self.exectime = exectime
 
 
