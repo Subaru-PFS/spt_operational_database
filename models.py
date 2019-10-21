@@ -841,12 +841,11 @@ class sky_model(Base):
 
     sky_model_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     frame_id = Column(String, ForeignKey('exposure.frame_id'))
-    visit = Column(Integer, ForeignKey('visit.visit_id'))
+    visit_id = Column(Integer)
     spectrograph = Column(Integer)
     arm = Column(String)
     arm_num = Column(Integer)
 
-    visits = relation(visit, backref=backref('sky_model'))
     exposures = relation(exposure, backref=backref('sky_model'))
 
     def __init__(self, sky_model_id, frame_id, visit_id, spectrograph, arm, arm_num):
@@ -863,12 +862,11 @@ class psf_model(Base):
 
     psf_model_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     frame_id = Column(String, ForeignKey('exposure.frame_id'))
-    visit_id = Column(Integer, ForeignKey('visit.visit_id'))
+    visit_id = Column(Integer)
     spectrograph = Column(Integer)
     arm = Column(String)
     arm_num = Column(Integer)
 
-    visits = relation(visit, backref=backref('psf_model'))
     exposures = relation(exposure, backref=backref('psf_model'))
 
     def __init__(self, psf_model_id, frame_id, visit_id, spectrograph, arm, arm_num):
