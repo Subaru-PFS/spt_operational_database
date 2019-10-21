@@ -474,17 +474,30 @@ class visit(Base):
         self.visit_description = visit_description
 
 
+class pfi_visit(Base):
+    __tablename__ = 'pfi_visit'
+
+    pfi_visit_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
+    pfi_visit_type = Column(Integer)
+    pfi_visit_description = Column(String)
+
+    def __init__(self, pfi_visit_id, pfi_visit_type, pfi_visit_description):
+        self.pfi_visit_id = pfi_visit_id
+        self.pfi_visit_type = pfi_visit_type
+        self.pfi_visit_description = pfi_visit_description
+
+
 class mcs_boresight(Base):
 
     __tablename__ = 'mcs_boresight'
 
-    visit_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
+    pfi_visit_id = Column(Integer, ForeignKey('pfi_visit.pfi_visit_id'), primary_key=True, unique=True, autoincrement=False)
     datatime = Column(DateTime)
     x = Column(REAL)
     y = Column(REAL)
 
-    def __init__(self, visit_id, datatime, x, y):
-        self.visit_id = visit_id
+    def __init__(self, pfi_visit_id, datatime, x, y):
+        self.pfi_visit_id = pfi_visit_id
         self.datatime = datatime
         self.x = x
         self.y = y
@@ -495,16 +508,16 @@ class mcs_exposure(Base):
     __tablename__ = 'mcs_exposure'
 
     frame_id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=False)
-    visit_id = Column(Integer)
+    pfi_visit_id = Column(Integer, ForeignKey('pfi_visit.pfi_visit_id'))
     starttime = Column(DateTime)
     mcs_exptime = Column(REAL)
     altitude = Column(REAL)
     azimuth = Column(REAL)
     insrot = Column(REAL)
 
-    def __init__(self, frame_id, visit_id, starttime, mcs_exptime, altitude, azimuth, insrot):
+    def __init__(self, frame_id, pfi_visit_id, starttime, mcs_exptime, altitude, azimuth, insrot):
         self.frame_id = frame_id
-        self.visit_id = visit_id
+        self.pfi_visit_id = pfi_visit_id
         self.starttime = starttime
         self.mcs_exptime = mcs_exptime
         self.altitude = altitude
