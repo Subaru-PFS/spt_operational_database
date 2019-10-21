@@ -620,6 +620,53 @@ class pfs_config_fiber(Base):
         self.is_on_source = is_on_source
 
 
+class cobra_motor_map(Base):
+    __tablename__ = 'cobra_motor_map'
+
+    cobra_motor_map_id = Column(Integer, primary_key=True, autoincrement=True)
+    fiber_id = Column(Integer)
+    calib_date = Column(DateTime)
+    info1 = Column(REAL)
+    info2 = Column(REAL)
+
+    def __init__(self, cobra_motor_map_id,
+                 fiber_id, calib_date, info1, info2
+                 ):
+        self.cobra_motor_map_id = cobra_motor_map_id
+        self.fiber_id = fiber_id
+        self.calib_date = calib_date
+        self.info1 = info1
+        self.info2 = info2
+
+
+class cobra_movement(Base):
+    __tablename__ = 'cobra_movement'
+    __table_args__ = (UniqueConstraint('frame_id', 'fiber_id'),
+                      ForeignKeyConstraint(['frame_id', 'fiber_id'],
+                                           ['cobra_config.frame_id', 'cobra_config.fiber_id']),
+                      {})
+
+    frame_id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=False)
+    fiber_id = Column(Integer, primary_key=True, autoincrement=False)
+    motor_num_step_theta = Column(Integer)
+    motor_on_time_theta = Column(REAL)
+    motor_num_step_phi = Column(Integer)
+    motor_on_time_phi = Column(REAL)
+    cobra_motor_map_id = Column(Integer, ForeignKey('cobra_motor_map.cobra_motor_map_id'))
+
+    def __init__(self, frame_id, fiber_id,
+                 motor_num_step_theta, motor_on_time_theta, motor_num_step_phi, motor_on_time_phi,
+                 cobra_motor_map_id
+                 ):
+        self.frame_id = frame_id
+        self.fiber_id = fiber_id
+        self.motor_num_step_theta = motor_num_step_theta
+        self.motor_on_time_theta = motor_on_time_theta
+        self.motor_num_step_phi = motor_num_step_phi
+        self.motor_on_time_phi = motor_on_time_phi
+        self.cobra_motor_map_id = cobra_motor_map_id
+
+
 class cobra_config(Base):
     __tablename__ = 'cobra_config'
     __table_args__ = (UniqueConstraint('frame_id', 'fiber_id'),
@@ -631,8 +678,6 @@ class cobra_config(Base):
     fiber_id = Column(Integer, primary_key=True, autoincrement=False)
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
     iteration = Column(Integer)
-    motor_num_step_theta = Column(Integer)
-    motor_num_step_phi = Column(Integer)
     pfi_nominal_x = Column(REAL)
     pfi_nominal_y = Column(REAL)
     pfi_center_x = Column(REAL)
@@ -649,8 +694,6 @@ class cobra_config(Base):
         self.frame_id = frame_id
         self.fiber_id = fiber_id
         self.iteration = iteration
-        self.motor_num_step_theta = motor_num_step_theta
-        self.motor_num_step_phi = motor_num_step_phi
         self.pfi_nominal_x = pfi_nominal_x
         self.pfi_nominal_y = pfi_nominal_y
         self.pfi_center_x = pfi_center_x
