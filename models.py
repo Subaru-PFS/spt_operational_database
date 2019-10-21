@@ -822,7 +822,6 @@ class obs_fiber(Base):
 
     frame_id = Column(String, ForeignKey('exposure.frame_id'), primary_key=True, autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
-    visit_id = Column(Integer, ForeignKey('visit.visit_id'))
     target_id = Column(BigInteger)
     exptime = Column(REAL)
     cum_nexp = Column(Integer)
@@ -830,15 +829,13 @@ class obs_fiber(Base):
     delta_pfi_x = Column(REAL)
     delta_pfi_y = Column(REAL)
 
-    visits = relation(visit, backref=backref('obs_fiber'))
     exposures = relation(exposure, backref=backref('obs_fiber'))
     fiber_positions = relation(fiber_position, backref=backref('obs_fiber'))
 
-    def __init__(self, frame_id, fiber_id, visit_id, target_id,
+    def __init__(self, frame_id, fiber_id, target_id,
                  exptime, cum_nexp, cum_texp, delta_pfi_x, delta_pfi_y):
         self.frame_id = frame_id
         self.fiber_id = fiber_id
-        self.visit_id = visit_id
         self.target_id = target_id
         self.exptime = exptime
         self.cum_nexp = cum_nexp
