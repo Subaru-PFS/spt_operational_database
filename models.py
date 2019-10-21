@@ -389,19 +389,6 @@ class pfs_design_fiber(Base):
     pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'), primary_key=True, autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
-    tract = Column(Integer)
-    patch = Column(String)
-    ra = Column(FLOAT)
-    dec = Column(FLOAT)
-    cat_id = Column(Integer)
-    obj_id = Column(BigInteger)
-    target_type_id = Column(Integer)
-    fiber_mag_g = Column(REAL)
-    fiber_mag_r = Column(REAL)
-    fiber_mag_i = Column(REAL)
-    fiber_mag_z = Column(REAL)
-    fiber_mag_y = Column(REAL)
-    fiber_mag_j = Column(REAL)
     ets_priority = Column(Integer)
     ets_cost_function = Column(String)
     ets_cobra_movement = Column(String)
@@ -413,28 +400,13 @@ class pfs_design_fiber(Base):
     targets = relation(target, backref=backref('psf_design_fiber'))
     fiber_positions = relation(fiber_position, backref=backref('psf_design_fiber'))
 
-    def __init__(self, pfs_design_id, fiber_id,
-                 target_id, tract, patch, ra, dec, cat_d, obj_id, target_type_id,
-                 fiber_mag_g, fiber_mag_r, fiber_mag_i, fiber_mag_z, fiber_mag_y, fiber_mag_j,
+    def __init__(self, pfs_design_id, fiber_id, target_id,
                  ets_priority, ets_cost_function, ets_cobra_movement,
                  pfi_nominal_x, pfi_nominal_y,
                  is_on_source=True):
         self.pfs_design_id = pfs_design_id
         self.fiber_id = fiber_id
         self.target_id = target_id
-        self.tract = tract
-        self.patch = patch
-        self.ra = ra
-        self.dec = dec
-        self.cat_id = cat_id
-        self.obj_id = obj_id
-        self.target_type_id = target_type_id
-        self.fiber_mag_g = fiber_mag_g
-        self.fiber_mag_r = fiber_mag_r
-        self.fiber_mag_i = fiber_mag_i
-        self.fiber_mag_z = fiber_mag_z
-        self.fiber_mag_y = fiber_mag_y
-        self.fiber_mag_j = fiber_mag_j
         self.ets_priority = ets_priority
         self.ets_cost_function = ets_cost_function
         self.ets_cobra_movement = ets_cobra_movement
@@ -629,19 +601,6 @@ class pfs_config_fiber(Base):
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'), primary_key=True, autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
-    tract = Column(Integer)
-    patch = Column(String)
-    ra = Column(FLOAT)
-    dec = Column(FLOAT)
-    cat_id = Column(Integer)
-    obj_id = Column(BigInteger)
-    target_type_id = Column(Integer)
-    fiber_mag_g = Column(REAL)
-    fiber_mag_r = Column(REAL)
-    fiber_mag_i = Column(REAL)
-    fiber_mag_z = Column(REAL)
-    fiber_mag_y = Column(REAL)
-    fiber_mag_j = Column(REAL)
     pfi_nominal_x = Column(REAL)
     pfi_nominal_y = Column(REAL)
     pfi_center_x = Column(REAL)
@@ -656,28 +615,13 @@ class pfs_config_fiber(Base):
     targets = relation(target, backref=backref('psf_config_fiber'))
     fiber_positions = relation(fiber_position, backref=backref('psf_config_fiber'))
 
-    def __init__(self, pfs_config_id, fiber_id,
-                 target_id, tract, patch, cat_id, obj_id, target_type_id,
-                 fiber_mag_g, fiber_mag_r, fiber_mag_i, fiber_mag_z, fiber_mag_y, fiber_mag_j,
+    def __init__(self, pfs_config_id, fiber_id, target_id,
                  pfi_nominal_x, pfi_nominal_y, pfi_center_x, pfi_center_y,
                  mcs_center_x, mcs_center_y, motor_map_summary, config_time,
                  is_on_source=True):
         self.pfs_config_id = pfs_config_id
         self.fiber_id = fiber_id
         self.target_id = target_id
-        self.tract = tract
-        self.patch = patch
-        self.ra = ra
-        self.dec = dec
-        self.cat_id = cat_id
-        self.obj_id = obj_id
-        self.target_type_id = target_type_id
-        self.fiber_mag_g = fiber_mag_g
-        self.fiber_mag_r = fiber_mag_r
-        self.fiber_mag_i = fiber_mag_i
-        self.fiber_mag_z = fiber_mag_z
-        self.fiber_mag_y = fiber_mag_y
-        self.fiber_mag_j = fiber_mag_j
         self.pfi_nominal_x = pfi_nominal_x
         self.pfi_nominal_y = pfi_nominal_y
         self.pfi_center_x = pfi_center_x
