@@ -430,51 +430,6 @@ class pfs_design_fiber(Base):
         self.is_on_source = is_on_source
 
 
-class calib(Base):
-    __tablename__ = 'calib'
-
-    calib_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
-    calib_iype = Column(String)
-    calib_date = Column(DateTime)
-    pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'))
-    spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
-    exptime = Column(REAL)
-    visits_in_use = Column(String)
-
-    pfs_designs = relation(pfs_design, backref=backref('calib'))
-    spectrographs = relation(spectrograph, backref=backref('calib'))
-
-    def __init__(self, calib_id, calib_type, calib_date, pfs_design_id, spectrogarph_id,
-                 exptime, visits_in_use):
-        self.calib_id = calib_id
-        self.calib_type = calib_type
-        self.calib_date = calib_date
-        self.pfs_design_id = pfs_design_id
-        self.spectrograph_id = spectrograph_id
-        self.exptime = exptime
-        self.visits_in_use = visits_in_use
-
-
-class flux_calib(Base):
-    __tablename__ = 'flux_calib'
-
-    flux_calib_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
-    flux_calib_type = Column(String)
-    flux_calib_date = Column(DateTime)
-    flux_calib_star_teff = Column(REAL)
-    flux_calib_star_logg = Column(REAL)
-    flux_calib_star_z = Column(REAL)
-
-    def __init__(self, flux_calib_id, flux_calib_type, flux_calib_date,
-                 flux_calib_star_teff, flux_calib_star_logg, flux_calib_star_z):
-        self.flux_calib_id = flux_calib_id
-        self.flux_calib_type = flux_calib_type
-        self.flux_calib_date = flux_calib_date
-        self.flux_calib_star_teff = flux_calib_star_teff
-        self.flux_calib_star_logg = flux_calib_star_logg
-        self.flux_calib_star_z = flux_calib_star_z
-
-
 class pfi_visit(Base):
     __tablename__ = 'pfi_visit'
 
@@ -832,6 +787,69 @@ class sps_condition(Base):
         self.throughput = throughput
 
 
+class calib(Base):
+    __tablename__ = 'calib'
+
+    calib_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=True)
+    calib_type = Column(String)
+    frame_id_start = Column(Integer, ForeignKey('sps_exposure.frame_id'))
+    frame_id_end = Column(Integer, ForeignKey('sps_exposure.frame_id'))
+    pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'))
+    calib_date = Column(DateTime)
+
+    sps_exposures = relation(sps_exposure, backref=backref('calib'))
+    pfs_designs = relation(pfs_design, backref=backref('calib'))
+
+    def __init__(self, calib_id, calib_type, frame_id_start, frame_id_end,
+                 pfs_design_id, calib_date):
+        self.calib_id = calib_id
+        self.calib_type = calib_type
+        self.frame_id_start = frame_id_start
+        self.frame_id_end = frame_id_end
+        self.pfs_design_id = pfs_design_id
+        self.calib_date = calib_date
+
+
+class calib_set(Base):
+    __tablename__ = 'calib_set'
+    calib_set_id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+    calib_flat_id = Column(Integer, ForeignKey('calib.calib_id'))
+    calib_bias_id = Column(Integer, ForeignKey('calib.calib_id'))
+    calib_dark_id = Column(Integer, ForeignKey('calib.calib_id'))
+    calib_arcs_id = Column(Integer, ForeignKey('calib.calib_id'))
+
+    calibs = relation(calib, backref=backref('calib_set'))
+
+    def __init__(self, calib_set_id,
+                 calib_flat_id, calib_bias_id, calib_dark_id, calib_arcs_id
+                 ):
+        self.calib_set_id = calib_set_id
+        self.calib_flat_id = calib_flat_id
+        self.calib_bias_id = calib_bias_id
+        self.calib_dark_id = calib_dark_id
+        self.calib_arcs_id = calib_arcs_id
+
+
+class flux_calib(Base):
+    __tablename__ = 'flux_calib'
+
+    flux_calib_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
+    flux_calib_type = Column(String)
+    flux_calib_date = Column(DateTime)
+    flux_calib_star_teff = Column(REAL)
+    flux_calib_star_logg = Column(REAL)
+    flux_calib_star_z = Column(REAL)
+
+    def __init__(self, flux_calib_id, flux_calib_type, flux_calib_date,
+                 flux_calib_star_teff, flux_calib_star_logg, flux_calib_star_z):
+        self.flux_calib_id = flux_calib_id
+        self.flux_calib_type = flux_calib_type
+        self.flux_calib_date = flux_calib_date
+        self.flux_calib_star_teff = flux_calib_star_teff
+        self.flux_calib_star_logg = flux_calib_star_logg
+        self.flux_calib_star_z = flux_calib_star_z
+
+
 class obs_fiber(Base):
     __tablename__ = 'obs_fiber'
     __table_args__ = (UniqueConstraint('frame_id', 'fiber_id'), {})
@@ -900,35 +918,23 @@ class pfs_arm(Base):
     __tablename__ = 'pfs_arm'
 
     frame_id = Column(Integer, ForeignKey('sps_exposure.frame_id'), primary_key=True, unique=True, autoincrement=False)
-    spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
-    calib_flat_id = Column(Integer, ForeignKey('calib.calib_id'))
-    calib_bias_id = Column(Integer, ForeignKey('calib.calib_id'))
-    calib_dark_id = Column(Integer, ForeignKey('calib.calib_id'))
-    calib_arcs_id = Column(Integer, ForeignKey('calib.calib_id'))
-    pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
+    calib_set_id = Column(Integer, ForeignKey('calib_set.calib_set_id'))
     sky_model_id = Column(Integer, ForeignKey('sky_model.sky_model_id'))
     psf_model_id = Column(Integer, ForeignKey('psf_model.psf_model_id'))
     flags = Column(Integer)
     process_datetime = Column(DateTime)
     drp2d_version = Column(String)
 
-    spectrographs = relation(spectrograph, backref=backref('pfs_arm'))
+    calib_sets = relation(calib_set, backref=backref('pfs_arm'))
     sps_exposures = relation(sps_exposure, backref=backref('pfs_arm'))
-    pfs_configs = relation(pfs_config, backref=backref('pfs_arm'))
     sky_models = relation(sky_model, backref=backref('pfs_arm'))
     psf_models = relation(psf_model, backref=backref('pfs_arm'))
 
-    def __init__(self, frame_id, spectrograph_id,
-                 calib_flat_id, calib_bias_id, calib_dark_id, calib_arcs_id,
-                 sky_model_id, psf_model_id, flags,
+    def __init__(self, frame_id,
+                 calib_set_id, sky_model_id, psf_model_id, flags,
                  process_datetime, drp2d_version):
         self.frame_id = frame_id
-        self.spectrograph_id = spectrograph_id
-        self.calib_flat_id = calib_flat_id
-        self.calib_bias_id = calib_bias_id
-        self.calib_dark_id = calib_dark_id
-        self.calib_arcs_id = calib_arcs_id
-        self.pfs_config_id = pfs_config_id
+        self.calib_set_id = calib_set_id
         self.sky_model_id = sky_model_id
         self.psf_model_id = psf_model_id
         self.flags = flags
