@@ -407,8 +407,8 @@ class pfs_design_fiber(Base):
     ets_priority = Column(Integer)
     ets_cost_function = Column(String)
     ets_cobra_movement = Column(String)
-    pfi_nominal_x = Column(REAL)
-    pfi_nominal_y = Column(REAL)
+    pfi_nominal_x_mm = Column(REAL)
+    pfi_nominal_y_mm = Column(REAL)
     is_on_source = Column(Boolean)
 
     pfs_designs = relation(pfs_design, backref=backref('psf_design_fiber'))
@@ -417,7 +417,7 @@ class pfs_design_fiber(Base):
 
     def __init__(self, pfs_design_id, fiber_id, target_id,
                  ets_priority, ets_cost_function, ets_cobra_movement,
-                 pfi_nominal_x, pfi_nominal_y,
+                 pfi_nominal_x_mm, pfi_nominal_y_mm,
                  is_on_source=True):
         self.pfs_design_id = pfs_design_id
         self.fiber_id = fiber_id
@@ -425,8 +425,8 @@ class pfs_design_fiber(Base):
         self.ets_priority = ets_priority
         self.ets_cost_function = ets_cost_function
         self.ets_cobra_movement = ets_cobra_movement
-        self.pfi_nominal_x = pfi_nominal_x
-        self.pfi_nominal_y = pfi_nominal_y
+        self.pfi_nominal_x_mm = pfi_nominal_x_mm
+        self.pfi_nominal_y_mm = pfi_nominal_y_mm
         self.is_on_source = is_on_source
 
 
@@ -449,14 +449,14 @@ class mcs_boresight(Base):
 
     pfi_visit_id = Column(Integer, ForeignKey('pfi_visit.pfi_visit_id'), primary_key=True, unique=True, autoincrement=False)
     datatime = Column(DateTime)
-    x = Column(REAL)
-    y = Column(REAL)
+    mcs_boresight_x_pix = Column(REAL)
+    mcs_boresight_y_pix = Column(REAL)
 
-    def __init__(self, pfi_visit_id, datatime, x, y):
+    def __init__(self, pfi_visit_id, datatime, mcs_boresight_x_pix, mcs_boresight_y_pix):
         self.pfi_visit_id = pfi_visit_id
         self.datatime = datatime
-        self.x = x
-        self.y = y
+        self.mcs_boresight_x_pix = mcs_boresight_x_pix
+        self.mcs_boresight_y_pix = mcs_boresight_y_pix
 
 
 class mcs_exposure(Base):
@@ -489,23 +489,23 @@ class mcs_data(Base):
     frame_id = Column(Integer, ForeignKey('mcs_exposure.frame_id'), primary_key=True, index=True, autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     move_id = Column(Integer)
-    mcs_center_x = Column(REAL)
-    mcs_center_y = Column(REAL)
-    fwhm_x = Column(REAL)
-    fwhm_y = Column(REAL)
+    mcs_center_x_pix = Column(REAL)
+    mcs_center_y_pix = Column(REAL)
+    mcs_fwhm_x_pix = Column(REAL)
+    mcs_fwhm_y_pix = Column(REAL)
     bgvalue = Column(REAL)
     peakvalue = Column(REAL)
     datatime = Column(DateTime)
 
-    def __init__(self, frame_id, fiber_id, move_id, mcs_center_x, mcs_center_y,
-                 fwhm_x, fwhm_y, bgvalue, peakvalue, datatime):
+    def __init__(self, frame_id, fiber_id, move_id, mcs_center_x_pix, mcs_center_y_pix,
+                 mcs_fwhm_x_pix, fmcs_whm_y_pix, bgvalue, peakvalue, datatime):
         self.frame_id = frame_id
         self.fiber_id = fiber_id
         self.move_id = move_id
-        self.mcs_center_x = mcs_center_x
-        self.mcs_center_y = mcs_center_y
-        self.fwhm_x = fwhm_x
-        self.fwhm_y = fwhm_y
+        self.mcs_center_x_pix = mcs_center_x_pix
+        self.mcs_center_y_pix = mcs_center_y_pix
+        self.mcs_fwhm_x_pix = mcs_fwhm_x_pix
+        self.mcs_fwhm_y_pix = mcs_fwhm_y_pix
         self.bgvalue = bgvalue
         self.peakvalue = peakvalue
         self.datatime = datatime
@@ -642,24 +642,24 @@ class cobra_config(Base):
     fiber_id = Column(Integer, primary_key=True, autoincrement=False)
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
     iteration = Column(Integer)
-    pfi_nominal_x = Column(REAL)
-    pfi_nominal_y = Column(REAL)
-    pfi_center_x = Column(REAL)
-    pfi_center_y = Column(REAL)
+    pfi_nominal_x_mm = Column(REAL)
+    pfi_nominal_y_mm = Column(REAL)
+    pfi_center_x_mm = Column(REAL)
+    pfi_center_y_mm = Column(REAL)
     exectime = Column(DateTime)
 
     def __init__(self, pfs_config_id, frame_id, fiber_id,
                  iteration, motor_num_step_theta, motor_num_step_phi,
-                 pfi_nominal_x, pfi_nominal_y, pfi_center_x, pfi_center_y,
+                 pfi_nominal_x_mm, pfi_nominal_y_mm, pfi_center_x_mm, pfi_center_y_mm,
                  exectime):
         self.pfs_config_id = pfs_config_id
         self.frame_id = frame_id
         self.fiber_id = fiber_id
         self.iteration = iteration
-        self.pfi_nominal_x = pfi_nominal_x
-        self.pfi_nominal_y = pfi_nominal_y
-        self.pfi_center_x = pfi_center_x
-        self.pfi_center_y = pfi_center_y
+        self.pfi_nominal_x_mm = pfi_nominal_x_mm
+        self.pfi_nominal_y_mm = pfi_nominal_y_mm
+        self.pfi_center_x_mm = pfi_center_x_mm
+        self.pfi_center_y_mm = pfi_center_y_mm
         self.exectime = exectime
 
 
@@ -719,8 +719,7 @@ class tel_condition(Base):
 
     tel_visit_id = Column(Integer, ForeignKey('tel_visit.tel_visit_id'), primary_key=True, unique=True, autoincrement=False)
     focusing_error = Column(REAL)
-    guide_error_dx = Column(REAL)
-    guide_error_dy = Column(REAL)
+    guide_error_sigma_arcsec = Column(REAL)
     airmass = Column(REAL)
     moon_phase = Column(REAL)
     moon_alt = Column(REAL)
@@ -730,14 +729,13 @@ class tel_condition(Base):
     cloud_condition_id = Column(Integer, ForeignKey('cloud_condition.cloud_condition_id'))
 
     def __init__(self, tel_visit_id,
-                 focusing_error, guide_error_dx, guide_error_dy,
+                 focusing_error, guide_error_sigma_arcsec,
                  airmass, moon_phase, moon_alt, moon_sep, seeing, transp,
                  cloud_condition_id,
                  ):
         self.tel_visit_id = tel_visit_id
         self.focusing_error = focusing_error
-        self.guide_error_dx = guide_error_dx
-        self.guide_error_dy = guide_error_dy
+        self.guide_error_sigma_arcsec = guide_error_sigma_arcsec
         self.airmass = airmass
         self.moon_phase = moon_phase
         self.moon_alt = moon_alt
@@ -860,22 +858,18 @@ class obs_fiber(Base):
     exptime = Column(REAL)
     cum_nexp = Column(Integer)
     cum_texp = Column(REAL)
-    delta_pfi_x = Column(REAL)
-    delta_pfi_y = Column(REAL)
 
     sps_exposures = relation(sps_exposure, backref=backref('obs_fiber'))
     fiber_positions = relation(fiber_position, backref=backref('obs_fiber'))
 
     def __init__(self, frame_id, fiber_id, target_id,
-                 exptime, cum_nexp, cum_texp, delta_pfi_x, delta_pfi_y):
+                 exptime, cum_nexp, cum_texp):
         self.frame_id = frame_id
         self.fiber_id = fiber_id
         self.target_id = target_id
         self.exptime = exptime
         self.cum_nexp = cum_nexp
         self.cum_texp = cum_texp
-        self.delta_pfi_x = delta_pfi_x
-        self.delta_pfi_y = delta_pfi_y
 
 
 class sky_model(Base):
