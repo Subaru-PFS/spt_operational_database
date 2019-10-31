@@ -372,14 +372,14 @@ class pfs_design(Base):
     min_exptime = Column(REAL)
     ets_version = Column(String)
     ets_assigner = Column(String)
-    ets_exectime = Column(DateTime)
+    designed_at = Column(DateTime)
     is_obsolete = Column(Boolean)
 
     tiles = relation(tile, backref=backref('pfs_design'))
 
     def __init__(self, pfs_design_id, tile_id, ra_center_designed, dec_center_designed, pa_designed,
                  num_sci_designed, num_cal_designed, num_sky_designed, num_guide_stars,
-                 exptime, min_exptime, ets_version, ets_assgner, ets_exectime, is_obsolete=False):
+                 exptime, min_exptime, ets_version, ets_assgner, designed_at, is_obsolete=False):
         self.pfs_design_id = pfs_design_id
         self.tile_id = tile_id
         self.ra_center_designed = ra_center_designed
@@ -393,7 +393,7 @@ class pfs_design(Base):
         self.min_exptime = min_exptime
         self.ets_version = ets_version
         self.ets_assigner = ets_assigner
-        self.ets_exectime = ets_exectime
+        self.designed_at = designed_at
         self.is_obsolete = is_obsolete
 
 
@@ -465,20 +465,20 @@ class mcs_exposure(Base):
 
     frame_id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=False)
     pfi_visit_id = Column(Integer, ForeignKey('pfi_visit.pfi_visit_id'))
-    starttime = Column(DateTime)
     mcs_exptime = Column(REAL)
     altitude = Column(REAL)
     azimuth = Column(REAL)
     insrot = Column(REAL)
+    taken_at = Column(DateTime)
 
-    def __init__(self, frame_id, pfi_visit_id, starttime, mcs_exptime, altitude, azimuth, insrot):
+    def __init__(self, frame_id, pfi_visit_id, mcs_exptime, altitude, azimuth, insrot, taken_at):
         self.frame_id = frame_id
         self.pfi_visit_id = pfi_visit_id
-        self.starttime = starttime
         self.mcs_exptime = mcs_exptime
         self.altitude = altitude
         self.azimuth = azimuth
         self.insrot = insrot
+        self.taken_at = taken_at
 
 
 class mcs_data(Base):
@@ -494,10 +494,9 @@ class mcs_data(Base):
     mcs_fwhm_y_pix = Column(REAL)
     bgvalue = Column(REAL)
     peakvalue = Column(REAL)
-    datatime = Column(DateTime)
 
     def __init__(self, frame_id, spot_id, mcs_center_x_pix, mcs_center_y_pix,
-                 mcs_fwhm_x_pix, fmcs_whm_y_pix, bgvalue, peakvalue, datatime):
+                 mcs_fwhm_x_pix, fmcs_whm_y_pix, bgvalue, peakvalue):
         self.frame_id = frame_id
         self.spot_id = spot_id
         self.mcs_center_x_pix = mcs_center_x_pix
@@ -506,7 +505,6 @@ class mcs_data(Base):
         self.mcs_fwhm_y_pix = mcs_fwhm_y_pix
         self.bgvalue = bgvalue
         self.peakvalue = peakvalue
-        self.datatime = datatime
 
 
 class pfs_config(Base):
@@ -527,15 +525,15 @@ class pfs_config(Base):
     alloc_num_ter = Column(Integer)
     alloc_elapsetime = Column(REAL)
     alloc_rms_scatter = Column(REAL)
-    alloc_exectime = Column(DateTime)
+    allocated_at = Column(DateTime)
     is_observed = Column(Boolean)
 
     pfs_designs = relation(pfs_design, backref=backref('pfs_config'))
 
     def __init__(self, pfs_config_id, pfs_design_id, visit0, ra_center_config, dec_center_config, pa_config,
                  num_sci_allocated, num_cal_allocated, num_sky_allocated, num_guide_stars,
-                 exptime, min_exptime, alloc_num_iter, alloc_elapsetime, alloc_rms_scatter, alloc_exectime,
-                 is_observed=False):
+                 exptime, min_exptime, alloc_num_iter, alloc_elapsetime, alloc_rms_scatter,
+                 allocated_at, is_observed=False):
         self.pfs_config_id = pfs_config_id
         self.pfs_design_id = pfs_design_id
         self.visit0 = visit0
@@ -551,7 +549,7 @@ class pfs_config(Base):
         self.alloc_num_iter = alloc_num_iter
         self.alloc_elapsetime = alloc_elapsetime
         self.alloc_rms_scatter = alloc_rms_scatter
-        self.alloc_exectime = alloc_exectime
+        self.allocated_at = allocated_at
         self.is_observed = is_observed
 
 
@@ -645,12 +643,11 @@ class cobra_config(Base):
     pfi_nominal_y_mm = Column(REAL)
     pfi_center_x_mm = Column(REAL)
     pfi_center_y_mm = Column(REAL)
-    exectime = Column(DateTime)
 
     def __init__(self, frame_id, fiber_id, 
                  pfs_config_id, spot_id, iteration,
-                 pfi_nominal_x_mm, pfi_nominal_y_mm, pfi_center_x_mm, pfi_center_y_mm,
-                 exectime):
+                 pfi_nominal_x_mm, pfi_nominal_y_mm, pfi_center_x_mm, pfi_center_y_mm
+                 ):
         self.frame_id = frame_id
         self.fiber_id = fiber_id
         self.spot_id = spot_id
@@ -660,7 +657,6 @@ class cobra_config(Base):
         self.pfi_nominal_y_mm = pfi_nominal_y_mm
         self.pfi_center_x_mm = pfi_center_x_mm
         self.pfi_center_y_mm = pfi_center_y_mm
-        self.exectime = exectime
 
 
 class beam_switch_mode(Base):
