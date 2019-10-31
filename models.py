@@ -484,11 +484,10 @@ class mcs_exposure(Base):
 class mcs_data(Base):
 
     __tablename__ = 'mcs_data'
-    __table_args__ = (UniqueConstraint('frame_id', 'fiber_id'), {})
+    __table_args__ = (UniqueConstraint('frame_id', 'spot_id'), {})
 
     frame_id = Column(Integer, ForeignKey('mcs_exposure.frame_id'), primary_key=True, index=True, autoincrement=False)
-    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
-    move_id = Column(Integer)
+    spot_id = Column(Integer, primary_key=True, autoincrement=False)
     mcs_center_x_pix = Column(REAL)
     mcs_center_y_pix = Column(REAL)
     mcs_fwhm_x_pix = Column(REAL)
@@ -497,11 +496,10 @@ class mcs_data(Base):
     peakvalue = Column(REAL)
     datatime = Column(DateTime)
 
-    def __init__(self, frame_id, fiber_id, move_id, mcs_center_x_pix, mcs_center_y_pix,
+    def __init__(self, frame_id, spot_id, mcs_center_x_pix, mcs_center_y_pix,
                  mcs_fwhm_x_pix, fmcs_whm_y_pix, bgvalue, peakvalue, datatime):
         self.frame_id = frame_id
-        self.fiber_id = fiber_id
-        self.move_id = move_id
+        self.spot_id = spot_id
         self.mcs_center_x_pix = mcs_center_x_pix
         self.mcs_center_y_pix = mcs_center_y_pix
         self.mcs_fwhm_x_pix = mcs_fwhm_x_pix
@@ -610,7 +608,7 @@ class cobra_movement(Base):
                                            ['cobra_config.frame_id', 'cobra_config.fiber_id']),
                       {})
 
-    frame_id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=False)
+    frame_id = Column(Integer, primary_key=True, index=True, autoincrement=False)
     fiber_id = Column(Integer, primary_key=True, autoincrement=False)
     motor_num_step_theta = Column(Integer)
     motor_on_time_theta = Column(REAL)
@@ -634,12 +632,13 @@ class cobra_movement(Base):
 class cobra_config(Base):
     __tablename__ = 'cobra_config'
     __table_args__ = (UniqueConstraint('frame_id', 'fiber_id'),
-                      ForeignKeyConstraint(['frame_id', 'fiber_id'],
-                                           ['mcs_data.frame_id', 'mcs_data.fiber_id']),
+                      ForeignKeyConstraint(['frame_id', 'spot_id'],
+                                           ['mcs_data.frame_id', 'mcs_data.spot_id']),
                       {})
 
     frame_id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=False)
     fiber_id = Column(Integer, primary_key=True, autoincrement=False)
+    spot_id = Column(Integer)
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
     iteration = Column(Integer)
     pfi_nominal_x_mm = Column(REAL)
@@ -648,13 +647,14 @@ class cobra_config(Base):
     pfi_center_y_mm = Column(REAL)
     exectime = Column(DateTime)
 
-    def __init__(self, pfs_config_id, frame_id, fiber_id,
-                 iteration, motor_num_step_theta, motor_num_step_phi,
+    def __init__(self, frame_id, fiber_id, 
+                 pfs_config_id, spot_id, iteration,
                  pfi_nominal_x_mm, pfi_nominal_y_mm, pfi_center_x_mm, pfi_center_y_mm,
                  exectime):
-        self.pfs_config_id = pfs_config_id
         self.frame_id = frame_id
         self.fiber_id = fiber_id
+        self.spot_id = spot_id
+        self.pfs_config_id = pfs_config_id
         self.iteration = iteration
         self.pfi_nominal_x_mm = pfi_nominal_x_mm
         self.pfi_nominal_y_mm = pfi_nominal_y_mm
