@@ -926,7 +926,7 @@ class pfs_arm(Base):
     sky_model_id = Column(Integer, ForeignKey('sky_model.sky_model_id'))
     psf_model_id = Column(Integer, ForeignKey('psf_model.psf_model_id'))
     flags = Column(Integer)
-    process_datetime = Column(DateTime)
+    processed_at = Column(DateTime)
     drp2d_version = Column(String)
 
     calib_sets = relation(calib_set, backref=backref('pfs_arm'))
@@ -936,13 +936,13 @@ class pfs_arm(Base):
 
     def __init__(self, frame_id,
                  calib_set_id, sky_model_id, psf_model_id, flags,
-                 process_datetime, drp2d_version):
+                 processed_at, drp2d_version):
         self.frame_id = frame_id
         self.calib_set_id = calib_set_id
         self.sky_model_id = sky_model_id
         self.psf_model_id = psf_model_id
         self.flags = flags
-        self.process_datetime = process_datetime
+        self.processed_at = processed_at
         self.drp2d_version = drp2d_version
 
 
@@ -991,7 +991,7 @@ class pfs_object(Base):
     n_visit = Column(Integer)
     pfs_visit_hash = Column(BigInteger, ForeignKey('visit_hash.pfs_visit_hash'))
     cum_texp = Column(REAL)
-    process_datetime = Column(DateTime)
+    processed_at = Column(DateTime)
     drp2d_version = Column(String)
     flux_calib_id = Column(Integer, ForeignKey('flux_calib.flux_calib_id'))
     flags = Column(Integer)
@@ -1004,7 +1004,7 @@ class pfs_object(Base):
     visit_hashs = relation(visit_hash, backref=backref('pfs_object'))
 
     def __init__(self, pfs_object_id, target_id, tract, patch, cat_id, obj_id, n_visit, pfs_visit_hash,
-                 cum_texp, process_datetime, drp2d_version, flux_calib_id, flags, qa_type_id, qa_value):
+                 cum_texp, processed_at, drp2d_version, flux_calib_id, flags, qa_type_id, qa_value):
         self.pfs_object_id = pfs_object_id
         self.target_id = target_id
         self.tract = tract
@@ -1014,7 +1014,7 @@ class pfs_object(Base):
         self.n_visit = n_visit
         self.pfs_visit_hash = pfs_visit_hash
         self.cum_texp = cum_texp
-        self.process_datetime = process_datetime
+        self.processed_at = processed_at
         self.drp2d_version = drp2d_version
         self.flux_calib_id = flux_calib_id
         self.flags = flags
@@ -1056,7 +1056,7 @@ class line_list(Base):
 
 class drp1d(Base):
     __tablename__ = 'drp1d'
-    __table_args__ = (UniqueConstraint('pfs_object_id', 'process_datetime'), {})
+    __table_args__ = (UniqueConstraint('pfs_object_id', 'processed_at'), {})
 
     pfs_object_id = Column(BigInteger, ForeignKey('pfs_object.pfs_object_id'), primary_key=True, autoincrement=False)
     z_best = Column(REAL)
@@ -1064,26 +1064,26 @@ class drp1d(Base):
     z_best_reliability = Column(REAL)
     obj_type_id = Column(Integer, ForeignKey('obj_type.obj_type_id'))
     flags = Column(Integer)
-    process_datetime = Column(DateTime, primary_key=True, autoincrement=False)
+    processed_at = Column(DateTime, primary_key=True, autoincrement=False)
     drp1d_version = Column(String)
 
     def __init__(self, pfs_object_id, z_best, z_best_err, z_best_reliability,
-                 obj_type_id, flags, process_datetime, drp1d_version):
+                 obj_type_id, flags, processed_at, drp1d_version):
         self.pfs_object_id = pfs_object_id
         self.z_best = z_best
         self.z_best_err = z_best_err
         self.z_best_reliability = z_best_reliability
         self.obj_type_id = obj_type_id
         self.flags = flags
-        self.process_datetime = process_datetime
+        self.processed_at = processed_at
         self.drp1d_version = drp1d_version
 
 
 class drp1d_redshift(Base):
     __tablename__ = 'drp1d_redshift'
-    __table_args__ = (UniqueConstraint('pfs_object_id', 'process_datetime'),
-                      ForeignKeyConstraint(['pfs_object_id', 'process_datetime'],
-                                           ['drp1d.pfs_object_id', 'drp1d.process_datetime']),
+    __table_args__ = (UniqueConstraint('pfs_object_id', 'processed_at'),
+                      ForeignKeyConstraint(['pfs_object_id', 'processed_at'],
+                                           ['drp1d.pfs_object_id', 'drp1d.processed_at']),
                       {})
 
     pfs_object_id = Column(BigInteger, primary_key=True, autoincrement=False)
@@ -1093,9 +1093,9 @@ class drp1d_redshift(Base):
     reliability = Column(REAL)
     spec_class = Column(String)
     spec_subclass = Column(String)
-    process_datetime = Column(DateTime, primary_key=True, autoincrement=False)
+    processed_at = Column(DateTime, primary_key=True, autoincrement=False)
 
-    def __init__(self, pfs_object_id, z, z_err, zrank, reliability, spec_Class, spec_subclass, process_datetime):
+    def __init__(self, pfs_object_id, z, z_err, zrank, reliability, spec_Class, spec_subclass, processed_at):
         self.pfs_object_id = pfs_object_id
         self.z = z
         self.z_err = z_err
@@ -1103,15 +1103,15 @@ class drp1d_redshift(Base):
         self.reliability = reliability
         self.spec_class = spec_class
         self.spec_subclass = spec_subclass
-        self.process_datetime = process_datetime
+        self.processed_at = processed_at
 
 
 class drp1d_line(Base):
     __tablename__ = 'drp1d_line'
     __table_args__ = (UniqueConstraint('pfs_object_id', 'line_id'), {})
-    __table_args__ = (UniqueConstraint('pfs_object_id', 'process_datetime', 'line_id'),
-                      ForeignKeyConstraint(['pfs_object_id', 'process_datetime'],
-                                           ['drp1d.pfs_object_id', 'drp1d.process_datetime']),
+    __table_args__ = (UniqueConstraint('pfs_object_id', 'processed_at', 'line_id'),
+                      ForeignKeyConstraint(['pfs_object_id', 'processed_at'],
+                                           ['drp1d.pfs_object_id', 'drp1d.processed_at']),
                       {})
 
     pfs_object_id = Column(BigInteger, primary_key=True, autoincrement=False)
@@ -1130,9 +1130,9 @@ class drp1d_line(Base):
     line_ew_err = Column(REAL)
     line_cont_level = Column(REAL)
     line_cont_level_err = Column(REAL)
-    process_datetime = Column(DateTime, primary_key=True, autoincrement=False)
+    processed_at = Column(DateTime, primary_key=True, autoincrement=False)
 
-    def __init__(self, pfs_object_id, line_id, line_name, line_wave, line_z, line_z_err, line_sigma, line_sigma_err, line_vel, line_vel_err, line_flux, line_flux_err, line_ew, line_ew_err, line_cont_level, line_cont_level_err, process_datetime):
+    def __init__(self, pfs_object_id, line_id, line_name, line_wave, line_z, line_z_err, line_sigma, line_sigma_err, line_vel, line_vel_err, line_flux, line_flux_err, line_ew, line_ew_err, line_cont_level, line_cont_level_err, processed_at):
         self.pfs_object_id = pfs_object_id
         self.drp1d_id = drp1d_id
         self.line_id = lineId
@@ -1150,12 +1150,12 @@ class drp1d_line(Base):
         self.line_ew_err = line_ew_err
         self.line_cont_level = line_cont_level
         self.line_cont_level_err = line_cont_level_err
-        self.process_datetime = process_datetime
+        self.processed_at = processed_at
 
 
 class drp_ga(Base):
     __tablename__ = 'drp_ga'
-    __table_args__ = (UniqueConstraint('pfs_object_id', 'process_datetime'), {})
+    __table_args__ = (UniqueConstraint('pfs_object_id', 'processed_at'), {})
 
     pfs_object_id = Column(BigInteger, ForeignKey('pfs_object.pfs_object_id'), primary_key=True, autoincrement=False)
     star_type_id = Column(Integer, ForeignKey('star_type.star_type_id'))
@@ -1164,11 +1164,11 @@ class drp_ga(Base):
     logg = Column(REAL)
     teff = Column(REAL)
     flags = Column(Integer)
-    process_datetime = Column(DateTime, primary_key=True, autoincrement=False)
+    processed_at = Column(DateTime, primary_key=True, autoincrement=False)
     drp_ga_version = Column(String)
 
     def __init__(self, pfs_object_id, star_type_id, velocity, metallicity, logg, teff,
-                 flags, process_datetime, drp_ga_version):
+                 flags, processed_at, drp_ga_version):
         self.pfs_object_id = pfs_object_id
         self.star_type_id = start_type_id
         self.velocity = velocity
@@ -1176,7 +1176,7 @@ class drp_ga(Base):
         self.logg = logg
         self.teff = teff
         self.flags = flags
-        self.process_datetime = process_datetime
+        self.processed_at = processed_at
         self.drp_ga_version = drp_ga_version
 
 
