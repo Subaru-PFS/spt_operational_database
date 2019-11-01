@@ -579,24 +579,37 @@ class pfs_config_fiber(Base):
         self.config_time = config_time
         self.is_on_source = is_on_source
 
+class cobra_motor_axis(Base):
+    __tablename__ = 'cobra_motor_axis'
+    cobra_motor_axis_id = Column(Integer, primary_key=True)
+    cobra_motor_axis_name = Column(String)
+
+    def __init__(self, cobra_motor_axis_id, cobra_motor_axis_name):
+        self.cobra_motor_axis_id = cobra_motor_axis_id
+        self.cobra_motor_axis_name = cobra_motor_axis_name
 
 class cobra_motor_map(Base):
     __tablename__ = 'cobra_motor_map'
 
     cobra_motor_map_id = Column(Integer, primary_key=True, autoincrement=True)
     fiber_id = Column(Integer)
-    calib_date = Column(DateTime)
-    info1 = Column(REAL)
-    info2 = Column(REAL)
+    cobra_motor_axis_id = Column(Integer, ForeignKey('cobra_motor_axis.cobra_motor_axis_id'))
+    cobra_motor_angle = Column(REAL)
+    cobra_motor_on_time = Column(REAL)
+    cobra_motor_speed = Column(REAL)
+    calibrated_at = Column(DateTime)
 
-    def __init__(self, cobra_motor_map_id,
-                 fiber_id, calib_date, info1, info2
+    def __init__(self, cobra_motor_map_id, fiber_id, cobra_motor_axis_id,
+                 cobra_motor_angle, cobra_motor_on_time, cobra_motor_speed,
+                 calibrated_at
                  ):
         self.cobra_motor_map_id = cobra_motor_map_id
         self.fiber_id = fiber_id
-        self.calib_date = calib_date
-        self.info1 = info1
-        self.info2 = info2
+        self.cobra_motor_axis_id = cobra_motor_axis_id
+        self.cobra_motor_angle = cobra_motor_angle
+        self.cobra_motor_on_time = cobra_motor_on_time
+        self.cobra_motor_speed = cobra_motor_speed
+        self.calibrated_at = calibrated_at
 
 
 class cobra_movement(Base):
@@ -608,11 +621,12 @@ class cobra_movement(Base):
 
     frame_id = Column(Integer, primary_key=True, index=True, autoincrement=False)
     fiber_id = Column(Integer, primary_key=True, autoincrement=False)
+    cobra_motor_map_id_theta = Column(Integer, ForeignKey('cobra_motor_map.cobra_motor_map_id'))
     motor_num_step_theta = Column(Integer)
     motor_on_time_theta = Column(REAL)
+    cobra_motor_map_id_phi = Column(Integer, ForeignKey('cobra_motor_map.cobra_motor_map_id'))
     motor_num_step_phi = Column(Integer)
     motor_on_time_phi = Column(REAL)
-    cobra_motor_map_id = Column(Integer, ForeignKey('cobra_motor_map.cobra_motor_map_id'))
 
     def __init__(self, frame_id, fiber_id,
                  motor_num_step_theta, motor_on_time_theta, motor_num_step_phi, motor_on_time_phi,
@@ -620,12 +634,12 @@ class cobra_movement(Base):
                  ):
         self.frame_id = frame_id
         self.fiber_id = fiber_id
+        self.cobra_motor_map_id_theta= cobra_motor_map_id_theta
         self.motor_num_step_theta = motor_num_step_theta
         self.motor_on_time_theta = motor_on_time_theta
+        self.cobra_motor_map_id_phi= cobra_motor_map_id_phi
         self.motor_num_step_phi = motor_num_step_phi
         self.motor_on_time_phi = motor_on_time_phi
-        self.cobra_motor_map_id = cobra_motor_map_id
-
 
 class cobra_config(Base):
     __tablename__ = 'cobra_config'
