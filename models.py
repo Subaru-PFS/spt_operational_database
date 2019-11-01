@@ -271,6 +271,8 @@ class target(Base):
     qa_line_flux = Column(REAL)
     completeness = Column(REAL)
     is_finished = Column(Boolean)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
 
     programs = relation(program, backref=backref('target'))
     target_types = relation(target_type, backref=backref('target'))
@@ -281,7 +283,7 @@ class target(Base):
                  fiber_mag_g, fiber_mag_r, fiber_mag_i, fiber_mag_z, fiber_mag_y,
                  fiber_mag_j, fiducial_exptime, photz, is_medium_resolution,
                  qa_type_id, qa_lambda_min, qa_lambda_max, qa_threshold, qa_line_flux,
-                 completeness=0.0, is_finished=False):
+                 completeness, is_finished, created_at, updated_at):
         self.program_id = program_id
         self.obj_id = obj_id
         self.ra = ra
@@ -308,6 +310,8 @@ class target(Base):
         self.qa_line_flux = qa_line_flux
         self.completeness = completeness
         self.is_finished = is_finished
+        self.created_at = created_at
+        self.updated_at = updated_at
 
 
 class guide_stars(Base):
@@ -320,11 +324,15 @@ class guide_stars(Base):
     mag_agc = Column(REAL)
     flux_agc = Column(REAL)
     flags = Column(Integer)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
 
     input_catalogs = relation(input_catalog, backref=backref('guide_stars'))
     obj_types = relation(obj_type, backref=backref('guide_stars'))
 
-    def __init__(self, guide_star_id, ra, dec, cat_id, mag_agc, flux_agc, flags):
+    def __init__(self, guide_star_id, ra, dec, cat_id, mag_agc, flux_agc, flags,
+                 created_at, updated_at
+                ):
         self.guide_star_id = guide_star_id
         self.ra = ra
         self.dec = dec
@@ -332,7 +340,8 @@ class guide_stars(Base):
         self.mag_agc = mag_agc
         self.flux_agc = flux_agc
         self.flags = flags
-
+        self.created_at = created_at
+        self.updated_at = updated_at
 
 class tile(Base):
     __tablename__ = 'tile'
