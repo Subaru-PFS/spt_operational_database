@@ -156,14 +156,14 @@ class fiber_position(Base):
     cobra_in_field = Column(Integer)   # 1-798
     module_in_field = Column(Integer)  # 1-14
     cobra_in_module = Column(Integer)  # 1-57
-    module_name = Column(String)       # e.g.,13B
+    module_name = Column(String(3))    # e.g.,13B
     cobra_center_on_pfi_x_mm = Column(REAL)
     cobra_center_on_pfi_y_mm = Column(REAL)
     cobra_distance_from_center_mm = Column(REAL)
     spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
     slit_hole_sps = Column(Integer)
     fiber_id_sps = Column(Integer)
-    fiber_id_lna = Column(String)
+    fiber_id_lna = Column(String(12))
     version = Column(String)
 
     def __init__(self, fiber_id, field_on_pfi, cobra_in_field,
@@ -192,7 +192,7 @@ class fiducial_fiber_position(Base):
     fiducial_fiber_id = Column(Integer, primary_key=True, autoincrement=False)
     field_on_pfi = Column(Integer)   # 1-3
     ff_in_field = Column(Integer)    # 1-32
-    ff_type = Column(String)         # spoke/edge/agfid
+    ff_type = Column(String(5))      # spoke/edge/agfid
     ff_id_in_type = Column(Integer)  # 1-14 for spoke, 1-14 for edge, 1-4 for agfid
     ff_center_on_pfi_x_mm = Column(REAL)
     ff_center_on_pfi_y_mm = Column(REAL)
