@@ -150,79 +150,63 @@ class cloud_condition(Base):
 
 class fiber_position(Base):
     __tablename__ = 'fiber_position'
+
     fiber_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
-    ftype = Column(String)
-    x = Column(REAL)
-    y = Column(REAL)
-
-    def __init__(self, fiber_id, ftype, x, y):
-        self.fiber_id = fiber_id
-        self.ftype = ftype
-        self.x = x
-        self.y = y
-
-
-class cobra_position(Base):
-    __tablename__ = 'cobra_position'
-    cobra_id = Column(Integer, primary_key=True, autoincrement=False)
-    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'))
-    fld = Column(Integer)
-    cf = Column(Integer)
-    mf = Column(Integer)
-    cm = Column(Integer)
-    mod = Column(String)
-    x = Column(REAL)
-    y = Column(REAL)
-    r = Column(REAL)
-    sp = Column(Integer)
-    fh = Column(Integer)
-    sfib = Column(Integer)
+    field_on_pfi = Column(Integer)     # 1-3
+    cobra_in_field = Column(Integer)   # 1-798
+    module_in_field = Column(Integer)  # 1-14
+    cobra_in_module = Column(Integer)  # 1-57
+    module_name = Column(String)       # e.g.,13B
+    cobra_center_on_pfi_x_mm = Column(REAL)
+    cobra_center_on_pfi_y_mm = Column(REAL)
+    cobra_distance_from_center_mm = Column(REAL)
+    spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
+    slit_hole_sps = Column(Integer)
+    fiber_id_sps = Column(Integer)
     fiber_id_lna = Column(String)
-    version = Column(String, primary_key=True, autoincrement=False)
+    version = Column(String)
 
-    fiber_positions = relation(fiber_position, backref=backref('cobra_position'))
-
-    def __init__(self, cobra_id, fiber_id, fld, cf, mf, cm, mod, x, y, r, sp, fh, sfib, fiber_id_lna, version):
-        self.cobra_id = cobra_id
+    def __init__(self, fiber_id, field_on_pfi, cobra_in_field,
+                 module_in_field, cobra_in_module, module_name,
+                 cobra_center_on_pfi_x_mm, cobra_center_on_pfi_y_mm,
+                 cobra_distance_from_center_mm, spectrograph_id, slit_hole_sps, fiber_id_sps,
+                 fiber_id_lna, version):
         self.fiber_id = fiber_id
-        self.fld = fld
-        self.cf = cf
-        self.mf = mf
-        self.cm = cm
-        self.mod = mod
-        self.x = x
-        self.y = y
-        self.r = r
-        self.sp = sp
-        self.fh = fh
-        self.sfib = sfib
+        self.field_on_pfi = field_on_pfi
+        self.cobra_in_field = cobra_in_field
+        self.module_in_field = module_in_field
+        self.cobra_in_module = cobra_in_module
+        self.module_name = module_name
+        self.cobra_center_on_pfi_x_mm = cobra_center_on_pfi_x_mm
+        self.cobra_center_on_pfi_y_mm = cobra_center_on_pfi_y_mm
+        self.cobra_distance_from_center_mm = cobra_distance_from_center_mm
+        self.spectrograph_id = spectrograph_id
+        self.slit_hole_sps = slit_hole_sps
+        self.fiber_id_sps = fiber_id_sps
         self.fiber_id_lna = fiber_id_lna
         self.version = version
 
 
 class fiducial_fiber_position(Base):
     __tablename__ = 'fiducial_fiber_position'
-    ff_id = Column(Integer, primary_key=True, autoincrement=False)
-    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'))
-    ff = Column(Integer)
-    fff = Column(Integer)
-    fftype = Column(String)
-    fft = Column(Integer)
-    x = Column(REAL)
-    y = Column(REAL)
-    version = Column(String, primary_key=True, autoincrement=False)
+    fiducial_fiber_id = Column(Integer, primary_key=True, autoincrement=False)
+    field_on_pfi = Column(Integer)   # 1-3
+    ff_in_field = Column(Integer)    # 1-32
+    ff_type = Column(String)         # spoke/edge/agfid
+    ff_id_in_type = Column(Integer)  # 1-14 for spoke, 1-14 for edge, 1-4 for agfid
+    ff_center_on_pfi_x_mm = Column(REAL)
+    ff_center_on_pfi_y_mm = Column(REAL)
+    version = Column(String)
 
-    fiber_positions = relation(fiber_position, backref=backref('fiducial_fiber_position'))
-
-    def __init__(self, ff_id, fiber_id, ff, fff, fftype, fft, x, y, version):
-        self.ff_id = ff_id
-        self.fiber_id = fiber_id
-        self.ff = ff
-        self.fff = fff
-        self.fftype = fftype
-        self.fft = fft
-        self.x = x
-        self.y = y
+    def __init__(self, fiducial_fiber_id, field_on_pfi, ff_in_field, ff_type, ff_id_in_type,
+                 ff_center_on_pfi_x_mm, ff_center_on_pfi_y_mm, version):
+        self.fiducial_fiber_id = fiducial_fiber_id
+        self.field_on_pfi = field_on_pfi
+        self.ff_in_field = ff_in_field
+        self.ff_type = ff_type
+        self.ff_id_in_type = ff_id_in_type
+        self.ff_center_on_pfi_x_mm = ff_center_on_pfi_x_mm
+        self.ff_center_on_pfi_y_mm = ff_center_on_pfi_y_mm
         self.version = version
 
 
