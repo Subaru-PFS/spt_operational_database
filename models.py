@@ -795,21 +795,15 @@ class calib(Base):
 
     calib_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=True)
     calib_type = Column(String)
-    sps_frame_id_start = Column(Integer, ForeignKey('sps_exposure.sps_frame_id'))
-    sps_frame_id_end = Column(Integer, ForeignKey('sps_exposure.sps_frame_id'))
-    pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'))
+    sps_frames_to_use = Column(String)
+    pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
     calib_date = Column(DateTime)
 
-    sps_exposures = relation(sps_exposure, backref=backref('calib'))
-    pfs_designs = relation(pfs_design, backref=backref('calib'))
-
-    def __init__(self, calib_id, calib_type, sps_frame_id_start, sps_frame_id_end,
-                 pfs_design_id, calib_date):
+    def __init__(self, calib_id, calib_type, sps_frames_to_use, pfs_config_id, calib_date):
         self.calib_id = calib_id
         self.calib_type = calib_type
-        self.sps_frame_id_start = sps_frame_id_start
-        self.sps_frame_id_end = sps_frame_id_end
-        self.pfs_design_id = pfs_design_id
+        self.sps_frames_to_use = sps_frames_to_use
+        self.pfs_config_id = pfs_config_id
         self.calib_date = calib_date
 
 
