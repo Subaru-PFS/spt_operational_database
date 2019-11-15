@@ -377,18 +377,19 @@ class pfs_design(Base):
     num_cal_designed = Column(Integer)
     num_sky_designed = Column(Integer)
     num_guide_stars = Column(Integer)
-    exptime = Column(REAL)
-    min_exptime = Column(REAL)
+    exptime_tot = Column(REAL)
+    exptime_min = Column(REAL)
     ets_version = Column(String)
     ets_assigner = Column(String)
     designed_at = Column(DateTime)
+    to_be_observed_at = Column(DateTime)
     is_obsolete = Column(Boolean)
 
     tiles = relation(tile, backref=backref('pfs_design'))
 
     def __init__(self, pfs_design_id, tile_id, ra_center_designed, dec_center_designed, pa_designed,
                  num_sci_designed, num_cal_designed, num_sky_designed, num_guide_stars,
-                 exptime, min_exptime, ets_version, ets_assgner, designed_at, is_obsolete=False):
+                 exptime_tot, exptime_min, ets_version, ets_assgner, designed_at, to_be_observed_at, is_obsolete=False):
         self.pfs_design_id = pfs_design_id
         self.tile_id = tile_id
         self.ra_center_designed = ra_center_designed
@@ -398,11 +399,12 @@ class pfs_design(Base):
         self.num_cal_designed = num_cal_designed
         self.num_sky_designed = num_sky_designed
         self.num_guide_stars = num_guide_stars
-        self.exptime = exptime
-        self.min_exptime = min_exptime
+        self.exptime_tot = exptime_tot
+        self.exptime_min = exptime_min
         self.ets_version = ets_version
         self.ets_assigner = ets_assigner
         self.designed_at = designed_at
+        self.to_be_observed_at = to_be_observed_at
         self.is_obsolete = is_obsolete
 
 
@@ -413,11 +415,11 @@ class pfs_design_fiber(Base):
     pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'), primary_key=True, autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
-    ets_priority = Column(Integer)
-    ets_cost_function = Column(String)
-    ets_cobra_motor_movement = Column(String)
     pfi_nominal_x_mm = Column(REAL)
     pfi_nominal_y_mm = Column(REAL)
+    ets_priority = Column(Integer)
+    ets_cost_function = Column(FLOAT)
+    ets_cobra_motor_movement = Column(String)
     is_on_source = Column(Boolean)
 
     pfs_designs = relation(pfs_design, backref=backref('psf_design_fiber'))
@@ -425,17 +427,17 @@ class pfs_design_fiber(Base):
     fiber_positions = relation(fiber_position, backref=backref('psf_design_fiber'))
 
     def __init__(self, pfs_design_id, fiber_id, target_id,
-                 ets_priority, ets_cost_function, ets_cobra_motor_movement,
                  pfi_nominal_x_mm, pfi_nominal_y_mm,
+                 ets_priority, ets_cost_function, ets_cobra_motor_movement,
                  is_on_source=True):
         self.pfs_design_id = pfs_design_id
         self.fiber_id = fiber_id
         self.target_id = target_id
+        self.pfi_nominal_x_mm = pfi_nominal_x_mm
+        self.pfi_nominal_y_mm = pfi_nominal_y_mm
         self.ets_priority = ets_priority
         self.ets_cost_function = ets_cost_function
         self.ets_cobra_motor_movement = ets_cobra_motor_movement
-        self.pfi_nominal_x_mm = pfi_nominal_x_mm
-        self.pfi_nominal_y_mm = pfi_nominal_y_mm
         self.is_on_source = is_on_source
 
 
@@ -526,21 +528,19 @@ class pfs_config(Base):
     num_sci_allocated = Column(Integer)
     num_cal_allocated = Column(Integer)
     num_sky_allocated = Column(Integer)
-    num_guide_stars = Column(Integer)
-    exptime = Column(REAL)
-    min_exptime = Column(REAL)
-    alloc_num_ter = Column(Integer)
-    alloc_elapsetime = Column(REAL)
+    num_guide_stars_allocated = Column(Integer)
+    alloc_num_cobra_iter = Column(Integer)
+    alloc_elapsed_time = Column(REAL)
     alloc_rms_scatter = Column(REAL)
     allocated_at = Column(DateTime)
-    is_observed = Column(Boolean)
+    was_observed = Column(Boolean)
 
     pfs_designs = relation(pfs_design, backref=backref('pfs_config'))
 
     def __init__(self, pfs_config_id, pfs_design_id, visit0, ra_center_config, dec_center_config, pa_config,
-                 num_sci_allocated, num_cal_allocated, num_sky_allocated, num_guide_stars,
-                 exptime, min_exptime, alloc_num_iter, alloc_elapsetime, alloc_rms_scatter,
-                 allocated_at, is_observed=False):
+                 num_sci_allocated, num_cal_allocated, num_sky_allocated, num_guide_stars_allocated,
+                 alloc_num_cobra_iter, alloc_elapsed_time, alloc_rms_scatter,
+                 allocated_at, was_observed=False):
         self.pfs_config_id = pfs_config_id
         self.pfs_design_id = pfs_design_id
         self.visit0 = visit0
@@ -550,14 +550,12 @@ class pfs_config(Base):
         self.num_sci_allocated = num_sci_allocated
         self.num_cal_allocated = num_cal_allocated
         self.num_sky_allocated = num_sky_allocated
-        self.num_guide_stars = num_guide_stars
-        self.exptime = exptime
-        self.min_exptime = min_exptime
-        self.alloc_num_iter = alloc_num_iter
-        self.alloc_elapsetime = alloc_elapsetime
+        self.num_guide_stars_allocated = num_guide_stars_allocated
+        self.alloc_num_cobra_iter = alloc_num_cobra_iter
+        self.alloc_elapsed_time = alloc_elapsed_time
         self.alloc_rms_scatter = alloc_rms_scatter
         self.allocated_at = allocated_at
-        self.is_observed = is_observed
+        self.was_observed = was_observed
 
 
 class pfs_config_fiber(Base):
@@ -568,8 +566,10 @@ class pfs_config_fiber(Base):
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'), primary_key=True, autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
+    pfi_center_final_x_mm = Column(REAL)
+    pfi_center_final_y_mm = Column(REAL)
     motor_map_summary = Column(String)
-    config_time = Column(REAL)
+    config_elapsed_time = Column(REAL)
     is_on_source = Column(Boolean)
 
     pfs_configs = relation(pfs_config, backref=backref('psf_config_fiber'))
@@ -577,13 +577,14 @@ class pfs_config_fiber(Base):
     fiber_positions = relation(fiber_position, backref=backref('psf_config_fiber'))
 
     def __init__(self, pfs_config_id, fiber_id, target_id,
-                 motor_map_summary, config_time,
+                 pfi_center_final_x_mm, pfi_center_final_y_mm,
+                 motor_map_summary, config_elapsed_time,
                  is_on_source=True):
         self.pfs_config_id = pfs_config_id
         self.fiber_id = fiber_id
         self.target_id = target_id
         self.motor_map_summary = motor_map_summary
-        self.config_time = config_time
+        self.config_elapsed_time = config_elapsed_time
         self.is_on_source = is_on_source
 
 
@@ -701,8 +702,8 @@ class tel_visit(Base):
 
     tel_visit_id = Column(Integer, primary_key=True, autoincrement=False)
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
-    ra_tel = Column(FLOAT)
-    dec_tel = Column(FLOAT)
+    ra_tel = Column(REAL)
+    dec_tel = Column(REAL)
     beam_switch_mode_id = Column(Integer, ForeignKey('beam_switch_mode.beam_switch_mode_id'))
     beam_switch_offset_ra = Column(REAL)
     beam_switch_offset_dec = Column(REAL)
