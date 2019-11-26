@@ -399,6 +399,8 @@ class pfs_design(Base):
 
 
 class pfs_design_fiber(Base):
+    '''Pre-operations information for each fiber.
+    '''
     __tablename__ = 'pfs_design_fiber'
     __table_args__ = (UniqueConstraint('pfs_design_id', 'fiber_id'), {})
 
@@ -406,8 +408,8 @@ class pfs_design_fiber(Base):
                            autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
-    pfi_nominal_x_mm = Column(REAL)
-    pfi_nominal_y_mm = Column(REAL)
+    pfi_target_x_mm = Column(REAL, comment='Target x-position on the PFI [mm]')
+    pfi_target_y_mm = Column(REAL, comment='Target y-position on the PFI [mm]')
     ets_priority = Column(Integer)
     ets_cost_function = Column(FLOAT)
     ets_cobra_motor_movement = Column(String)
@@ -418,14 +420,14 @@ class pfs_design_fiber(Base):
     fiber_positions = relation(fiber_position, backref=backref('psf_design_fiber'))
 
     def __init__(self, pfs_design_id, fiber_id, target_id,
-                 pfi_nominal_x_mm, pfi_nominal_y_mm,
+                 pfi_target_x_mm, pfi_target_y_mm,
                  ets_priority, ets_cost_function, ets_cobra_motor_movement,
                  is_on_source=True):
         self.pfs_design_id = pfs_design_id
         self.fiber_id = fiber_id
         self.target_id = target_id
-        self.pfi_nominal_x_mm = pfi_nominal_x_mm
-        self.pfi_nominal_y_mm = pfi_nominal_y_mm
+        self.pfi_target_x_mm = pfi_target_x_mm
+        self.pfi_target_y_mm = pfi_target_y_mm
         self.ets_priority = ets_priority
         self.ets_cost_function = ets_cost_function
         self.ets_cobra_motor_movement = ets_cobra_motor_movement
@@ -433,6 +435,9 @@ class pfs_design_fiber(Base):
 
 
 class pfi_visit(Base):
+    '''Tracks the Gen2 visit identifier.
+    This is the fundamental identifier for all instrument exposures (MCS, AGC, SPS)
+    '''
     __tablename__ = 'pfi_visit'
 
     pfi_visit_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
@@ -444,6 +449,8 @@ class pfi_visit(Base):
 
 
 class mcs_boresight(Base):
+    ''' The MCS boresight for a given MCS exposure.
+    '''
 
     __tablename__ = 'mcs_boresight'
 
@@ -461,6 +468,8 @@ class mcs_boresight(Base):
 
 
 class mcs_exposure(Base):
+    ''' Provides instrument and telescope information related to a single MCS exposure.
+    '''
 
     __tablename__ = 'mcs_exposure'
 
@@ -686,12 +695,12 @@ class cobra_status(Base):
     spot_id = Column(Integer, comment='Corresponding MCS image spot identifier ')
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
     iteration = Column(Integer, comment='Iteration number for this frame')
-    pfi_nominal_x_mm = Column(REAL,
-                              comment='Nominal x-position on the PFI as determined from the '
-                              ' pfs_design_fiber table [mm]')
-    pfi_nominal_y_mm = Column(REAL,
-                              comment='Nominal y-position on the PFI as determined from the '
-                              ' pfs_design_fiber table [mm]')
+    pfi_target_x_mm = Column(REAL,
+                             comment='Target x-position on the PFI as determined from the '
+                            ' pfs_design_fiber table [mm]')
+    pfi_target_y_mm = Column(REAL,
+                             comment='Target y-position on the PFI as determined from the '
+                            ' pfs_design_fiber table [mm]')
     pfi_center_x_mm = Column(REAL,
                              comment='Actual x-position on the PFI [mm]')
     pfi_center_y_mm = Column(REAL,
@@ -706,8 +715,8 @@ class cobra_status(Base):
         self.spot_id = spot_id
         self.pfs_config_id = pfs_config_id
         self.iteration = iteration
-        self.pfi_nominal_x_mm = pfi_nominal_x_mm
-        self.pfi_nominal_y_mm = pfi_nominal_y_mm
+        self.pfi_target_x_mm = pfi_nominal_x_mm
+        self.pfi_target_y_mm = pfi_nominal_y_mm
         self.pfi_center_x_mm = pfi_center_x_mm
         self.pfi_center_y_mm = pfi_center_y_mm
 
