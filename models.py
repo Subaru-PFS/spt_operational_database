@@ -491,10 +491,14 @@ class mcs_data(Base):
     mcs_frame_id = Column(Integer, ForeignKey('mcs_exposure.mcs_frame_id'), primary_key=True, index=True,
                           autoincrement=False)
     spot_id = Column(Integer, primary_key=True, autoincrement=False, comment='The cobra spot identifier')
-    mcs_center_x_pix = Column(REAL, comment='The x-center of the spot image in MCS coordinates [TBC]')
-    mcs_center_y_pix = Column(REAL, comment='The y-center of the spot image in MCS pixel coordinates [TBC]')
-    mcs_fwhm_x_pix = Column(REAL, comment='The FWHM along the x direction of the image in MCS pixels')
-    mcs_fwhm_y_pix = Column(REAL, comment='The FWHM along the y direction of the image in MCS pixels')
+    mcs_center_x_pix = Column(REAL, comment='The x-center of the spot image in MCS [pix]')
+    mcs_center_y_pix = Column(REAL, comment='The y-center of the spot image in MCS [pix]]')
+    mcs_second_moment_x_pix = Column(REAL,
+                                     comment='The second moment along the x direction '
+                                     'of the image in MCS [pix]')
+    mcs_second_moment_y_pix = Column(REAL,
+                                     comment='The second moment along the y direction '
+                                     ' of the image [pix]')
     bgvalue = Column(REAL, comment='The background level')
     peakvalue = Column(REAL, comment='The peak image value')
 
@@ -504,7 +508,7 @@ class mcs_data(Base):
         self.spot_id = spot_id
         self.mcs_center_x_pix = mcs_center_x_pix
         self.mcs_center_y_pix = mcs_center_y_pix
-        self.mcs_fwhm_x_pix = mcs_fwhm_x_pix
+        self.mcs_second_moment_x_pix = mcs_fwhm_x_pix
         self.mcs_fwhm_y_pix = mcs_fwhm_y_pix
         self.bgvalue = bgvalue
         self.peakvalue = peakvalue
