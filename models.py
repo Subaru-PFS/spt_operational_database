@@ -152,8 +152,8 @@ class cloud_condition(Base):
         self.updated_at = updated_at
 
 
-class fiber_position(Base):
-    __tablename__ = 'fiber_position'
+class cobra_geometry(Base):
+    __tablename__ = 'cobra_geometry'
 
     fiber_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     field_on_pfi = Column(Integer)     # 1-3
@@ -406,7 +406,7 @@ class pfs_design_fiber(Base):
 
     pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'), primary_key=True,
                            autoincrement=False)
-    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
+    fiber_id = Column(Integer, ForeignKey('cobra_geometry.fiber_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
     pfi_target_x_mm = Column(REAL, comment='Target x-position on the PFI [mm]')
     pfi_target_y_mm = Column(REAL, comment='Target y-position on the PFI [mm]')
@@ -417,7 +417,7 @@ class pfs_design_fiber(Base):
 
     pfs_designs = relation(pfs_design, backref=backref('psf_design_fiber'))
     targets = relation(target, backref=backref('psf_design_fiber'))
-    fiber_positions = relation(fiber_position, backref=backref('psf_design_fiber'))
+    fiber_positions = relation(cobra_geometry, backref=backref('psf_design_fiber'))
 
     def __init__(self, pfs_design_id, fiber_id, target_id,
                  pfi_target_x_mm, pfi_target_y_mm,
@@ -574,7 +574,7 @@ class pfs_config_fiber(Base):
 
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'), primary_key=True,
                            autoincrement=False)
-    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
+    fiber_id = Column(Integer, ForeignKey('cobra_geometry.fiber_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
     pfi_center_final_x_mm = Column(REAL)
     pfi_center_final_y_mm = Column(REAL)
@@ -584,7 +584,7 @@ class pfs_config_fiber(Base):
 
     pfs_configs = relation(pfs_config, backref=backref('psf_config_fiber'))
     targets = relation(target, backref=backref('psf_config_fiber'))
-    fiber_positions = relation(fiber_position, backref=backref('psf_config_fiber'))
+    fiber_positions = relation(cobra_geometry, backref=backref('psf_config_fiber'))
 
     def __init__(self, pfs_config_id, fiber_id, target_id,
                  pfi_center_final_x_mm, pfi_center_final_y_mm,
@@ -903,7 +903,7 @@ class obs_fiber(Base):
 
     pfi_visit_id = Column(Integer, ForeignKey('pfi_visit.pfi_visit_id'), primary_key=True, unique=True,
                           autoincrement=False)
-    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True,
+    fiber_id = Column(Integer, ForeignKey('cobra_geometry.fiber_id'), primary_key=True,
                       autoincrement=False)
     target_id = Column(BigInteger)
     exptime = Column(REAL)
@@ -911,7 +911,7 @@ class obs_fiber(Base):
     cum_texp = Column(REAL)
 
     sps_exposures = relation(sps_exposure, backref=backref('obs_fiber'))
-    fiber_positions = relation(fiber_position, backref=backref('obs_fiber'))
+    fiber_positions = relation(cobra_geometry, backref=backref('obs_fiber'))
 
     def __init__(self, pfi_visit_id, fiber_id, target_id,
                  exptime, cum_nexp, cum_texp):
@@ -994,13 +994,13 @@ class pfs_arm_obj(Base):
 
     pfi_visit_id = Column(Integer, ForeignKey('pfi_visit.pfi_visit_id'),
                           primary_key=True, autoincrement=False)
-    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
+    fiber_id = Column(Integer, ForeignKey('cobra_geometry.fiber_id'), primary_key=True, autoincrement=False)
     flags = Column(Integer)
     qa_type_id = Column(Integer, ForeignKey('qa_type.qa_type_id'))
     qa_value = Column(REAL)
 
     pfs_arms = relation(pfs_arm, backref=backref('pfs_arm_obj'))
-    fiber_positions = relation(fiber_position, backref=backref('pfs_arm_obj'))
+    fiber_positions = relation(cobra_geometry, backref=backref('pfs_arm_obj'))
     qa_types = relation(qa_type, backref=backref('pfs_arm_obj'))
 
     def __init__(self, pfi_visit_id, fiber_id, flags, qa_type_id, qa_value):
