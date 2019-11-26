@@ -417,7 +417,7 @@ class pfs_design_fiber(Base):
 
     pfs_designs = relation(pfs_design, backref=backref('psf_design_fiber'))
     targets = relation(target, backref=backref('psf_design_fiber'))
-    fiber_positions = relation(cobra_geometry, backref=backref('psf_design_fiber'))
+    cobra_geometries = relation(cobra_geometry, backref=backref('psf_design_fiber'))
 
     def __init__(self, pfs_design_id, fiber_id, target_id,
                  pfi_target_x_mm, pfi_target_y_mm,
@@ -584,7 +584,7 @@ class pfs_config_fiber(Base):
 
     pfs_configs = relation(pfs_config, backref=backref('psf_config_fiber'))
     targets = relation(target, backref=backref('psf_config_fiber'))
-    fiber_positions = relation(cobra_geometry, backref=backref('psf_config_fiber'))
+    cobra_geometries = relation(cobra_geometry, backref=backref('psf_config_fiber'))
 
     def __init__(self, pfs_config_id, fiber_id, target_id,
                  pfi_center_final_x_mm, pfi_center_final_y_mm,
@@ -915,7 +915,7 @@ class obs_fiber(Base):
     cum_texp = Column(REAL)
 
     sps_exposures = relation(sps_exposure, backref=backref('obs_fiber'))
-    fiber_positions = relation(cobra_geometry, backref=backref('obs_fiber'))
+    cobra_geometries = relation(cobra_geometry, backref=backref('obs_fiber'))
 
     def __init__(self, pfi_visit_id, fiber_id, target_id,
                  exptime, cum_nexp, cum_texp):
@@ -1004,7 +1004,7 @@ class pfs_arm_obj(Base):
     qa_value = Column(REAL)
 
     pfs_arms = relation(pfs_arm, backref=backref('pfs_arm_obj'))
-    fiber_positions = relation(cobra_geometry, backref=backref('pfs_arm_obj'))
+    cobra_geometries = relation(cobra_geometry, backref=backref('pfs_arm_obj'))
     qa_types = relation(qa_type, backref=backref('pfs_arm_obj'))
 
     def __init__(self, pfi_visit_id, fiber_id, flags, qa_type_id, qa_value):
