@@ -263,7 +263,8 @@ class target(Base):
     input_catalogs = relation(input_catalog, backref=backref('target'))
     qa_types = relation(qa_type, backref=backref('target'))
 
-    def __init__(self, program_id, obj_id, ra, dec, tract, patch, priority, target_type_id, cat_id, cat_obj_id,
+    def __init__(self, program_id, obj_id, ra, dec, tract, patch, priority, target_type_id, cat_id,
+                 cat_obj_id,
                  fiber_mag_g, fiber_mag_r, fiber_mag_i, fiber_mag_z, fiber_mag_y,
                  fiber_mag_j, fiducial_exptime, photz, is_medium_resolution,
                  qa_type_id, qa_lambda_min, qa_lambda_max, qa_threshold, qa_line_flux,
@@ -373,7 +374,8 @@ class pfs_design(Base):
 
     def __init__(self, pfs_design_id, tile_id, ra_center_designed, dec_center_designed, pa_designed,
                  num_sci_designed, num_cal_designed, num_sky_designed, num_guide_stars,
-                 exptime_tot, exptime_min, ets_version, ets_assgner, designed_at, to_be_observed_at, is_obsolete=False):
+                 exptime_tot, exptime_min, ets_version, ets_assigner, designed_at, to_be_observed_at,
+                 is_obsolete=False):
         self.pfs_design_id = pfs_design_id
         self.tile_id = tile_id
         self.ra_center_designed = ra_center_designed
@@ -396,7 +398,8 @@ class pfs_design_fiber(Base):
     __tablename__ = 'pfs_design_fiber'
     __table_args__ = (UniqueConstraint('pfs_design_id', 'fiber_id'), {})
 
-    pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'), primary_key=True, autoincrement=False)
+    pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'), primary_key=True,
+                           autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
     pfi_nominal_x_mm = Column(REAL)
@@ -440,7 +443,8 @@ class mcs_boresight(Base):
 
     __tablename__ = 'mcs_boresight'
 
-    pfi_visit_id = Column(Integer, ForeignKey('pfi_visit.pfi_visit_id'), primary_key=True, unique=True, autoincrement=False)
+    pfi_visit_id = Column(Integer, ForeignKey('pfi_visit.pfi_visit_id'), primary_key=True, unique=True,
+                          autoincrement=False)
     mcs_boresight_x_pix = Column(REAL)
     mcs_boresight_y_pix = Column(REAL)
     calculated_at = Column(DateTime)
@@ -456,13 +460,14 @@ class mcs_exposure(Base):
 
     __tablename__ = 'mcs_exposure'
 
-    mcs_frame_id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=False)
+    mcs_frame_id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=False,
+                          comment='MCS frame identifier as generated from Gen2')
     pfi_visit_id = Column(Integer, ForeignKey('pfi_visit.pfi_visit_id'))
-    mcs_exptime = Column(REAL)
-    altitude = Column(REAL)
-    azimuth = Column(REAL)
-    insrot = Column(REAL)
-    taken_at = Column(DateTime)
+    mcs_exptime = Column(REAL, comment='The exposure time for the frame [sec]')
+    altitude = Column(REAL, comment='The telescope attitude [deg]')
+    azimuth = Column(REAL, comment='The telescope azimuth [deg]')
+    insrot = Column(REAL, comment='The telescope instrument rotation angle [deg]')
+    taken_at = Column(DateTime, comment='The time at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
 
     def __init__(self, mcs_frame_id, pfi_visit_id, mcs_exptime, altitude, azimuth, insrot, taken_at):
         self.mcs_frame_id = mcs_frame_id
@@ -479,17 +484,18 @@ class mcs_data(Base):
     __tablename__ = 'mcs_data'
     __table_args__ = (UniqueConstraint('mcs_frame_id', 'spot_id'), {})
 
-    mcs_frame_id = Column(Integer, ForeignKey('mcs_exposure.mcs_frame_id'), primary_key=True, index=True, autoincrement=False)
-    spot_id = Column(Integer, primary_key=True, autoincrement=False)
-    mcs_center_x_pix = Column(REAL)
-    mcs_center_y_pix = Column(REAL)
-    mcs_fwhm_x_pix = Column(REAL)
-    mcs_fwhm_y_pix = Column(REAL)
-    bgvalue = Column(REAL)
-    peakvalue = Column(REAL)
+    mcs_frame_id = Column(Integer, ForeignKey('mcs_exposure.mcs_frame_id'), primary_key=True, index=True,
+                          autoincrement=False)
+    spot_id = Column(Integer, primary_key=True, autoincrement=False, comment='The cobra spot identifier')
+    mcs_center_x_pix = Column(REAL, comment='The x-center of the spot image in MCS coordinates [TBC]')
+    mcs_center_y_pix = Column(REAL, comment='The y-center of the spot image in MCS pixel coordinates [TBC]')
+    mcs_fwhm_x_pix = Column(REAL, comment='The FWHM along the x direction of the image in MCS pixels')
+    mcs_fwhm_y_pix = Column(REAL, comment='The FWHM along the y direction of the image in MCS pixels')
+    bgvalue = Column(REAL, comment='The background level')
+    peakvalue = Column(REAL, comment='The peak image value')
 
     def __init__(self, mcs_frame_id, spot_id, mcs_center_x_pix, mcs_center_y_pix,
-                 mcs_fwhm_x_pix, fmcs_whm_y_pix, bgvalue, peakvalue):
+                 mcs_fwhm_x_pix, mcs_fwhm_y_pix, bgvalue, peakvalue):
         self.mcs_frame_id = mcs_frame_id
         self.spot_id = spot_id
         self.mcs_center_x_pix = mcs_center_x_pix
@@ -505,19 +511,22 @@ class pfs_config(Base):
 
     pfs_config_id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
     pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'))
-    visit0 = Column(Integer)
-    ra_center_config = Column(FLOAT)
-    dec_center_config = Column(FLOAT)
-    pa_config = Column(REAL)
-    num_sci_allocated = Column(Integer)
-    num_cal_allocated = Column(Integer)
-    num_sky_allocated = Column(Integer)
-    num_guide_stars_allocated = Column(Integer)
-    alloc_num_cobra_iter = Column(Integer)
-    alloc_elapsed_time = Column(REAL)
-    alloc_rms_scatter = Column(REAL)
-    allocated_at = Column(DateTime)
-    was_observed = Column(Boolean)
+    visit0 = Column(Integer, comment='The first visit of the set')
+    ra_center_config = Column(FLOAT, comment='The right ascension of the PFI center [deg]')
+    dec_center_config = Column(FLOAT, comment='The declination of the PFI center [deg]')
+    pa_config = Column(REAL, comment='The position angle of the PFI [deg]')
+    # num_sci_allocated = Column(Integer)
+    # num_cal_allocated = Column(Integer)
+    # num_sky_allocated = Column(Integer)
+    # num_guide_stars_allocated = Column(Integer)
+    converg_num_iter = Column(Integer,
+                              comment='Allocated total number of cobra iterations towards convergence')
+    converg_elapsed_time = Column(REAL,
+                                  comment='Allocated time for convergence [sec]')
+    alloc_rms_scatter = Column(REAL,
+                               comment='[TBW]')
+    allocated_at = Column(DateTime, comment='Time at which config was allocated [YYYY-MM-DDhhmmss] (TBC)')
+    was_observed = Column(Boolean, comment='True of configuration was observed (XXX relevant?)')
 
     pfs_designs = relation(pfs_design, backref=backref('pfs_config'))
 
@@ -535,8 +544,8 @@ class pfs_config(Base):
         self.num_cal_allocated = num_cal_allocated
         self.num_sky_allocated = num_sky_allocated
         self.num_guide_stars_allocated = num_guide_stars_allocated
-        self.alloc_num_cobra_iter = alloc_num_cobra_iter
-        self.alloc_elapsed_time = alloc_elapsed_time
+        self.converg_num_iter = alloc_num_cobra_iter
+        self.converg_elapsed_time = alloc_elapsed_time
         self.alloc_rms_scatter = alloc_rms_scatter
         self.allocated_at = allocated_at
         self.was_observed = was_observed
@@ -547,7 +556,8 @@ class pfs_config_fiber(Base):
     __table_args__ = (UniqueConstraint('pfs_config_id', 'fiber_id'),
                       {})
 
-    pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'), primary_key=True, autoincrement=False)
+    pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'), primary_key=True,
+                           autoincrement=False)
     fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
     pfi_center_final_x_mm = Column(REAL)
@@ -573,31 +583,39 @@ class pfs_config_fiber(Base):
 
 
 class cobra_motor_axis(Base):
+    '''The axis or stage of a cobra motor.
+    This can be one of:
+    Theta (or Stage 1)
+    Phi (or Stage 2)
+    '''
     __tablename__ = 'cobra_motor_axis'
-    cobra_motor_axis_id = Column(Integer, primary_key=True)
-    cobra_motor_axis_name = Column(String)
+    cobra_motor_axis_id = Column(Integer, primary_key=True, comment='Motor axis stage number [1,2]')
+    cobra_motor_axis_name = Column(String, comment='Corresponding name for axis [Theta, Phi]')
 
     def __init__(self, cobra_motor_axis_id, cobra_motor_axis_name):
         self.cobra_motor_axis_id = cobra_motor_axis_id
         self.cobra_motor_axis_name = cobra_motor_axis_name
 
 
-class cobra_motor_map(Base):
-    __tablename__ = 'cobra_motor_map'
+class cobra_motor_model(Base):
+    '''Defines the cobra motor movement profile
+    '''
+    __tablename__ = 'cobra_motor_model'
 
-    cobra_motor_map_id = Column(Integer, primary_key=True, autoincrement=True)
-    fiber_id = Column(Integer)
+    cobra_motor_model_id = Column(Integer, primary_key=True, autoincrement=True)
+    fiber_id = Column(Integer, comment='The cobra fiber identifier')
     cobra_motor_axis_id = Column(Integer, ForeignKey('cobra_motor_axis.cobra_motor_axis_id'))
-    cobra_motor_angle = Column(REAL)
-    cobra_motor_on_time = Column(REAL)
-    cobra_motor_speed = Column(REAL)
-    calibrated_at = Column(DateTime)
+    cobra_motor_angle = Column(REAL, comment='The angle of the motor [deg]')
+    cobra_motor_on_time = Column(REAL, comment='The ontime level')
+    cobra_motor_speed = Column(REAL, comment='The speed of the motor [deg/s] (TBC)')
+    calibrated_at = Column(DateTime,
+                           comment='Date at which the model calibration took place [YYYY-MM-DDhh:mm:ss]')
 
-    def __init__(self, cobra_motor_map_id, fiber_id, cobra_motor_axis_id,
+    def __init__(self, cobra_motor_model_id, fiber_id, cobra_motor_axis_id,
                  cobra_motor_angle, cobra_motor_on_time, cobra_motor_speed,
                  calibrated_at
                  ):
-        self.cobra_motor_map_id = cobra_motor_map_id
+        self.cobra_motor_model_id = cobra_motor_model_id
         self.fiber_id = fiber_id
         self.cobra_motor_axis_id = cobra_motor_axis_id
         self.cobra_motor_angle = cobra_motor_angle
@@ -607,51 +625,69 @@ class cobra_motor_map(Base):
 
 
 class cobra_motor_movement(Base):
+    ''' The actual movement of the cobra motor, in terms of individual MCS frames.
+    '''
     __tablename__ = 'cobra_motor_movement'
     __table_args__ = (UniqueConstraint('mcs_frame_id', 'fiber_id'),
                       {})
 
-    mcs_frame_id = Column(Integer, primary_key=True, index=True, autoincrement=False)
-    fiber_id = Column(Integer, primary_key=True, autoincrement=False)
-    cobra_motor_map_id_theta = Column(Integer, ForeignKey('cobra_motor_map.cobra_motor_map_id'))
-    motor_num_step_theta = Column(Integer)
-    motor_on_time_theta = Column(REAL)
-    cobra_motor_map_id_phi = Column(Integer, ForeignKey('cobra_motor_map.cobra_motor_map_id'))
-    motor_num_step_phi = Column(Integer)
-    motor_on_time_phi = Column(REAL)
+    mcs_frame_id = Column(Integer, primary_key=True, index=True, autoincrement=False,
+                          comment='MCS frame identifier. Provided by Gen2')
+    fiber_id = Column(Integer, primary_key=True, autoincrement=False,
+                      comment='Fiber identifier')
+    cobra_motor_model_id_theta = Column(Integer, ForeignKey('cobra_motor_model.cobra_motor_model_id'))
+    motor_num_step_theta = Column(Integer,
+                                  comment='the number of steps the theta motor has undertaken')
+    motor_on_time_theta = Column(REAL,
+                                 comment='the theta motor ontime value')
+    cobra_motor_model_id_phi = Column(Integer, ForeignKey('cobra_motor_model.cobra_motor_model_id'))
+    motor_num_step_phi = Column(Integer, comment='the number of steps the phi motor has undertaken')
+    motor_on_time_phi = Column(REAL, comment='the phi motor ontime value')
 
     def __init__(self, mcs_frame_id, fiber_id,
-                 motor_num_step_theta, motor_on_time_theta, motor_num_step_phi, motor_on_time_phi,
-                 cobra_motor_map_id
+                 cobra_motor_model_id_theta,
+                 motor_num_step_theta, motor_on_time_theta,
+                 cobra_motor_model_id_phi,
+                 motor_num_step_phi, motor_on_time_phi
                  ):
         self.mcs_frame_id = mcs_frame_id
         self.fiber_id = fiber_id
-        self.cobra_motor_map_id_theta = cobra_motor_map_id_theta
+        self.cobra_motor_map_model_id_theta = cobra_motor_model_id_theta
         self.motor_num_step_theta = motor_num_step_theta
         self.motor_on_time_theta = motor_on_time_theta
-        self.cobra_motor_map_id_phi = cobra_motor_map_id_phi
+        self.cobra_motor_map_model_id_phi = cobra_motor_model_id_phi
         self.motor_num_step_phi = motor_num_step_phi
         self.motor_on_time_phi = motor_on_time_phi
 
 
-class cobra_config(Base):
+class cobra_status(Base):
+    '''Defines the status of each cobra at each step during convergence.
+    '''
     __tablename__ = 'cobra_config'
     __table_args__ = (UniqueConstraint('mcs_frame_id', 'fiber_id'),
                       ForeignKeyConstraint(['mcs_frame_id', 'spot_id'],
                                            ['mcs_data.mcs_frame_id', 'mcs_data.spot_id']),
                       ForeignKeyConstraint(['mcs_frame_id', 'fiber_id'],
-                                           ['cobra_motor_movement.mcs_frame_id', 'cobra_motor_movement.fiber_id']),
+                                           ['cobra_motor_movement.mcs_frame_id',
+                                            'cobra_motor_movement.fiber_id']),
                       {})
 
     mcs_frame_id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=False)
-    fiber_id = Column(Integer, primary_key=True, autoincrement=False)
-    spot_id = Column(Integer)
+    fiber_id = Column(Integer, primary_key=True, autoincrement=False,
+                      comment='Fiber identifier')
+    spot_id = Column(Integer, comment='Corresponding MCS image spot identifier ')
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
-    iteration = Column(Integer)
-    pfi_nominal_x_mm = Column(REAL)
-    pfi_nominal_y_mm = Column(REAL)
-    pfi_center_x_mm = Column(REAL)
-    pfi_center_y_mm = Column(REAL)
+    iteration = Column(Integer, comment='Iteration number for this frame')
+    pfi_nominal_x_mm = Column(REAL,
+                              comment='Nominal x-position on the PFI as determined from the '
+                              ' pfs_design_fiber table [mm]')
+    pfi_nominal_y_mm = Column(REAL,
+                              comment='Nominal y-position on the PFI as determined from the '
+                              ' pfs_design_fiber table [mm]')
+    pfi_center_x_mm = Column(REAL,
+                             comment='Actual x-position on the PFI [mm]')
+    pfi_center_y_mm = Column(REAL,
+                             comment='Actual y-position on the PFI [mm]')
 
     def __init__(self, mcs_frame_id, fiber_id,
                  pfs_config_id, spot_id, iteration,
@@ -713,8 +749,8 @@ class tel_visit(Base):
         self.beam_switch_offset_dec = beam_switch_offset_dec
         self.time_exp_start = time_exp_start
         self.time_exp_end = time_exp_end
-        self.mjd_start = mjd_start
-        self.mjd_end = mjd_end
+        self.mjd_exp_start = mjd_exp_start
+        self.mjd_exp_end = mjd_exp_end
         self.insrot_start = insrot_start
         self.insrot_end = insrot_end
 
@@ -722,7 +758,8 @@ class tel_visit(Base):
 class tel_condition(Base):
     __tablename__ = 'tel_condition'
 
-    tel_visit_id = Column(Integer, ForeignKey('tel_visit.tel_visit_id'), primary_key=True, unique=True, autoincrement=False)
+    tel_visit_id = Column(Integer, ForeignKey('tel_visit.tel_visit_id'), primary_key=True, unique=True,
+                          autoincrement=False)
     focusing_error = Column(REAL)
     guide_error_sigma_arcsec = Column(REAL)
     airmass = Column(REAL)
@@ -778,7 +815,8 @@ class sps_exposure(Base):
 class sps_condition(Base):
     __tablename__ = 'sps_condition'
 
-    sps_frame_id = Column(Integer, ForeignKey('sps_exposure.sps_frame_id'), primary_key=True, autoincrement=False)
+    sps_frame_id = Column(Integer, ForeignKey('sps_exposure.sps_frame_id'),
+                          primary_key=True, autoincrement=False)
     background = Column(REAL)
     throughput = Column(REAL)
 
@@ -851,8 +889,10 @@ class obs_fiber(Base):
     __tablename__ = 'obs_fiber'
     __table_args__ = (UniqueConstraint('sps_frame_id', 'fiber_id'), {})
 
-    sps_frame_id = Column(Integer, ForeignKey('sps_exposure.sps_frame_id'), primary_key=True, autoincrement=False)
-    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True, autoincrement=False)
+    sps_frame_id = Column(Integer, ForeignKey('sps_exposure.sps_frame_id'), primary_key=True,
+                          autoincrement=False)
+    fiber_id = Column(Integer, ForeignKey('fiber_position.fiber_id'), primary_key=True,
+                      autoincrement=False)
     target_id = Column(BigInteger)
     exptime = Column(REAL)
     cum_nexp = Column(Integer)
@@ -910,7 +950,8 @@ class psf_model(Base):
 class pfs_arm(Base):
     __tablename__ = 'pfs_arm'
 
-    sps_frame_id = Column(Integer, ForeignKey('sps_exposure.sps_frame_id'), primary_key=True, unique=True, autoincrement=False)
+    sps_frame_id = Column(Integer, ForeignKey('sps_exposure.sps_frame_id'), primary_key=True, unique=True,
+                          autoincrement=False)
     calib_set_id = Column(Integer, ForeignKey('calib_set.calib_set_id'))
     sky_model_id = Column(Integer, ForeignKey('sky_model.sky_model_id'))
     psf_model_id = Column(Integer, ForeignKey('psf_model.psf_model_id'))
@@ -1015,8 +1056,10 @@ class visits_to_combine(Base):
     __tablename__ = 'visits_to_combine'
     __table_args__ = (UniqueConstraint('tel_visit_id', 'pfs_visit_hash'), {})
 
-    tel_visit_id = Column(Integer, ForeignKey('tel_visit.tel_visit_id'), primary_key=True, autoincrement=False)
-    pfs_visit_hash = Column(BigInteger, ForeignKey('visit_hash.pfs_visit_hash'), primary_key=True, autoincrement=False)
+    tel_visit_id = Column(Integer, ForeignKey('tel_visit.tel_visit_id'), primary_key=True,
+                          autoincrement=False)
+    pfs_visit_hash = Column(BigInteger, ForeignKey('visit_hash.pfs_visit_hash'), primary_key=True,
+                            autoincrement=False)
 
     sps_exposures = relation(sps_exposure, backref=backref('visits_to_combine'))
     visit_hashs = relation(visit_hash, backref=backref('visits_to_combine'))
@@ -1047,7 +1090,8 @@ class drp1d(Base):
     __tablename__ = 'drp1d'
     __table_args__ = (UniqueConstraint('pfs_object_id', 'processed_at'), {})
 
-    pfs_object_id = Column(BigInteger, ForeignKey('pfs_object.pfs_object_id'), primary_key=True, autoincrement=False)
+    pfs_object_id = Column(BigInteger, ForeignKey('pfs_object.pfs_object_id'), primary_key=True,
+                           autoincrement=False)
     z_best = Column(REAL)
     z_best_err = Column(REAL)
     z_best_reliability = Column(REAL)
@@ -1084,7 +1128,7 @@ class drp1d_redshift(Base):
     spec_subclass = Column(String)
     processed_at = Column(DateTime, primary_key=True, autoincrement=False)
 
-    def __init__(self, pfs_object_id, z, z_err, zrank, reliability, spec_Class, spec_subclass, processed_at):
+    def __init__(self, pfs_object_id, z, z_err, zrank, reliability, spec_class, spec_subclass, processed_at):
         self.pfs_object_id = pfs_object_id
         self.z = z
         self.z_err = z_err
@@ -1121,10 +1165,13 @@ class drp1d_line(Base):
     line_cont_level_err = Column(REAL)
     processed_at = Column(DateTime, primary_key=True, autoincrement=False)
 
-    def __init__(self, pfs_object_id, line_id, line_name, line_wave, line_z, line_z_err, line_sigma, line_sigma_err, line_vel, line_vel_err, line_flux, line_flux_err, line_ew, line_ew_err, line_cont_level, line_cont_level_err, processed_at):
+    def __init__(self, pfs_object_id, drp1d_id, line_id,
+                 line_name, line_wave, line_z, line_z_err, line_sigma,
+                 line_sigma_err, line_vel, line_vel_err, line_flux, line_flux_err, line_ew, line_ew_err,
+                 line_cont_level, line_cont_level_err, processed_at):
         self.pfs_object_id = pfs_object_id
         self.drp1d_id = drp1d_id
-        self.line_id = lineId
+        self.line_id = line_id
         self.line_name = line_name
         self.line_wave = line_wave
         self.line_z = line_z
@@ -1146,7 +1193,8 @@ class drp_ga(Base):
     __tablename__ = 'drp_ga'
     __table_args__ = (UniqueConstraint('pfs_object_id', 'processed_at'), {})
 
-    pfs_object_id = Column(BigInteger, ForeignKey('pfs_object.pfs_object_id'), primary_key=True, autoincrement=False)
+    pfs_object_id = Column(BigInteger, ForeignKey('pfs_object.pfs_object_id'), primary_key=True,
+                           autoincrement=False)
     star_type_id = Column(Integer, ForeignKey('star_type.star_type_id'))
     velocity = Column(REAL)
     metallicity = Column(REAL)
@@ -1159,7 +1207,7 @@ class drp_ga(Base):
     def __init__(self, pfs_object_id, star_type_id, velocity, metallicity, logg, teff,
                  flags, processed_at, drp_ga_version):
         self.pfs_object_id = pfs_object_id
-        self.star_type_id = start_type_id
+        self.star_type_id = star_type_id
         self.velocity = velocity
         self.metallicity = metallicity
         self.logg = logg
@@ -1182,7 +1230,7 @@ def make_database(dbinfo):
     Base.metadata.create_all(engine)
 
     Session = sessionmaker(bind=engine)
-    session = Session()
+    Session()
 
 
 if __name__ == '__main__':
