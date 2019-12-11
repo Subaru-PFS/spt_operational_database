@@ -797,10 +797,6 @@ class sps_exposure(Base):
 
     pfi_visit_id = Column(Integer, ForeignKey('pfi_visit.pfi_visit_id'), primary_key=True, unique=True,
                           autoincrement=False)
-    tel_visit_id_start = Column(Integer, ForeignKey('tel_visit.tel_visit_id'),
-                                comment='tel_visit_id at start of SPS exposure')
-    tel_visit_id_end = Column(Integer, ForeignKey('tel_visit.tel_visit_id'),
-                              comment='tel_visit_id at end of SPS exposure')
     spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
     sps_exptime = Column(REAL, comment='Exposure time for visit [sec]')
     is_medium_resolution = Column(Boolean,
