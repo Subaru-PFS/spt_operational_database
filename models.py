@@ -319,11 +319,11 @@ class guide_stars(Base):
     input_catalogs = relation(input_catalog, backref=backref('guide_stars'))
     obj_types = relation(obj_type, backref=backref('guide_stars'))
 
-    def __init__(self, guide_star_id, ra, dec, cat_id, mag_agc, flux_agc, flags,
+    def __init__(self, guide_star_id, ra, decl, cat_id, mag_agc, flux_agc, flags,
                  created_at, updated_at):
         self.guide_star_id = guide_star_id
         self.ra = ra
-        self.decl = dec
+        self.decl = decl
         self.cat_id = cat_id
         self.mag_agc = mag_agc
         self.flux_agc = flux_agc
@@ -506,11 +506,14 @@ class mcs_data(Base):
     mcs_center_x_pix = Column(REAL, comment='The x-center of the spot image in MCS [pix]')
     mcs_center_y_pix = Column(REAL, comment='The y-center of the spot image in MCS [pix]]')
     mcs_second_moment_x_pix = Column(REAL,
-                                     comment='The second moment along the x direction '
-                                     'of the image in MCS [pix]')
+                                     comment='The x-component of the second moment '
+                                     'of the image in MCS [pix^2]')
     mcs_second_moment_y_pix = Column(REAL,
-                                     comment='The second moment along the y direction '
-                                     ' of the image [pix]')
+                                     comment='The y-component of the second moment '
+                                     ' of the image [pix^2]')
+    mcs_second_moment_xy_pix = Column(REAL,
+                                      comment='The xy-component of the second moment '
+                                      ' of the image [pix^2]')                 
     bgvalue = Column(REAL, comment='The background level')
     peakvalue = Column(REAL, comment='The peak image value')
 
