@@ -236,7 +236,7 @@ class target(Base):
     program_id = Column(Integer, ForeignKey('program.program_id'))
     obj_id = Column(BigInteger)
     ra = Column(FLOAT)
-    dec = Column(FLOAT)
+    decl = Column(FLOAT)
     tract = Column(Integer)
     patch = Column(String)
     priority = Column(REAL)
@@ -267,7 +267,7 @@ class target(Base):
     input_catalogs = relation(input_catalog, backref=backref('target'))
     qa_types = relation(qa_type, backref=backref('target'))
 
-    def __init__(self, program_id, obj_id, ra, dec, tract, patch, priority, target_type_id, cat_id,
+    def __init__(self, program_id, obj_id, ra, decl, tract, patch, priority, target_type_id, cat_id,
                  cat_obj_id,
                  fiber_mag_g, fiber_mag_r, fiber_mag_i, fiber_mag_z, fiber_mag_y,
                  fiber_mag_j, fiducial_exptime, photz, is_medium_resolution,
@@ -276,7 +276,7 @@ class target(Base):
         self.program_id = program_id
         self.obj_id = obj_id
         self.ra = ra
-        self.dec = dec
+        self.decl = decl
         self.tract = tract
         self.patch = patch
         self.priority = priority
@@ -307,7 +307,7 @@ class guide_stars(Base):
     __tablename__ = 'guide_stars'
     guide_star_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=False)
     ra = Column(FLOAT)
-    dec = Column(FLOAT)
+    decl = Column(FLOAT)
     cat_id = Column(Integer, ForeignKey('input_catalog.cat_id'))
     obj_type_id = Column(Integer, ForeignKey('obj_type.obj_type_id'))
     mag_agc = Column(REAL)
@@ -323,7 +323,7 @@ class guide_stars(Base):
                  created_at, updated_at):
         self.guide_star_id = guide_star_id
         self.ra = ra
-        self.dec = dec
+        self.decl = dec
         self.cat_id = cat_id
         self.mag_agc = mag_agc
         self.flux_agc = flux_agc
