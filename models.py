@@ -480,16 +480,38 @@ class mcs_exposure(Base):
     altitude = Column(REAL, comment='The telescope attitude [deg]')
     azimuth = Column(REAL, comment='The telescope azimuth [deg]')
     insrot = Column(REAL, comment='The telescope instrument rotation angle [deg]')
+    adc_pa = Column(REAL, comment='ADC PA at which the exposure started [deg]')
+    dome_temperature = Column(REAL, comment='Dome temperature [K]')
+    dome_pressure = Column(REAL, comment='Dome pressure [hPa]')
+    dome_humidity = Column(REAL, comment='Dome humidity [%]')
+    outside_temperature = Column(REAL, comment='Outside temperature [K]')
+    outside_pressure = Column(REAL, comment='Outside pressure [hPa]')
+    outside_humidity = Column(REAL, comment='Outside humidity [%]')
+    mcs_cover_temperature = Column(REAL, comment='MCS cover panel temperature [degC]')
+    mcs_m1_temperature = Column(REAL, comment='MCS primary mirror temperature [degC]')
     taken_at = Column(DateTime, comment='The time at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
+    taken_in_hst_at = Column(DateTime, comment='The time (in HST) at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
 
-    def __init__(self, mcs_frame_id, pfs_visit_id, mcs_exptime, altitude, azimuth, insrot, taken_at):
+    def __init__(self, mcs_frame_id, pfs_visit_id, mcs_exptime, altitude, azimuth, insrot, adc_pa,
+                 dome_temperature, dome_pressure, dome_humidity, outside_temperature, outside_pressure, outside_humidity,
+                 mcs_cover_temperature, mcs_m1_temperature, taken_at, taken_in_hst_at):
         self.mcs_frame_id = mcs_frame_id
         self.pfs_visit_id = pfs_visit_id
         self.mcs_exptime = mcs_exptime
         self.altitude = altitude
         self.azimuth = azimuth
         self.insrot = insrot
+        self.adc_pa = adc_pa
+        self.dome_temperature = dome_temperature
+        self.dome_pressure = dome_pressure
+        self.dome_humidity = dome_humidity
+        self.outside_temperature = outside_temperature
+        self.outside_pressure = outside_pressure
+        self.outside_humidity = outside_humidity
+        self.mcs_cover_temperature = mcs_cover_temperature
+        self.mcs_m1_temperature = mcs_m1_temperature
         self.taken_at = taken_at
+        self.taken_in_hst_at = taken_in_hst_at
 
 
 class mcs_data(Base):
@@ -513,7 +535,7 @@ class mcs_data(Base):
                                      ' of the image [pix^2]')
     mcs_second_moment_xy_pix = Column(REAL,
                                       comment='The xy-component of the second moment '
-                                      ' of the image [pix^2]')                 
+                                      ' of the image [pix^2]')
     bgvalue = Column(REAL, comment='The background level')
     peakvalue = Column(REAL, comment='The peak image value')
 
@@ -699,10 +721,10 @@ class cobra_status(Base):
     iteration = Column(Integer, comment='Iteration number for this frame')
     pfi_target_x_mm = Column(REAL,
                              comment='Target x-position on the PFI as determined from the '
-                            ' pfs_design_fiber table [mm]')
+                             ' pfs_design_fiber table [mm]')
     pfi_target_y_mm = Column(REAL,
                              comment='Target y-position on the PFI as determined from the '
-                            ' pfs_design_fiber table [mm]')
+                             ' pfs_design_fiber table [mm]')
     pfi_center_x_mm = Column(REAL,
                              comment='Actual x-position on the PFI [mm]')
     pfi_center_y_mm = Column(REAL,
@@ -1235,7 +1257,7 @@ class drp_ga(Base):
 
 class visit_set(Base):
     __tablename__ = 'visit_set'
-   
+
     visit_set_id = Column(Integer, primary_key=True, autoincrement=False, comment='visit set identifier')
     name = Column(String, comment='The unique name assigned to this set of visits')
     cmd_str = Column(String, comment='ICS command string that generates exposures for this set of visits')
