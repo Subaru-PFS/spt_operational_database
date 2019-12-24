@@ -193,6 +193,7 @@ class cobra_geometry(Base):
 
 class fiducial_fiber_position(Base):
     __tablename__ = 'fiducial_fiber_position'
+
     fiducial_fiber_id = Column(Integer, primary_key=True, autoincrement=False)
     field_on_pfi = Column(Integer)   # 1-3
     ff_in_field = Column(Integer)    # 1-32
@@ -305,6 +306,7 @@ class target(Base):
 
 class guide_stars(Base):
     __tablename__ = 'guide_stars'
+
     guide_star_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=False)
     ra = Column(FLOAT)
     decl = Column(FLOAT)
@@ -319,12 +321,13 @@ class guide_stars(Base):
     input_catalogs = relation(input_catalog, backref=backref('guide_stars'))
     obj_types = relation(obj_type, backref=backref('guide_stars'))
 
-    def __init__(self, guide_star_id, ra, decl, cat_id, mag_agc, flux_agc, flags,
-                 created_at, updated_at):
+    def __init__(self, guide_star_id, ra, decl, cat_id, obj_type_id,
+                 mag_agc, flux_agc, flags, created_at, updated_at):
         self.guide_star_id = guide_star_id
         self.ra = ra
         self.decl = decl
         self.cat_id = cat_id
+        self.obj_type_id = obj_type_id
         self.mag_agc = mag_agc
         self.flux_agc = flux_agc
         self.flags = flags
@@ -540,13 +543,15 @@ class mcs_data(Base):
     peakvalue = Column(REAL, comment='The peak image value')
 
     def __init__(self, mcs_frame_id, spot_id, mcs_center_x_pix, mcs_center_y_pix,
-                 mcs_fwhm_x_pix, mcs_fwhm_y_pix, bgvalue, peakvalue):
+                 mcs_second_moment_x_pix, mcs_second_moment_y_pix, mcs_second_moment_xy_pix,
+                 bgvalue, peakvalue):
         self.mcs_frame_id = mcs_frame_id
         self.spot_id = spot_id
         self.mcs_center_x_pix = mcs_center_x_pix
         self.mcs_center_y_pix = mcs_center_y_pix
         self.mcs_second_moment_x_pix = mcs_fwhm_x_pix
-        self.mcs_fwhm_y_pix = mcs_fwhm_y_pix
+        self.mcs_second_moment_y_pix = mcs_fwhm_y_pix
+        self.mcs_second_moment_xy_pix = mcs_fwhm_xy_pix
         self.bgvalue = bgvalue
         self.peakvalue = peakvalue
 
@@ -571,11 +576,11 @@ class pfs_config(Base):
 
     pfs_designs = relation(pfs_design, backref=backref('pfs_config'))
 
-    def __init__(self, pfs_config_id, pfs_design_id, visit0, ra_center_config, dec_center_config, pa_config,
+    def __init__(self, pfs_design_id, visit0, ra_center_config, dec_center_config, pa_config,
                  num_sci_allocated, num_cal_allocated, num_sky_allocated, num_guide_stars_allocated,
-                 alloc_num_cobra_iter, alloc_elapsed_time, alloc_rms_scatter,
+                 converg_num_iter, converg_elapsed_time, alloc_rms_scatter,
                  allocated_at, was_observed=False):
-        self.pfs_config_id = pfs_config_id
+
         self.pfs_design_id = pfs_design_id
         self.visit0 = visit0
         self.ra_center_config = ra_center_config
@@ -618,6 +623,8 @@ class pfs_config_fiber(Base):
         self.pfs_config_id = pfs_config_id
         self.fiber_id = fiber_id
         self.target_id = target_id
+        self.pfi_center_final_x_mm = pfi_center_final_x_mm
+        self.pfi_center_final_y_mm = pfi_center_final_y_mm
         self.motor_map_summary = motor_map_summary
         self.config_elapsed_time = config_elapsed_time
         self.is_on_source = is_on_source
@@ -630,6 +637,7 @@ class cobra_motor_axis(Base):
     Phi (or Stage 2)
     '''
     __tablename__ = 'cobra_motor_axis'
+
     cobra_motor_axis_id = Column(Integer, primary_key=True, comment='Motor axis stage number [1,2]')
     cobra_motor_axis_name = Column(String, comment='Corresponding name for axis [Theta, Phi]')
 
@@ -1262,8 +1270,10 @@ class visit_set(Base):
     name = Column(String, comment='The unique name assigned to this set of visits')
     cmd_str = Column(String, comment='ICS command string that generates exposures for this set of visits')
 
-    def __init__(self, visit_set_id):
+    def __init__(self, visit_set_id, name, cmd_str):
         self.visit_set_id = visit_set_id
+        self.name = name
+        self.cmd_str = cmd_str
 
 
 class sps_visit(Base):
