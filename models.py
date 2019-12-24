@@ -712,7 +712,7 @@ class cobra_movement(Base):
 class cobra_status(Base):
     '''Defines the status of each cobra at each step during convergence.
     '''
-    __tablename__ = 'cobra_config'
+    __tablename__ = 'cobra_status'
     __table_args__ = (UniqueConstraint('mcs_frame_id', 'fiber_id'),
                       ForeignKeyConstraint(['mcs_frame_id', 'spot_id'],
                                            ['mcs_data.mcs_frame_id', 'mcs_data.spot_id']),
