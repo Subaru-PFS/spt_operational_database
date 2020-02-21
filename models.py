@@ -221,16 +221,14 @@ class cobra_geometry(Base):
         self.cobra_motor_phi_length = cobra_motor_phi_length
 
 
-class fiducial_fiber_position(Base):
-    __tablename__ = 'fiducial_fiber_position'
+class fiducial_fiber(Base):
+    __tablename__ = 'fiducial_fiber'
 
     fiducial_fiber_id = Column(Integer, primary_key=True, autoincrement=False)
     field_on_pfi = Column(Integer)   # 1-3
     ff_in_field = Column(Integer)    # 1-32
     ff_type = Column(String(5))      # spoke/edge/agfid
     ff_id_in_type = Column(Integer)  # 1-14 for spoke, 1-14 for edge, 1-4 for agfid
-    ff_center_on_pfi_x_mm = Column(REAL)
-    ff_center_on_pfi_y_mm = Column(REAL)
     version = Column(String)
 
     def __init__(self, fiducial_fiber_id, field_on_pfi, ff_in_field, ff_type, ff_id_in_type,
@@ -243,6 +241,21 @@ class fiducial_fiber_position(Base):
         self.ff_center_on_pfi_x_mm = ff_center_on_pfi_x_mm
         self.ff_center_on_pfi_y_mm = ff_center_on_pfi_y_mm
         self.version = version
+
+
+class fiducial_fiber_geometry(Base):
+    __tablename__ = 'fiducial_fiber_geometry'
+
+    fiducial_fiber_id = Column(Integer, ForeignKey('fiducial_fiber.fiducial_fiber_id'), primary_key=True, autoincrement=False)
+    ff_center_on_pfi_x_mm = Column(REAL)
+    ff_center_on_pfi_y_mm = Column(REAL)
+
+    def __init__(self, fiducial_fiber_id,
+                 ff_center_on_pfi_x_mm, ff_center_on_pfi_y_mm
+                 ):
+        self.fiducial_fiber_id = fiducial_fiber_id
+        self.ff_center_on_pfi_x_mm = ff_center_on_pfi_x_mm
+        self.ff_center_on_pfi_y_mm = ff_center_on_pfi_y_mm
 
 
 class spectrograph(Base):
