@@ -755,6 +755,31 @@ class cobra_motor_map(Base):
         self.cobra_motor_speed = cobra_motor_speed
 
 
+class cobra_convergence_test(Base):
+    ''' The results of the cobra convergence test
+    '''
+    __tablename__ = 'cobra_convergence_test'
+    __table_args__ = (UniqueConstraint('cobra_motor_model_id', 'iteration', 'cobra_motor_angle_target'),
+                      {})
+
+    cobra_motor_model_id = Column(Integer, ForeignKey('cobra_motor_model.cobra_motor_model_id'), primary_key=True)
+    iteration = Column(Integer, primary_key=True, comment='The iteration number')
+    cobra_motor_angle_target_id = Column(Integer, primary_key=True, comment='The ID for the target angle of the motor to test')
+    cobra_motor_angle_target = Column(REAL, comment='The target angle of the motor to test')
+    cobra_motor_angle_difference = Column(REAL, comment='The difference of the motor angle [deg.]')
+    signal_to_noise_ratio = Column(REAL, comment='Signal-to-Noise ratio')
+
+    def __init__(self, cobra_motor_model_id, iteration, cobra_motor_angle_target_id, 
+                 cobra_motor_angle_target, cobra_motor_angle_difference, signal_to_noise_ratio
+                 ):
+        self.cobra_motor_model_id = cobra_motor_model_id
+        self.iteration = iteration
+        self.cobra_motor_angle_target_id = cobra_motor_angle_target_id
+        self.cobra_motor_angle_target = cobra_motor_angle_target
+        self.cobra_motor_angle_difference = cobra_motor_angle_difference
+        self.signal_to_noise_ratio = signal_to_noise_ratio
+
+
 class cobra_movement(Base):
     ''' The actual movement of the cobra motor, in terms of individual MCS frames.
     '''
