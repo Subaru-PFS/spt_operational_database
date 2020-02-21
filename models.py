@@ -774,7 +774,7 @@ class cobra_convergence_test(Base):
     ''' The results of the cobra convergence test
     '''
     __tablename__ = 'cobra_convergence_test'
-    __table_args__ = (UniqueConstraint('cobra_motor_model_id', 'iteration', 'cobra_motor_angle_target'),
+    __table_args__ = (UniqueConstraint('cobra_motor_model_id', 'iteration', 'cobra_motor_angle_target_id'),
                       {})
 
     cobra_motor_model_id = Column(Integer, ForeignKey('cobra_motor_model.cobra_motor_model_id'), primary_key=True)
