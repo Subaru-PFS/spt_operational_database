@@ -201,13 +201,15 @@ class cobra_geometry(Base):
     cobra_motor_phi_limit_in = Column(REAL)
     cobra_motor_phi_limit_out = Column(REAL)
     cobra_motor_phi_length = Column(REAL)
+    cobra_status = Column(String, comment='OK/INVISIBLE/LOCKED_THETA/LOCKED_PHI/BAD_THETA/BAD_PHI')
 
 
     def __init__(self, cobra_id, 
                  cobra_center_on_pfi_x_mm, cobra_center_on_pfi_y_mm,
                  cobra_distance_from_center_mm,
                  cobra_motor_theta_limit0, cobra_motor_theta_limit1, cobra_motor_theta_length,
-                 cobra_motor_phi_limit_in, cobra_motor_phi_limit_out, cobra_motor_phi_length                 
+                 cobra_motor_phi_limit_in, cobra_motor_phi_limit_out, cobra_motor_phi_length,
+                 cobra_status                 
                  ):
         self.cobra_id = cobra_id
         self.cobra_center_on_pfi_x_mm = cobra_center_on_pfi_x_mm
@@ -219,7 +221,7 @@ class cobra_geometry(Base):
         self.cobra_motor_phi_limit_in = cobra_motor_theta_limit_in
         self.cobra_motor_phi_limit_out = cobra_motor_theta_limit_out
         self.cobra_motor_phi_length = cobra_motor_phi_length
-
+        self.cobra_status = cobra_status
 
 class fiducial_fiber(Base):
     __tablename__ = 'fiducial_fiber'
