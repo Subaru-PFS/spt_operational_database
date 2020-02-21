@@ -742,7 +742,7 @@ class cobra_motor_map(Base):
                       {})
 
     cobra_motor_model_id = Column(Integer, ForeignKey('cobra_motor_model.cobra_motor_model_id'), primary_key=True)
-    cobra_motor_step = Column(Integer, primary_key=True, comment='The motor step')
+    cobra_motor_move_sequence = Column(Integer, primary_key=True, comment='The motor movement sequence')
     cobra_motor_angle = Column(REAL, comment='The angle of the motor [deg]')
     cobra_motor_speed = Column(REAL, comment='The speed of the motor [deg/step] (TBC)')
 
