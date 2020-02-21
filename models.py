@@ -732,12 +732,11 @@ class cobra_motor_model(Base):
     cobra_motor_direction_id = Column(Integer, ForeignKey('cobra_motor_direction.cobra_motor_direction_id'))
     cobra_motor_on_time = Column(REAL, comment='The ontime level')
     cobra_motor_step_size = Column(REAL, comment='The step size resolution')
-    cobra_motor_frequency_theta = Column(REAL, comment='theta motor frequency')
-    cobra_motor_frequency_phi = Column(REAL, comment='phi motor frequency')
+    cobra_motor_frequency = Column(REAL, comment='The motor frequency')
 
     def __init__(self, cobra_motor_calib_id, cobra_id, cobra_motor_axis_id,
                  cobra_motor_angle, cobra_motor_on_time, cobra_motor_speed,
-                 cobra_motor_frequency_theta, cobra_motor_frequency_phi
+                 cobra_motor_frequency
                  ):
         self.cobra_motor_calib_id = cobra_motor_calib_id
         self.cobra_id = cobra_id
@@ -745,8 +744,7 @@ class cobra_motor_model(Base):
         self.cobra_motor_angle = cobra_motor_angle
         self.cobra_motor_on_time = cobra_motor_on_time
         self.cobra_motor_speed = cobra_motor_speed
-        self.cobra_motor_frequency_theta = cobra_motor_frequency_theta
-        self.cobra_motor_frequency_phi = cobra_motor_frequency_phi
+        self.cobra_motor_frequency = cobra_motor_frequency
 
 
 class cobra_motor_map(Base):
