@@ -738,7 +738,7 @@ class cobra_motor_map(Base):
     '''Defines the detailed cobra motor map
     '''
     __tablename__ = 'cobra_motor_map'
-    __table_args__ = (UniqueConstraint('cobra_motor_model_id', 'cobra_motor_step'),
+    __table_args__ = (UniqueConstraint('cobra_motor_model_id', 'cobra_motor_move_sequence'),
                       {})
 
     cobra_motor_model_id = Column(Integer, ForeignKey('cobra_motor_model.cobra_motor_model_id'), primary_key=True)
@@ -746,11 +746,11 @@ class cobra_motor_map(Base):
     cobra_motor_angle = Column(REAL, comment='The angle of the motor [deg]')
     cobra_motor_speed = Column(REAL, comment='The speed of the motor [deg/step] (TBC)')
 
-    def __init__(self, cobra_motor_model_id, cobra_motor_step, 
+    def __init__(self, cobra_motor_model_id, cobra_motor_move_sequence, 
                  cobra_motor_angle, cobra_motor_speed
                  ):
         self.cobra_motor_model_id = cobra_motor_model_id
-        self.cobra_motor_step = cobra_motor_step
+        self.cobra_motor_move_sequence = cobra_motor_move_sequence
         self.cobra_motor_angle = cobra_motor_angle
         self.cobra_motor_speed = cobra_motor_speed
 
