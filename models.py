@@ -164,7 +164,7 @@ class cobra(Base):
     module_in_field = Column(Integer)  # 1-14
     cobra_in_module = Column(Integer)  # 1-57
     module_name = Column(String(3))    # e.g.,13B
-    spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
+    sps_camera_id = Column(Integer, ForeignKey('sps_camera.sps_camera_id'))
     slit_hole_sps = Column(Integer)
     cobra_id_sps = Column(Integer)
     cobra_id_lna = Column(String(12))
@@ -172,7 +172,7 @@ class cobra(Base):
 
     def __init__(self, cobra_id, field_on_pfi, cobra_in_field,
                  module_in_field, cobra_in_module, module_name,
-                 spectrograph_id, slit_hole_sps, cobra_id_sps,
+                 sps_camera_id, slit_hole_sps, cobra_id_sps,
                  cobra_id_lna, version):
         self.cobra_id = cobra_id
         self.field_on_pfi = field_on_pfi
@@ -180,7 +180,7 @@ class cobra(Base):
         self.module_in_field = module_in_field
         self.cobra_in_module = cobra_in_module
         self.module_name = module_name
-        self.spectrograph_id = spectrograph_id
+        self.sps_camera_id = sps_camera_id
         self.slit_hole_sps = slit_hole_sps
         self.cobra_id_sps = cobra_id_sps
         self.cobra_id_lna = cobra_id_lna
@@ -257,21 +257,6 @@ class fiducial_fiber_geometry(Base):
         self.fiducial_fiber_id = fiducial_fiber_id
         self.ff_center_on_pfi_x_mm = ff_center_on_pfi_x_mm
         self.ff_center_on_pfi_y_mm = ff_center_on_pfi_y_mm
-
-
-class spectrograph(Base):
-    __tablename__ = 'spectrograph'
-
-    spectrograph_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
-    spectrograph_module = Column(Integer)
-    arm = Column(String(1))
-    arm_num = Column(Integer)
-
-    def __init__(self, spectrograph_id, spectrograph_module, arm, arm_num):
-        self.spectrograph_id = spectrograph_id
-        self.spectrograph_module = spectrograph_module
-        self.arm = arm
-        self.arm_num = arm_num
 
 
 class target(Base):
@@ -870,6 +855,148 @@ class cobra_status(Base):
         self.pfi_center_y_mm = pfi_center_y_mm
 
 
+class sps_visit(Base):
+    __tablename__ = 'sps_visit'
+
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), primary_key=True, unique=True,
+                          autoincrement=False)
+    exp_type = Column(String, comment='Type of exposure: BIAS, FLAT, DFLAT etc.')
+
+    def __init__(self, pfs_visit_id, exp_type):
+        self.pfs_visit_id = pfs_visit_id
+        self.exp_type = exp_type
+
+
+class sps_sequence(Base):
+    __tablename__ = 'sps_sequence'
+
+    visit_set_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
+    sequence_type = Column(String, comment='SpS sequence type')
+    name = Column(String, comment='The unique name assigned to this set of visits')
+    comments = Column(String, comment='Comments for the sequence')
+    cmd_str = Column(String, comment='ICS command string that generates exposures for this set of visits')
+
+    def __init__(self, visit_set_id, sequence_type, name, comments, cmd_str):
+        self.visit_set_id = visit_set_id
+        self.sequence_type = sequence_type
+        self.name = name
+        self.comments = comments
+        self.cmd_str = cmd_str
+
+
+class visit_set(Base):
+    __tablename__ = 'visit_set'
+
+    pfs_visit_id = Column(Integer, ForeignKey('sps_visit.pfs_visit_id'), primary_key=True, unique=True, autoincrement=False)
+    visit_set_id = Column(Integer, ForeignKey('sps_sequence.visit_set_id'))
+
+    def __init__(self, pfs_visit_id, visit_set_id):
+        self.pfs_visit_id = pfs_visit_id
+        self.visit_set_id = visit_set_id
+
+
+class sps_exposure(Base):
+    __tablename__ = 'sps_exposure'
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'sps_camera_id'), {})
+
+    pfs_visit_id = Column(Integer, ForeignKey('sps_visit.pfs_visit_id'), primary_key=True)
+    sps_camera_id = Column(Integer, ForeignKey('sps_camera.sps_camera_id'), primary_key=True)
+    exptime = Column(REAL, comment='Exposure time for visit [sec]')
+    time_exp_start = Column(DateTime, comment='Start time for exposure [YYYY-MM-DDThh:mm:ss]')
+    time_exp_end = Column(DateTime, comment='End time for exposure [YYYY-MM-DDThh:mm:ss]')
+
+    def __init__(self, pfs_visit_id, sps_camera_id,
+                 exptime, time_exp_start, time_exp_end
+                 ):
+        self.pfs_visit_id = pfs_visit_id
+        self.sps_camera_id = sps_camera_id
+        self.exptime = exptime
+        self.time_exp_start = time_exp_start
+        self.time_exp_end = time_exp_end
+
+
+class sps_module(Base):
+    __tablename__ = 'sps_module'
+
+    sps_module_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
+    description = Column(String)
+
+    def __init__(self, sps_module_id, description):
+        self.sps_module_id = sps_module_id
+        self.description = description
+
+
+class sps_camera(Base):
+    __tablename__ = 'sps_camera'
+
+    sps_camera_id = Column(Integer, primary_key=True, autoincrement=False)
+    sps_module_id = Column(Integer, ForeignKey('sps_module.sps_module_id'), comment='SPS module identifier [1-4]')
+    arm = Column(String(1), comment='Spectrograph arm identifier [B, R, N, M]')
+    arm_num = Column(Integer, comment='Spectrograph arm identifier as a number [1-4]')
+
+    def __init__(self, sps_camera_id, sps_module_id, arm, arm_num):
+        self.sps_camera_id = sps_camera_id
+        self.sps_module_id = sps_module_id
+        self.arm = arm
+        self.arm_num = arm_num
+
+
+class sps_annotation(Base):
+    __tablename__ = 'sps_annotation'
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'sps_camera_id'),
+                      ForeignKeyConstraint(['pfs_visit_id', 'sps_camera_id'],
+                                           ['sps_exposure.pfs_visit_id', 'sps_exposure.sps_camera_id']),
+                      {})
+
+    pfs_visit_id = Column(Integer, primary_key=True)
+    sps_camera_id = Column(Integer, primary_key=True)
+    data_flag = Column(Integer, comment='Flag of obtained data')
+    notes = Column(String, comment='Notes of obtained data')
+
+    def __init__(self, pfs_visit_id, sps_camera_id, data_flag, notes):
+        self.pfs_visit_id = pfs_visit_id
+        self.sps_camera_id = sps_camera_id
+        self.data_flag = data_flag
+        self.notes = notes
+
+
+class sps_condition(Base):
+    __tablename__ = 'sps_condition'
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'sps_camera_id'),
+                      ForeignKeyConstraint(['pfs_visit_id', 'sps_camera_id'],
+                                           ['sps_exposure.pfs_visit_id', 'sps_exposure.sps_camera_id']),
+                      {})
+
+    pfs_visit_id = Column(Integer, primary_key=True)
+    sps_camera_id = Column(Integer, primary_key=True)
+    background = Column(REAL)
+    throughput = Column(REAL)
+
+    def __init__(self, pfs_visit_id, sps_camera_id,
+                 background, throughput,
+                 ):
+        self.pfs_visit_id = pfs_visit_id
+        self.sps_camera_id = sps_camera_id
+        self.background = background
+        self.throughput = throughput
+
+
+class processing_status(Base):
+    __tablename__ = 'processing_status'
+
+    status_id = Column(Integer, primary_key=True, autoincrement=False,
+                       comment='Unique processing status identifier')
+    visit_set_id = Column(Integer, ForeignKey('sps_sequence.visit_set_id'))
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
+    are_data_ok = Column(Boolean)
+
+    def __init__(self, status_id, visit_set_id, pfs_visit_id, are_data_ok):
+        self.status_id = status_id
+        self.visit_set_id = visit_set_id
+        self.pfs_visit_id = pfs_visit_id
+        self.are_data_ok = are_data_ok
+
+
 class beam_switch_mode(Base):
     __tablename__ = 'beam_switch_mode'
 
@@ -937,57 +1064,6 @@ class tel_condition(Base):
         self.seeing = seeing
         self.transp = transp
         self.cloud_condition_id = cloud_condition_id
-
-
-class sps_exposure(Base):
-    __tablename__ = 'sps_exposure'
-
-    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), primary_key=True, unique=True,
-                          autoincrement=False)
-    spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
-    sps_exptime = Column(REAL, comment='Exposure time for visit [sec]')
-    is_medium_resolution = Column(Boolean,
-                                  comment='Flag to indicate whether visit '
-                                  'includes the medium resolution filter')
-    time_exp_start = Column(DateTime, comment='Start time for exposure [YYYY-MM-DDThh:mm:ss]')
-    time_exp_end = Column(DateTime, comment='End time for exposure [YYYY-MM-DDThh:mm:ss]')
-    mjd_exp_start = Column(REAL, comment='Start time for exposure in MJD')
-    mjd_exp_end = Column(REAL, comment='End time for exposure in MJD')
-    insrot_start = Column(REAL, comment='The start instrument rotation position [deg]')
-    insrot_end = Column(REAL, comment='The end instrument rotation position [deg]')
-
-    def __init__(self, pfs_visit_id, spectrograph_id,
-                 sps_exptime,
-                 time_exp_start, time_exp_end, mjd_exp_start, mjd_exp_end,
-                 insrot_start, insrot_end,
-                 is_medium_resolution=False
-                 ):
-        self.pfs_visit_id = pfs_visit_id
-        self.spectrograph_id = spectrograph_id
-        self.sps_exptime = sps_exptime
-        self.is_medium_resolution = is_medium_resolution
-        self.time_exp_start = time_exp_start
-        self.time_exp_end = time_exp_end
-        self.mjd_exp_start = mjd_exp_start
-        self.mjd_exp_end = mjd_exp_end
-        self.insrot_start = insrot_start
-        self.insrot_end = insrot_end
-
-
-class sps_condition(Base):
-    __tablename__ = 'sps_condition'
-
-    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), primary_key=True, unique=True,
-                          autoincrement=False)
-    background = Column(REAL)
-    throughput = Column(REAL)
-
-    def __init__(self, pfs_visit_id,
-                 background, throughput,
-                 ):
-        self.pfs_visit_id = pfs_visit_id
-        self.background = background
-        self.throughput = throughput
 
 
 class calib(Base):
@@ -1079,15 +1155,13 @@ class sky_model(Base):
     sky_model_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
     tel_visit_id = Column(Integer)
-    spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
+    sps_camera_id = Column(Integer, ForeignKey('sps_camera.sps_camera_id'))
 
-    spectrographs = relation(spectrograph, backref=backref('sky_model'))
-
-    def __init__(self, sky_model_id, pfs_visit_id, tel_visit_id, spectrograph_id):
+    def __init__(self, sky_model_id, pfs_visit_id, tel_visit_id, sps_camera_id):
         self.sky_model_id = sky_model_id
         self.pfs_visit_id = pfs_visit_id
         self.tel_visit_id = tel_visit_id
-        self.spectrograph_id = spectrograph_id
+        self.sps_camera_id = sps_camera_id
 
 
 class psf_model(Base):
@@ -1096,15 +1170,13 @@ class psf_model(Base):
     psf_model_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
     tel_visit_id = Column(Integer)
-    spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
+    sps_camera_id = Column(Integer, ForeignKey('sps_camera.sps_camera_id'))
 
-    spectrographs = relation(spectrograph, backref=backref('psf_model'))
-
-    def __init__(self, psf_model_id, pfs_visit_id, tel_visit_id, spectrograph_id):
+    def __init__(self, psf_model_id, pfs_visit_id, tel_visit_id, sps_camera_id):
         self.psf_model_id = psf_model_id
         self.pfs_visit_id = pfs_visit_id
         self.tel_visit_id = tel_visit_id
-        self.spectrograph_id = spectrograph_id
+        self.sps_camera_id = sps_camera_id
 
 
 class pfs_arm(Base):
@@ -1372,82 +1444,6 @@ class drp_ga(Base):
         self.flags = flags
         self.processed_at = processed_at
         self.drp_ga_version = drp_ga_version
-
-
-class visit_set(Base):
-    __tablename__ = 'visit_set'
-
-    visit_set_id = Column(Integer, primary_key=True, autoincrement=False, comment='visit set identifier')
-    name = Column(String, comment='The unique name assigned to this set of visits')
-    cmd_str = Column(String, comment='ICS command string that generates exposures for this set of visits')
-
-    def __init__(self, visit_set_id, name, cmd_str):
-        self.visit_set_id = visit_set_id
-        self.name = name
-        self.cmd_str = cmd_str
-
-
-class sps_visit(Base):
-    __tablename__ = 'sps_visit'
-
-    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), primary_key=True, unique=True,
-                          autoincrement=False)
-    visit_set_id = Column(Integer, ForeignKey('visit_set.visit_set_id'))
-    visit_type = Column(String, comment='Type of visit: BIAS, FLAT, DFLAT etc.')
-
-    def __init__(self, pfs_visit_id, visit_set_id, visit_type):
-        self.pfs_visit_id = pfs_visit_id
-        self.visit_set_id = visit_set_id
-        self.visit_type = visit_type
-
-
-class sps_annotation(Base):
-    __tablename__ = 'sps_annotation'
-
-    sps_annotation_id = Column(Integer, primary_key=True, autoincrement=False,
-                               comment='Unique identifier for this annotation')
-    visit_set_id = Column(Integer, ForeignKey('visit_set.visit_set_id'))
-    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
-    comment = Column(String)
-    anomaly = Column(String)
-
-    def __init__(self, annotation_id, visit_set_id, pfs_visit_id, comment, anomaly):
-        self.sps_annotation_id = annotation_id
-        self.visit_set_id = visit_set_id
-        self.pfs_visit_id = pfs_visit_id
-        self.comment = comment
-        self.anomaly = anomaly
-
-
-class sps_camera(Base):
-    __tablename__ = 'sps_camera'
-
-    sps_camera_id = Column(Integer, primary_key=True, autoincrement=False)
-    visit_set_id = Column(Integer, ForeignKey('visit_set.visit_set_id'))
-    sps_module = Column(Integer, comment='SPS module identifier [1-4]')
-    sps_arm_id = Column(String, comment='Spectrogram arm identifier [B, R, N, M]')
-
-    def __init__(self, camera_id, visit_set_id, sps_module, sps_arm_id):
-        self.sps_camera_id = camera_id
-        self.visit_set_id = visit_set_id
-        self.sps_module = sps_module
-        self.sps_arm_id = sps_arm_id
-
-
-class processing_status(Base):
-    __tablename__ = 'processing_status'
-
-    status_id = Column(Integer, primary_key=True, autoincrement=False,
-                       comment='Unique processing status identifier')
-    visit_set_id = Column(Integer, ForeignKey('visit_set.visit_set_id'))
-    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
-    data_ok = Column(Boolean)
-
-    def __init__(self, status_id, visit_set_id, pfs_visit_id, data_ok):
-        self.status_id = status_id
-        self.visit_set_id = visit_set_id
-        self.pfs_visit_id = pfs_visit_id
-        self.data_ok = data_ok
 
 
 def make_database(dbinfo):
