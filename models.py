@@ -988,13 +988,20 @@ class processing_status(Base):
                        comment='Unique processing status identifier')
     visit_set_id = Column(Integer, ForeignKey('sps_sequence.visit_set_id'))
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
-    are_data_ok = Column(Boolean)
+    are_data_ok = Column(Boolean, comment='The result of the quality assessment')
+    comments = Column(String, comment='Detailed comments on the QA results')
+    drp2d_version = Column(String, comment='2D-DRP version used in the processing')
+    qa_version = Column(String, comment='QA version used in the processing (TBD)')
 
-    def __init__(self, status_id, visit_set_id, pfs_visit_id, are_data_ok):
+    def __init__(self, status_id, visit_set_id, pfs_visit_id, 
+                 are_data_ok, comments, drp2d_version, qa_version):
         self.status_id = status_id
         self.visit_set_id = visit_set_id
         self.pfs_visit_id = pfs_visit_id
         self.are_data_ok = are_data_ok
+        self.comments = comments
+        self.drp2d_version = drp2d_version
+        self.qa_version = qa_version
 
 
 class beam_switch_mode(Base):
