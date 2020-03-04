@@ -875,13 +875,15 @@ class sps_sequence(Base):
     name = Column(String, comment='The unique name assigned to this set of visits')
     comments = Column(String, comment='Comments for the sequence')
     cmd_str = Column(String, comment='ICS command string that generates exposures for this set of visits')
+    status = Column(Integer, comment='Status of the sequence')
 
-    def __init__(self, visit_set_id, sequence_type, name, comments, cmd_str):
+    def __init__(self, visit_set_id, sequence_type, name, comments, cmd_str, status):
         self.visit_set_id = visit_set_id
         self.sequence_type = sequence_type
         self.name = name
         self.comments = comments
         self.cmd_str = cmd_str
+        self.status = status
 
 
 class visit_set(Base):
@@ -993,7 +995,7 @@ class processing_status(Base):
     drp2d_version = Column(String, comment='2D-DRP version used in the processing')
     qa_version = Column(String, comment='QA version used in the processing (TBD)')
 
-    def __init__(self, status_id, visit_set_id, pfs_visit_id, 
+    def __init__(self, status_id, visit_set_id, pfs_visit_id,
                  are_data_ok, comments, drp2d_version, qa_version):
         self.status_id = status_id
         self.visit_set_id = visit_set_id
