@@ -1,2 +1,6 @@
 #
 workdir/
+build/
+dist/
+__pycache__/
+python/opdb.egg-info/
