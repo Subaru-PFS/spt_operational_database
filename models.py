@@ -875,7 +875,7 @@ class sps_sequence(Base):
     name = Column(String, comment='The unique name assigned to this set of visits')
     comments = Column(String, comment='Comments for the sequence')
     cmd_str = Column(String, comment='ICS command string that generates exposures for this set of visits')
-    status = Column(Integer, comment='Status of the sequence')
+    status = Column(String, comment='Status of the sequence')
 
     def __init__(self, visit_set_id, sequence_type, name, comments, cmd_str, status):
         self.visit_set_id = visit_set_id
