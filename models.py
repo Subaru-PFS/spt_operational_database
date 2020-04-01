@@ -152,67 +152,111 @@ class cloud_condition(Base):
         self.updated_at = updated_at
 
 
-class cobra_geometry(Base):
-    __tablename__ = 'cobra_geometry'
+class cobra(Base):
+    '''
+        Very basic information on cobra
+    '''
+    __tablename__ = 'cobra'
 
-    fiber_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
+    cobra_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     field_on_pfi = Column(Integer)     # 1-3
     cobra_in_field = Column(Integer)   # 1-798
     module_in_field = Column(Integer)  # 1-14
     cobra_in_module = Column(Integer)  # 1-57
     module_name = Column(String(3))    # e.g.,13B
-    cobra_center_on_pfi_x_mm = Column(REAL)
-    cobra_center_on_pfi_y_mm = Column(REAL)
-    cobra_distance_from_center_mm = Column(REAL)
     spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
     slit_hole_sps = Column(Integer)
-    fiber_id_sps = Column(Integer)
-    fiber_id_lna = Column(String(12))
+    cobra_id_sps = Column(Integer)
+    cobra_id_lna = Column(String(12))
     version = Column(String)
 
-    def __init__(self, fiber_id, field_on_pfi, cobra_in_field,
+    def __init__(self, cobra_id, field_on_pfi, cobra_in_field,
                  module_in_field, cobra_in_module, module_name,
-                 cobra_center_on_pfi_x_mm, cobra_center_on_pfi_y_mm,
-                 cobra_distance_from_center_mm, spectrograph_id, slit_hole_sps, fiber_id_sps,
-                 fiber_id_lna, version):
-        self.fiber_id = fiber_id
+                 spectrograph_id, slit_hole_sps, cobra_id_sps,
+                 cobra_id_lna, version):
+        self.cobra_id = cobra_id
         self.field_on_pfi = field_on_pfi
         self.cobra_in_field = cobra_in_field
         self.module_in_field = module_in_field
         self.cobra_in_module = cobra_in_module
         self.module_name = module_name
-        self.cobra_center_on_pfi_x_mm = cobra_center_on_pfi_x_mm
-        self.cobra_center_on_pfi_y_mm = cobra_center_on_pfi_y_mm
-        self.cobra_distance_from_center_mm = cobra_distance_from_center_mm
         self.spectrograph_id = spectrograph_id
         self.slit_hole_sps = slit_hole_sps
-        self.fiber_id_sps = fiber_id_sps
-        self.fiber_id_lna = fiber_id_lna
+        self.cobra_id_sps = cobra_id_sps
+        self.cobra_id_lna = cobra_id_lna
         self.version = version
 
 
-class fiducial_fiber_position(Base):
-    __tablename__ = 'fiducial_fiber_position'
+class cobra_geometry(Base):
+    __tablename__ = 'cobra_geometry'
+    __table_args__ = (UniqueConstraint('cobra_motor_calib_id', 'cobra_id'),
+                      {})
+
+    cobra_motor_calib_id = Column(Integer, ForeignKey('cobra_motor_calib.cobra_motor_calib_id'), primary_key=True, autoincrement=False)
+    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'), primary_key=True, autoincrement=False)
+    cobra_center_on_pfi_x_mm = Column(REAL)
+    cobra_center_on_pfi_y_mm = Column(REAL)
+    cobra_distance_from_center_mm = Column(REAL)
+    cobra_motor_theta_limit0 = Column(REAL)
+    cobra_motor_theta_limit1 = Column(REAL)
+    cobra_motor_theta_length = Column(REAL)
+    cobra_motor_phi_limit_in = Column(REAL)
+    cobra_motor_phi_limit_out = Column(REAL)
+    cobra_motor_phi_length = Column(REAL)
+    cobra_status = Column(String, comment='OK/INVISIBLE/LOCKED_THETA/LOCKED_PHI/BAD_THETA/BAD_PHI')
+
+    def __init__(self, cobra_id,
+                 cobra_center_on_pfi_x_mm, cobra_center_on_pfi_y_mm,
+                 cobra_distance_from_center_mm,
+                 cobra_motor_theta_limit0, cobra_motor_theta_limit1, cobra_motor_theta_length,
+                 cobra_motor_phi_limit_in, cobra_motor_phi_limit_out, cobra_motor_phi_length,
+                 cobra_status
+                 ):
+        self.cobra_id = cobra_id
+        self.cobra_center_on_pfi_x_mm = cobra_center_on_pfi_x_mm
+        self.cobra_center_on_pfi_y_mm = cobra_center_on_pfi_y_mm
+        self.cobra_distance_from_center_mm = cobra_distance_from_center_mm
+        self.cobra_motor_theta_limit0 = cobra_motor_theta_limit0
+        self.cobra_motor_theta_limit1 = cobra_motor_theta_limit1
+        self.cobra_motor_theta_length = cobra_motor_theta_length
+        self.cobra_motor_phi_limit_in = cobra_motor_theta_limit_in
+        self.cobra_motor_phi_limit_out = cobra_motor_theta_limit_out
+        self.cobra_motor_phi_length = cobra_motor_phi_length
+        self.cobra_status = cobra_status
+
+
+class fiducial_fiber(Base):
+    __tablename__ = 'fiducial_fiber'
 
     fiducial_fiber_id = Column(Integer, primary_key=True, autoincrement=False)
     field_on_pfi = Column(Integer)   # 1-3
     ff_in_field = Column(Integer)    # 1-32
     ff_type = Column(String(5))      # spoke/edge/agfid
     ff_id_in_type = Column(Integer)  # 1-14 for spoke, 1-14 for edge, 1-4 for agfid
-    ff_center_on_pfi_x_mm = Column(REAL)
-    ff_center_on_pfi_y_mm = Column(REAL)
     version = Column(String)
 
-    def __init__(self, fiducial_fiber_id, field_on_pfi, ff_in_field, ff_type, ff_id_in_type,
-                 ff_center_on_pfi_x_mm, ff_center_on_pfi_y_mm, version):
+    def __init__(self, fiducial_fiber_id, field_on_pfi, ff_in_field, ff_type, ff_id_in_type, version):
         self.fiducial_fiber_id = fiducial_fiber_id
         self.field_on_pfi = field_on_pfi
         self.ff_in_field = ff_in_field
         self.ff_type = ff_type
         self.ff_id_in_type = ff_id_in_type
+        self.version = version
+
+
+class fiducial_fiber_geometry(Base):
+    __tablename__ = 'fiducial_fiber_geometry'
+
+    fiducial_fiber_id = Column(Integer, ForeignKey('fiducial_fiber.fiducial_fiber_id'), primary_key=True, autoincrement=False)
+    ff_center_on_pfi_x_mm = Column(REAL)
+    ff_center_on_pfi_y_mm = Column(REAL)
+
+    def __init__(self, fiducial_fiber_id,
+                 ff_center_on_pfi_x_mm, ff_center_on_pfi_y_mm
+                 ):
+        self.fiducial_fiber_id = fiducial_fiber_id
         self.ff_center_on_pfi_x_mm = ff_center_on_pfi_x_mm
         self.ff_center_on_pfi_y_mm = ff_center_on_pfi_y_mm
-        self.version = version
 
 
 class spectrograph(Base):
@@ -405,11 +449,11 @@ class pfs_design_fiber(Base):
     '''Pre-operations information for each fiber.
     '''
     __tablename__ = 'pfs_design_fiber'
-    __table_args__ = (UniqueConstraint('pfs_design_id', 'fiber_id'), {})
+    __table_args__ = (UniqueConstraint('pfs_design_id', 'cobra_id'), {})
 
     pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'), primary_key=True,
                            autoincrement=False)
-    fiber_id = Column(Integer, ForeignKey('cobra_geometry.fiber_id'), primary_key=True, autoincrement=False)
+    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
     pfi_target_x_mm = Column(REAL, comment='Target x-position on the PFI [mm]')
     pfi_target_y_mm = Column(REAL, comment='Target y-position on the PFI [mm]')
@@ -420,14 +464,13 @@ class pfs_design_fiber(Base):
 
     pfs_designs = relation(pfs_design, backref=backref('psf_design_fiber'))
     targets = relation(target, backref=backref('psf_design_fiber'))
-    cobra_geometries = relation(cobra_geometry, backref=backref('psf_design_fiber'))
 
-    def __init__(self, pfs_design_id, fiber_id, target_id,
+    def __init__(self, pfs_design_id, cobra_id, target_id,
                  pfi_target_x_mm, pfi_target_y_mm,
                  ets_priority, ets_cost_function, ets_cobra_motor_movement,
                  is_on_source=True):
         self.pfs_design_id = pfs_design_id
-        self.fiber_id = fiber_id
+        self.cobra_id = cobra_id
         self.target_id = target_id
         self.pfi_target_x_mm = pfi_target_x_mm
         self.pfi_target_y_mm = pfi_target_y_mm
@@ -549,9 +592,9 @@ class mcs_data(Base):
         self.spot_id = spot_id
         self.mcs_center_x_pix = mcs_center_x_pix
         self.mcs_center_y_pix = mcs_center_y_pix
-        self.mcs_second_moment_x_pix = mcs_fwhm_x_pix
-        self.mcs_second_moment_y_pix = mcs_fwhm_y_pix
-        self.mcs_second_moment_xy_pix = mcs_fwhm_xy_pix
+        self.mcs_second_moment_x_pix = mcs_second_moment_x_pix
+        self.mcs_second_moment_y_pix = mcs_second_moment_y_pix
+        self.mcs_second_moment_xy_pix = mcs_second_moment_xy_pix
         self.bgvalue = bgvalue
         self.peakvalue = peakvalue
 
@@ -599,12 +642,12 @@ class pfs_config(Base):
 
 class pfs_config_fiber(Base):
     __tablename__ = 'pfs_config_fiber'
-    __table_args__ = (UniqueConstraint('pfs_config_id', 'fiber_id'),
+    __table_args__ = (UniqueConstraint('pfs_config_id', 'cobra_id'),
                       {})
 
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'), primary_key=True,
                            autoincrement=False)
-    fiber_id = Column(Integer, ForeignKey('cobra_geometry.fiber_id'), primary_key=True, autoincrement=False)
+    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
     pfi_center_final_x_mm = Column(REAL)
     pfi_center_final_y_mm = Column(REAL)
@@ -614,14 +657,13 @@ class pfs_config_fiber(Base):
 
     pfs_configs = relation(pfs_config, backref=backref('psf_config_fiber'))
     targets = relation(target, backref=backref('psf_config_fiber'))
-    cobra_geometries = relation(cobra_geometry, backref=backref('psf_config_fiber'))
 
-    def __init__(self, pfs_config_id, fiber_id, target_id,
+    def __init__(self, pfs_config_id, cobra_id, target_id,
                  pfi_center_final_x_mm, pfi_center_final_y_mm,
                  motor_map_summary, config_elapsed_time,
                  is_on_source=True):
         self.pfs_config_id = pfs_config_id
-        self.fiber_id = fiber_id
+        self.cobra_id = cobra_id
         self.target_id = target_id
         self.pfi_center_final_x_mm = pfi_center_final_x_mm
         self.pfi_center_final_y_mm = pfi_center_final_y_mm
@@ -638,7 +680,7 @@ class cobra_motor_axis(Base):
     '''
     __tablename__ = 'cobra_motor_axis'
 
-    cobra_motor_axis_id = Column(Integer, primary_key=True, comment='Motor axis stage number [1,2]')
+    cobra_motor_axis_id = Column(Integer, primary_key=True, autoincrement=False, comment='Motor axis stage number [1,2]')
     cobra_motor_axis_name = Column(String, comment='Corresponding name for axis [Theta, Phi]')
 
     def __init__(self, cobra_motor_axis_id, cobra_motor_axis_name):
@@ -646,65 +688,143 @@ class cobra_motor_axis(Base):
         self.cobra_motor_axis_name = cobra_motor_axis_name
 
 
+class cobra_motor_direction(Base):
+    '''The axis or stage of a cobra motor.
+    This can be one of:
+    Forward (0)
+    Reverse (1)
+    '''
+    __tablename__ = 'cobra_motor_direction'
+
+    cobra_motor_direction_id = Column(Integer, primary_key=True, autoincrement=False, comment='Motor movement direction [0,1]')
+    cobra_motor_direction_name = Column(String, comment='Corresponding name for the movement [Forward, Reverse]')
+
+    def __init__(self, cobra_motor_direction_id, cobra_motor_direction_name):
+        self.cobra_motor_direction_id = cobra_motor_direction_id
+        self.cobra_motor_direction_name = cobra_motor_direction_name
+
+
+class cobra_motor_calib(Base):
+    '''Defines the cobra motor calibration profile
+    '''
+    __tablename__ = 'cobra_motor_calib'
+
+    cobra_motor_calib_id = Column(Integer, primary_key=True, autoincrement=True)
+    calibrated_at = Column(DateTime,
+                           comment='Date at which the model calibration took place [YYYY-MM-DDhh:mm:ss]')
+    comments = Column(String, comment='Comments')
+
+    def __init__(self, calibrated_at, comments
+                 ):
+        self.calibrated_at = calibrated_at
+        self.comments = comments
+
+
 class cobra_motor_model(Base):
-    '''Defines the cobra motor movement profile
+    '''Defines the cobra motor model profile fr om
     '''
     __tablename__ = 'cobra_motor_model'
 
     cobra_motor_model_id = Column(Integer, primary_key=True, autoincrement=True)
-    fiber_id = Column(Integer, comment='The cobra fiber identifier')
-    cobra_motor_axis_id = Column(Integer, ForeignKey('cobra_motor_axis.cobra_motor_axis_id'))
-    cobra_motor_angle = Column(REAL, comment='The angle of the motor [deg]')
+    cobra_motor_calib_id = Column(Integer, ForeignKey('cobra_motor_calib.cobra_motor_calib_id'), index=True)
+    cobra_id = Column(Integer, comment='The cobra fiber identifier', index=True)
+    cobra_motor_axis_id = Column(Integer, ForeignKey('cobra_motor_axis.cobra_motor_axis_id'), index=True)
+    cobra_motor_direction_id = Column(Integer, ForeignKey('cobra_motor_direction.cobra_motor_direction_id'), index=True)
     cobra_motor_on_time = Column(REAL, comment='The ontime level')
-    cobra_motor_speed = Column(REAL, comment='The speed of the motor [deg/s] (TBC)')
-    calibrated_at = Column(DateTime,
-                           comment='Date at which the model calibration took place [YYYY-MM-DDhh:mm:ss]')
+    cobra_motor_step_size = Column(REAL, comment='The step size resolution')
+    cobra_motor_frequency = Column(REAL, comment='The motor frequency')
 
-    def __init__(self, cobra_motor_model_id, fiber_id, cobra_motor_axis_id,
+    def __init__(self, cobra_motor_calib_id, cobra_id, cobra_motor_axis_id,
                  cobra_motor_angle, cobra_motor_on_time, cobra_motor_speed,
-                 calibrated_at
+                 cobra_motor_frequency
                  ):
-        self.cobra_motor_model_id = cobra_motor_model_id
-        self.fiber_id = fiber_id
+        self.cobra_motor_calib_id = cobra_motor_calib_id
+        self.cobra_id = cobra_id
         self.cobra_motor_axis_id = cobra_motor_axis_id
         self.cobra_motor_angle = cobra_motor_angle
         self.cobra_motor_on_time = cobra_motor_on_time
         self.cobra_motor_speed = cobra_motor_speed
-        self.calibrated_at = calibrated_at
+        self.cobra_motor_frequency = cobra_motor_frequency
+
+
+class cobra_motor_map(Base):
+    '''Defines the detailed cobra motor map
+    '''
+    __tablename__ = 'cobra_motor_map'
+    __table_args__ = (UniqueConstraint('cobra_motor_model_id', 'cobra_motor_move_sequence'),
+                      {})
+
+    cobra_motor_model_id = Column(Integer, ForeignKey('cobra_motor_model.cobra_motor_model_id'), primary_key=True, autoincrement=False)
+    cobra_motor_move_sequence = Column(Integer, primary_key=True, autoincrement=False, comment='The motor movement sequence')
+    cobra_motor_angle = Column(REAL, comment='The angle of the motor [deg]')
+    cobra_motor_speed = Column(REAL, comment='The speed of the motor [deg/step] (TBC)')
+
+    def __init__(self, cobra_motor_model_id, cobra_motor_move_sequence,
+                 cobra_motor_angle, cobra_motor_speed
+                 ):
+        self.cobra_motor_model_id = cobra_motor_model_id
+        self.cobra_motor_move_sequence = cobra_motor_move_sequence
+        self.cobra_motor_angle = cobra_motor_angle
+        self.cobra_motor_speed = cobra_motor_speed
+
+
+class cobra_convergence_test(Base):
+    ''' The results of the cobra convergence test
+    '''
+    __tablename__ = 'cobra_convergence_test'
+    __table_args__ = (UniqueConstraint('cobra_motor_model_id', 'iteration', 'cobra_motor_angle_target_id'),
+                      {})
+
+    cobra_motor_model_id = Column(Integer, ForeignKey('cobra_motor_model.cobra_motor_model_id'), primary_key=True, autoincrement=False)
+    iteration = Column(Integer, primary_key=True, autoincrement=False, comment='The iteration number')
+    cobra_motor_angle_target_id = Column(Integer, primary_key=True, autoincrement=False, comment='The ID for the target angle of the motor to test')
+    cobra_motor_angle_target = Column(REAL, comment='The target angle of the motor to test')
+    cobra_motor_angle_difference = Column(REAL, comment='The difference of the motor angle [deg.]')
+    signal_to_noise_ratio = Column(REAL, comment='Signal-to-Noise ratio')
+
+    def __init__(self, cobra_motor_model_id, iteration, cobra_motor_angle_target_id,
+                 cobra_motor_angle_target, cobra_motor_angle_difference, signal_to_noise_ratio
+                 ):
+        self.cobra_motor_model_id = cobra_motor_model_id
+        self.iteration = iteration
+        self.cobra_motor_angle_target_id = cobra_motor_angle_target_id
+        self.cobra_motor_angle_target = cobra_motor_angle_target
+        self.cobra_motor_angle_difference = cobra_motor_angle_difference
+        self.signal_to_noise_ratio = signal_to_noise_ratio
 
 
 class cobra_movement(Base):
     ''' The actual movement of the cobra motor, in terms of individual MCS frames.
     '''
     __tablename__ = 'cobra_movement'
-    __table_args__ = (UniqueConstraint('mcs_frame_id', 'fiber_id'),
+    __table_args__ = (UniqueConstraint('mcs_frame_id', 'cobra_id'),
+                      ForeignKeyConstraint(['mcs_frame_id', 'cobra_id'],
+                                           ['cobra_status.mcs_frame_id',
+                                            'cobra_status.cobra_id']),
                       {})
 
     mcs_frame_id = Column(Integer, primary_key=True, index=True, autoincrement=False,
                           comment='MCS frame identifier. Provided by Gen2')
-    fiber_id = Column(Integer, primary_key=True, autoincrement=False,
+    cobra_id = Column(Integer, primary_key=True, autoincrement=False,
                       comment='Fiber identifier')
-    cobra_motor_model_id_theta = Column(Integer, ForeignKey('cobra_motor_model.cobra_motor_model_id'))
+    cobra_motor_calib_id = Column(Integer, ForeignKey('cobra_motor_calib.cobra_motor_calib_id'))
     motor_num_step_theta = Column(Integer,
                                   comment='the number of steps the theta motor has undertaken')
     motor_on_time_theta = Column(REAL,
                                  comment='the theta motor ontime value')
-    cobra_motor_model_id_phi = Column(Integer, ForeignKey('cobra_motor_model.cobra_motor_model_id'))
     motor_num_step_phi = Column(Integer, comment='the number of steps the phi motor has undertaken')
     motor_on_time_phi = Column(REAL, comment='the phi motor ontime value')
 
-    def __init__(self, mcs_frame_id, fiber_id,
-                 cobra_motor_model_id_theta,
+    def __init__(self, mcs_frame_id, cobra_id,
+                 cobra_motor_calib_id,
                  motor_num_step_theta, motor_on_time_theta,
-                 cobra_motor_model_id_phi,
                  motor_num_step_phi, motor_on_time_phi
                  ):
         self.mcs_frame_id = mcs_frame_id
-        self.fiber_id = fiber_id
-        self.cobra_motor_map_model_id_theta = cobra_motor_model_id_theta
+        self.cobra_id = cobra_id
+        self.cobra_motor_map_model_id = cobra_motor_calib_id
         self.motor_num_step_theta = motor_num_step_theta
         self.motor_on_time_theta = motor_on_time_theta
-        self.cobra_motor_map_model_id_phi = cobra_motor_model_id_phi
         self.motor_num_step_phi = motor_num_step_phi
         self.motor_on_time_phi = motor_on_time_phi
 
@@ -713,19 +833,16 @@ class cobra_status(Base):
     '''Defines the status of each cobra at each step during convergence.
     '''
     __tablename__ = 'cobra_status'
-    __table_args__ = (UniqueConstraint('mcs_frame_id', 'fiber_id'),
+    __table_args__ = (UniqueConstraint('mcs_frame_id', 'cobra_id'),
                       ForeignKeyConstraint(['mcs_frame_id', 'spot_id'],
                                            ['mcs_data.mcs_frame_id', 'mcs_data.spot_id']),
-                      ForeignKeyConstraint(['mcs_frame_id', 'fiber_id'],
-                                           ['cobra_movement.mcs_frame_id',
-                                            'cobra_movement.fiber_id']),
                       {})
 
-    mcs_frame_id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=False)
-    fiber_id = Column(Integer, primary_key=True, autoincrement=False,
+    mcs_frame_id = Column(Integer, primary_key=True, index=True, autoincrement=False)
+    cobra_id = Column(Integer, primary_key=True, autoincrement=False,
                       comment='Fiber identifier')
     spot_id = Column(Integer, comment='Corresponding MCS image spot identifier ')
-    pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
+    pfs_config_id = Column(BigInteger)
     iteration = Column(Integer, comment='Iteration number for this frame')
     pfi_target_x_mm = Column(REAL,
                              comment='Target x-position on the PFI as determined from the '
@@ -738,12 +855,12 @@ class cobra_status(Base):
     pfi_center_y_mm = Column(REAL,
                              comment='Actual y-position on the PFI [mm]')
 
-    def __init__(self, mcs_frame_id, fiber_id,
+    def __init__(self, mcs_frame_id, cobra_id,
                  pfs_config_id, spot_id, iteration,
                  pfi_nominal_x_mm, pfi_nominal_y_mm, pfi_center_x_mm, pfi_center_y_mm
                  ):
         self.mcs_frame_id = mcs_frame_id
-        self.fiber_id = fiber_id
+        self.cobra_id = cobra_id
         self.spot_id = spot_id
         self.pfs_config_id = pfs_config_id
         self.iteration = iteration
@@ -898,7 +1015,10 @@ class calib_set(Base):
     calib_dark_id = Column(Integer, ForeignKey('calib.calib_id'))
     calib_arcs_id = Column(Integer, ForeignKey('calib.calib_id'))
 
-    calibs = relation(calib, backref=backref('calib_set'))
+    calib_flat = relation(calib, primaryjoin="calib_set.calib_flat_id==calib.calib_id")
+    calib_bias = relation(calib, primaryjoin="calib_set.calib_bias_id==calib.calib_id")
+    calib_dark = relation(calib, primaryjoin="calib_set.calib_dark_id==calib.calib_id")
+    calib_arcs = relation(calib, primaryjoin="calib_set.calib_arcs_id==calib.calib_id")
 
     def __init__(self, calib_set_id,
                  calib_flat_id, calib_bias_id, calib_dark_id, calib_arcs_id
@@ -932,24 +1052,21 @@ class flux_calib(Base):
 
 class obs_fiber(Base):
     __tablename__ = 'obs_fiber'
-    __table_args__ = (UniqueConstraint('pfs_visit_id', 'fiber_id'), {})
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'cobra_id'), {})
 
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), primary_key=True, unique=True,
                           autoincrement=False)
-    fiber_id = Column(Integer, ForeignKey('cobra_geometry.fiber_id'), primary_key=True,
+    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'), primary_key=True,
                       autoincrement=False)
     target_id = Column(BigInteger)
     exptime = Column(REAL)
     cum_nexp = Column(Integer)
     cum_texp = Column(REAL)
 
-    sps_exposures = relation(sps_exposure, backref=backref('obs_fiber'))
-    cobra_geometries = relation(cobra_geometry, backref=backref('obs_fiber'))
-
-    def __init__(self, pfs_visit_id, fiber_id, target_id,
+    def __init__(self, pfs_visit_id, cobra_id, target_id,
                  exptime, cum_nexp, cum_texp):
         self.pfs_visit_id = pfs_visit_id
-        self.fiber_id = fiber_id
+        self.cobra_id = cobra_id
         self.target_id = target_id
         self.exptime = exptime
         self.cum_nexp = cum_nexp
@@ -964,7 +1081,6 @@ class sky_model(Base):
     tel_visit_id = Column(Integer)
     spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
 
-    sps_exposures = relation(sps_exposure, backref=backref('sky_model'))
     spectrographs = relation(spectrograph, backref=backref('sky_model'))
 
     def __init__(self, sky_model_id, pfs_visit_id, tel_visit_id, spectrograph_id):
@@ -982,7 +1098,6 @@ class psf_model(Base):
     tel_visit_id = Column(Integer)
     spectrograph_id = Column(Integer, ForeignKey('spectrograph.spectrograph_id'))
 
-    sps_exposures = relation(sps_exposure, backref=backref('psf_model'))
     spectrographs = relation(spectrograph, backref=backref('psf_model'))
 
     def __init__(self, psf_model_id, pfs_visit_id, tel_visit_id, spectrograph_id):
@@ -1005,7 +1120,6 @@ class pfs_arm(Base):
     drp2d_version = Column(String)
 
     calib_sets = relation(calib_set, backref=backref('pfs_arm'))
-    sps_exposures = relation(sps_exposure, backref=backref('pfs_arm'))
     sky_models = relation(sky_model, backref=backref('pfs_arm'))
     psf_models = relation(psf_model, backref=backref('pfs_arm'))
 
@@ -1023,22 +1137,20 @@ class pfs_arm(Base):
 
 class pfs_arm_obj(Base):
     __tablename__ = 'pfs_arm_obj'
-    __table_args__ = (UniqueConstraint('pfs_visit_id', 'fiber_id'), {})
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'cobra_id'), {})
 
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
                           primary_key=True, autoincrement=False)
-    fiber_id = Column(Integer, ForeignKey('cobra_geometry.fiber_id'), primary_key=True, autoincrement=False)
+    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'), primary_key=True, autoincrement=False)
     flags = Column(Integer)
     qa_type_id = Column(Integer, ForeignKey('qa_type.qa_type_id'))
     qa_value = Column(REAL)
 
-    pfs_arms = relation(pfs_arm, backref=backref('pfs_arm_obj'))
-    cobra_geometries = relation(cobra_geometry, backref=backref('pfs_arm_obj'))
     qa_types = relation(qa_type, backref=backref('pfs_arm_obj'))
 
-    def __init__(self, pfs_visit_id, fiber_id, flags, qa_type_id, qa_value):
+    def __init__(self, pfs_visit_id, cobra_id, flags, qa_type_id, qa_value):
         self.pfs_visit_id = pfs_visit_id
-        self.fiber_id = fiber_id
+        self.cobra_id = cobra_id
         self.flags = flags
         self.qa_type_id = qa_type_id
         self.qa_value = qa_value
@@ -1107,7 +1219,6 @@ class visits_to_combine(Base):
     pfs_visit_hash = Column(BigInteger, ForeignKey('visit_hash.pfs_visit_hash'), primary_key=True,
                             autoincrement=False)
 
-    sps_exposures = relation(sps_exposure, backref=backref('visits_to_combine'))
     visit_hashs = relation(visit_hash, backref=backref('visits_to_combine'))
 
     def __init__(self, tel_visit_id, pfs_visit_hash):
