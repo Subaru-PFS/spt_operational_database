@@ -1139,9 +1139,9 @@ class obs_fiber(Base):
     __tablename__ = 'obs_fiber'
     __table_args__ = (UniqueConstraint('pfs_visit_id', 'cobra_id'), {})
 
-    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), primary_key=True, unique=True,
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), primary_key=True, unique=False,
                           autoincrement=False)
-    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'), primary_key=True,
+    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'), primary_key=True, unique=False,
                       autoincrement=False)
     target_id = Column(BigInteger)
     exptime = Column(REAL)
