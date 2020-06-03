@@ -2010,3 +2010,15 @@ class OpDB(object):
             models.cobra_geometry.cobra_motor_calib_id == cobra_motor_calib_id
         ).all()
         return query
+
+    def get_tile(self, tile_id):
+        query = self.session.query(models.tile.program_id,
+                                   models.tile.tile,
+                                   models.tile.ra_center,
+                                   models.tile.dec_center,
+                                   models.tile.pa,
+                                   models.tile.is_finished
+                                   ).filter(
+            models.tile.tile_id == tile_id
+        ).first()
+        return query
