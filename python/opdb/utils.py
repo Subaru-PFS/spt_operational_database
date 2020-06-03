@@ -94,6 +94,14 @@ class OpDB(object):
             self.session.execute("ALTER SEQUENCE target_target_id_seq RESTART WITH 1")
         self.session.commit()
 
+    def reset_qa(self):
+        self.session.query(models.target).filter(models.target.is_finished == True).update({models.target.is_finished: False})
+        self.session.commit()
+
+    def reset_completeness(self):
+        self.session.query(models.target).filter(models.target.completeness > 0.0).update({models.target.completeness: 0.0})
+        self.session.commit()
+
     def rollback(self):
         self.session.rollback()
 
@@ -318,13 +326,15 @@ class OpDB(object):
         conn.close()
 
     def update_target_is_finished(self, target_id):
-        target = self.session.query(models.target).filter(models.target.target_id == int(target_id)).first()
-        target.is_finished = True
+        #target = self.session.query(models.target).filter(models.target.target_id == int(target_id)).first()
+        #target.is_finished = True
+        self.session.query(models.target).filter(models.target.target_id == int(target_id)).update({models.target.is_finished: True})
         self.session.commit()
 
     def update_target_completeness(self, target_id, completeness):
-        target = self.session.query(models.target).filter(models.target.target_id == int(target_id)).first()
-        target.completeness = completeness
+        #target = self.session.query(models.target).filter(models.target.target_id == int(target_id)).first()
+        #target.completeness = completeness
+        self.session.query(models.target).filter(models.target.target_id == int(target_id)).update({models.target.completeness: completeness})
         self.session.commit()
 
     def insert_beam_switch_mode(self, data):
