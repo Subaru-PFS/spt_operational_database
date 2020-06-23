@@ -1746,7 +1746,7 @@ class OpDB(object):
             Note
             ----
                 `data` list should include `dict` with the following keys:
-                    `visits_to_combine` : `int`
+                    `pfs_visit_id` : `int`
                     `pfs_visit_hash` : `bigint`
         '''
         res = self.session.execute(models.visits_to_combine.__table__.insert(), data)

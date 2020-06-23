@@ -1293,17 +1293,17 @@ class pfs_object(Base):
 
 class visits_to_combine(Base):
     __tablename__ = 'visits_to_combine'
-    __table_args__ = (UniqueConstraint('tel_visit_id', 'pfs_visit_hash'), {})
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'pfs_visit_hash'), {})
 
-    tel_visit_id = Column(Integer, ForeignKey('tel_visit.tel_visit_id'), primary_key=True,
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), primary_key=True,
                           autoincrement=False)
     pfs_visit_hash = Column(BigInteger, ForeignKey('visit_hash.pfs_visit_hash'), primary_key=True,
                             autoincrement=False)
 
     visit_hashs = relation(visit_hash, backref=backref('visits_to_combine'))
 
-    def __init__(self, tel_visit_id, pfs_visit_hash):
-        self.tel_visit_id = tel_visit_id
+    def __init__(self, pfs_visit_id, pfs_visit_hash):
+        self.pfs_visit_id = pfs_visit_id
         self.pfs_visit_hash = pfs_visit_hash
 
 
