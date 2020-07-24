@@ -4,3 +4,5 @@ build/
 dist/
 __pycache__/
 python/opdb.egg-info/
+alembic/test/db.cfg
+alembic/test/alembic/__pycache__/
