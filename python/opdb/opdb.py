@@ -21,11 +21,11 @@ class OpDB(object):
         self.engine = create_engine(self.dbinfo)
         SessionClass = sessionmaker(self.engine)
         self.session = SessionClass()
-        print('connection to {0} started'.format(self.dbinfo))
+        #print('connection to {0} started'.format(self.dbinfo))
 
     def close(self):
         self.session.close()
-        print('connection to {0} closed'.format(self.dbinfo))
+        #print('connection to {0} closed'.format(self.dbinfo))
 
     def reset(self, full=True):
         self.session.query(models.drp1d_redshift).delete()
@@ -113,32 +113,6 @@ class OpDB(object):
         ############################################################
     '''
 
-    def fetch_all(self, tablename):
-        '''
-            Description
-            -----------
-                Get all records from a table
-
-            Parameters
-            ----------
-                tablename : `string`
-
-            Returns
-            -------
-                None
-
-            Note
-            ----
-        '''
-        model = getattr(models, tablename)
-        try:
-            df = pd.read_sql(self.session.query(model).statement, self.session.bind)
-        except:
-            self.session.rollback()
-            print("transaction error")
-            df = None
-        return df
-
     def insert(self, tablename, dataframe):
         '''
             Description
@@ -165,6 +139,123 @@ class OpDB(object):
         except:
             self.session.rollback()
             print("transaction error")
+
+    def update(self, tablename, dataframe):
+        '''
+            Description
+            -----------
+                Update information of a table
+
+            Parameters
+            ----------
+                tablename : `string`
+                dataframe : `pandas.DataFrame`
+
+            Returns
+            -------
+                None
+
+            Note
+            ----
+                Column labels of `dataframe` should be exactly the same as those of the table
+        '''
+        model = getattr(models, tablename)
+        try:
+            self.session.bulk_update_mappings(model, dataframe.to_dict(orient="records"))
+            self.session.commit()
+        except:
+            self.session.rollback()
+            print("transaction error")
+
+    '''
+        ##################################################
+        functionality to get information from the database
+        ##################################################
+    '''
+
+    def fetch_all(self, tablename):
+        '''
+            Description
+            -----------
+                Get all records from a table
+
+            Parameters
+            ----------
+                tablename : `string`
+
+            Returns
+            -------
+                df : `pandas.DataFrame`
+
+            Note
+            ----
+        '''
+        model = getattr(models, tablename)
+        try:
+            df = pd.read_sql(self.session.query(model).statement, self.session.bind)
+        except:
+            self.session.rollback()
+            print("transaction error")
+            df = None
+        return df
+
+    def fetch_by_id(self, tablename, **kwargs):
+        '''
+            Description
+            -----------
+                Get records from a table where the keyword identifier is matched
+
+            Parameters
+            ----------
+                tablename : `string`
+                **kwargs  :          (e.g., pfs_visit_id=12345)
+
+            Returns
+            -------
+                df : `pandas.DataFrame`
+
+            Note
+            ----
+        '''
+        model = getattr(models, tablename)
+        query = self.session.query(model)
+        for k, v in kwargs.items():
+            query = query.filter(getattr(model, k) == v)
+        try:
+            df = pd.read_sql(query.statement, self.session.bind)
+        except:
+            self.session.rollback()
+            print("transaction error")
+            df = None
+        return df
+
+    def fetch_sps_exposures(self, pfs_visit_id):
+        '''
+            Description
+            -----------
+                Get SpS exposure information for a given `pfs_visit_id`
+
+            Parameters
+            ----------
+                pfs_visit_id : `int`
+
+            Returns
+            -------
+                df : `pandas.DataFrame`
+
+            Note
+            ----
+        '''
+        sps_exposure = models.sps_exposure
+        sps_visit = models.sps_visit
+        sps_camera = models.sps_camera
+        query = self.session \
+            .query(sps_exposure.pfs_visit_id, sps_visit.exp_type, sps_camera.sps_module_id, sps_camera.arm, sps_exposure.sps_camera_id) \
+            .join(sps_visit, sps_exposure.pfs_visit_id == sps_visit.pfs_visit_id) \
+            .join(sps_camera, sps_exposure.sps_camera_id == sps_camera.sps_camera_id) \
+            .filter(sps_exposure.pfs_visit_id == pfs_visit_id).statement
+        df = pd.read_sql(query, self.session.bind)
+        return df
 
     '''
         ##########################################################################
@@ -1883,9 +1974,9 @@ class OpDB(object):
         conn.close()
 
     '''
-        #####################################################
-        functionality to get information from the database
-        #####################################################
+        ################################################################
+        functionality to get information from the database (old version)
+        ################################################################
     '''
 
     def get_target_type(self):
