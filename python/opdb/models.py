@@ -906,15 +906,18 @@ class sps_exposure(Base):
     exptime = Column(REAL, comment='Exposure time for visit [sec]')
     time_exp_start = Column(DateTime, comment='Start time for exposure [YYYY-MM-DDThh:mm:ss]')
     time_exp_end = Column(DateTime, comment='End time for exposure [YYYY-MM-DDThh:mm:ss]')
+    beam_config_date = Column(FLOAT, comment='MJD when the configuration changed')
 
     def __init__(self, pfs_visit_id, sps_camera_id,
-                 exptime, time_exp_start, time_exp_end
+                 exptime, time_exp_start, time_exp_end,
+                 beam_config_date
                  ):
         self.pfs_visit_id = pfs_visit_id
         self.sps_camera_id = sps_camera_id
         self.exptime = exptime
         self.time_exp_start = time_exp_start
         self.time_exp_end = time_exp_end
+        self.beam_config_date = beam_config_date
 
 
 class sps_module(Base):
