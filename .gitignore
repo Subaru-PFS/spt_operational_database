@@ -6,3 +6,5 @@ __pycache__/
 python/opdb.egg-info/
 alembic/test/db.cfg
 alembic/test/alembic/__pycache__/
+alembic/opdb_summit/db.cfg
+alembic/opdb_summit/alembic/__pycache__/
