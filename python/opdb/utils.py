@@ -101,6 +101,33 @@ def fetch_all(url, tablename):
         db.close()
     return df
 
+def fetch_query(url, query):
+    '''
+        Description
+        -----------
+            Get all records from SQL query
+
+        Parameters
+        ----------
+            url       : `string` (e.g., 'postgresql://username:password@hostname:port/dbname')
+            query : `string`
+
+        Returns
+        -------
+            df : `pandas.DataFrame`
+
+        Note
+        ----
+    '''
+    db = opdb.OpDB()
+    db.dbinfo = url
+    try:
+        db.connect()
+        df = db.fetch_query(query)
+    finally:
+        db.close()
+    return df
+
 
 def fetch_by_id(url, tablename, **kwargs):
     '''

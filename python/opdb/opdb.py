@@ -230,6 +230,31 @@ class OpDB(object):
 
         return df
 
+    def fetch_query(self, query):
+        '''
+            Description
+            -----------
+                Get all records from SQL query
+
+            Parameters
+            ----------
+                query : `string`
+
+            Returns
+            -------
+                df : `pandas.DataFrame`
+
+            Note
+            ----
+        '''
+        try:
+            df = pd.read_sql(query, self.session.bind)
+        except:
+            self.session.rollback()
+            raise
+
+        return df
+
     def fetch_sps_exposures(self, pfs_visit_id):
         '''
             Description
