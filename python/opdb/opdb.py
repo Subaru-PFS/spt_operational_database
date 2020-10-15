@@ -8,6 +8,7 @@ from . import models
 
 
 class OpDB(object):
+    url = 'postgresql://pfs@db-ics:5432/opdb'
 
     def __init__(self, hostname='localhost', port='5432', dbname='test', username='test', passwd='ask someone', dialect='postgresql'):
         self.dbinfo = "{0}://{1}:{2}@{3}:{4}/{5}".format(dialect,
@@ -138,7 +139,7 @@ class OpDB(object):
             self.session.commit()
         except:
             self.session.rollback()
-            print("transaction error")
+            raise
 
     def update(self, tablename, dataframe):
         '''
@@ -165,7 +166,7 @@ class OpDB(object):
             self.session.commit()
         except:
             self.session.rollback()
-            print("transaction error")
+            raise
 
     '''
         ##################################################
@@ -195,8 +196,8 @@ class OpDB(object):
             df = pd.read_sql(self.session.query(model).statement, self.session.bind)
         except:
             self.session.rollback()
-            print("transaction error")
-            df = None
+            raise
+
         return df
 
     def fetch_by_id(self, tablename, **kwargs):
@@ -225,8 +226,8 @@ class OpDB(object):
             df = pd.read_sql(query.statement, self.session.bind)
         except:
             self.session.rollback()
-            print("transaction error")
-            df = None
+            raise
+
         return df
 
     def fetch_sps_exposures(self, pfs_visit_id):

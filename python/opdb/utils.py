@@ -1,9 +1,3 @@
-import numpy as np
-import io
-from sqlalchemy import create_engine
-from sqlalchemy import update
-from sqlalchemy.orm import sessionmaker
-from . import models
 from . import opdb
 
 '''
@@ -35,9 +29,11 @@ def insert(url, tablename, dataframe):
     '''
     db = opdb.OpDB()
     db.dbinfo = url
-    db.connect()
-    db.insert(tablename, dataframe)
-    db.close()
+    try:
+        db.connect()
+        db.insert(tablename, dataframe)
+    finally:
+        db.close()
     return 0
 
 
@@ -63,9 +59,11 @@ def update(url, tablename, dataframe):
     '''
     db = opdb.OpDB()
     db.dbinfo = url
-    db.connect()
-    db.update(tablename, dataframe)
-    db.close()
+    try:
+        db.connect()
+        db.update(tablename, dataframe)
+    finally:
+        db.close()
     return 0
 
 
@@ -96,9 +94,11 @@ def fetch_all(url, tablename):
     '''
     db = opdb.OpDB()
     db.dbinfo = url
-    db.connect()
-    df = db.fetch_all(tablename)
-    db.close()
+    try:
+        db.connect()
+        df = db.fetch_all(tablename)
+    finally:
+        db.close()
     return df
 
 
@@ -123,9 +123,11 @@ def fetch_by_id(url, tablename, **kwargs):
     '''
     db = opdb.OpDB()
     db.dbinfo = url
-    db.connect()
-    df = db.fetch_by_id(tablename, **kwargs)
-    db.close()
+    try:
+        db.connect()
+        df = db.fetch_by_id(tablename, **kwargs)
+    finally:
+        db.close()
     return df
 
 
@@ -149,7 +151,9 @@ def fetch_sps_exposures(url, pfs_visit_id):
     '''
     db = opdb.OpDB()
     db.dbinfo = url
-    db.connect()
-    df = db.fetch_sps_exposures(pfs_visit_id=pfs_visit_id)
-    db.close()
+    try:
+        db.connect()
+        df = db.fetch_sps_exposures(pfs_visit_id=pfs_visit_id)
+    finally:
+        db.close()
     return df
