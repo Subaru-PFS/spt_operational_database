@@ -3,8 +3,28 @@ from sqlalchemy import Column, BigInteger, Integer, String, FLOAT, ForeignKey, D
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relation, backref
 from sqlalchemy import UniqueConstraint, ForeignKeyConstraint
+from sqlalchemy.types import TypeDecorator
+from sqlalchemy.ext.compiler import compiles
 
 Base = declarative_base()
+
+
+class UnsignedBigInteger(TypeDecorator):
+    ''' New type UnsignedBigInteger definition
+        This converts Unsigned 64bit integer (User-side) to Signed 64bit integer (DB-side)
+    '''
+    impl = BigInteger
+
+    def __init__(self, *args, **kwargs):
+        TypeDecorator.__init__(self, *args, **kwargs)
+
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            return value - (1 << 63)
+
+    def process_result_value(self, value, dialect):
+        if value is not None:
+            return value + (1 << 63)
 
 
 class proposal(Base):
@@ -389,7 +409,7 @@ class tile(Base):
 class pfs_design(Base):
     __tablename__ = 'pfs_design'
 
-    pfs_design_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=False)
+    pfs_design_id = Column(UnsignedBigInteger, primary_key=True, unique=True, autoincrement=False)
     tile_id = Column(Integer, ForeignKey('tile.tile_id'))
     ra_center_designed = Column(FLOAT)
     dec_center_designed = Column(FLOAT)
@@ -436,7 +456,7 @@ class pfs_design_fiber(Base):
     __tablename__ = 'pfs_design_fiber'
     __table_args__ = (UniqueConstraint('pfs_design_id', 'cobra_id'), {})
 
-    pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'), primary_key=True,
+    pfs_design_id = Column(UnsignedBigInteger, ForeignKey('pfs_design.pfs_design_id'), primary_key=True,
                            autoincrement=False)
     cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
@@ -473,10 +493,12 @@ class pfs_visit(Base):
 
     pfs_visit_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     pfs_visit_description = Column(String)
+    pfs_design_id = Column(UnsignedBigInteger)
 
-    def __init__(self, pfs_visit_id, pfs_visit_description):
+    def __init__(self, pfs_visit_id, pfs_visit_description, pfs_design_id):
         self.pfs_visit_id = pfs_visit_id
         self.pfs_visit_description = pfs_visit_description
+        self.pfs_design_id = pfs_design_id
 
 
 class mcs_boresight(Base):
@@ -588,7 +610,7 @@ class pfs_config(Base):
     __tablename__ = 'pfs_config'
 
     pfs_config_id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
-    pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'))
+    pfs_design_id = Column(UnsignedBigInteger, ForeignKey('pfs_design.pfs_design_id'))
     visit0 = Column(Integer, comment='The first visit of the set')
     ra_center_config = Column(FLOAT, comment='The right ascension of the PFI center [deg]')
     dec_center_config = Column(FLOAT, comment='The declination of the PFI center [deg]')
