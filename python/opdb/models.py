@@ -1368,7 +1368,7 @@ class pfs_arm_obj(Base):
 class visit_hash(Base):
     __tablename__ = 'visit_hash'
 
-    pfs_visit_hash = Column(BigInteger, primary_key=True, unique=True, autoincrement=False)
+    pfs_visit_hash = Column(UnsignedBigInteger, primary_key=True, unique=True, autoincrement=False)
     n_visit = Column(Integer)
 
     def __init__(self, pfs_visit_hash, n_visit):
@@ -1386,7 +1386,7 @@ class pfs_object(Base):
     cat_id = Column(Integer)
     obj_id = Column(UnsignedBigInteger)
     n_visit = Column(Integer)
-    pfs_visit_hash = Column(BigInteger, ForeignKey('visit_hash.pfs_visit_hash'))
+    pfs_visit_hash = Column(UnsignedBigInteger, ForeignKey('visit_hash.pfs_visit_hash'))
     cum_texp = Column(REAL)
     processed_at = Column(DateTime)
     drp2d_version = Column(String)
@@ -1425,7 +1425,7 @@ class visits_to_combine(Base):
 
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), primary_key=True,
                           autoincrement=False)
-    pfs_visit_hash = Column(BigInteger, ForeignKey('visit_hash.pfs_visit_hash'), primary_key=True,
+    pfs_visit_hash = Column(UnsignedBigInteger, ForeignKey('visit_hash.pfs_visit_hash'), primary_key=True,
                             autoincrement=False)
 
     visit_hashs = relation(visit_hash, backref=backref('visits_to_combine'))
