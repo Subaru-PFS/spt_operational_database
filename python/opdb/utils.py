@@ -7,6 +7,36 @@ from . import opdb
     '''
 
 
+def insert_row(url, tablename, **kwargs):
+    '''
+        Description
+        -----------
+            Insert information into a table
+
+        Parameters
+        ----------
+            url       : `string` (e.g., 'postgresql://username:password@hostname:port/dbname')
+            tablename : `string`
+            dataframe : `pandas.DataFrame`
+
+        Returns
+        -------
+            None
+
+        Note
+        ----
+            Column labels of `dataframe` should be exactly the same as those of the table
+    '''
+    db = opdb.OpDB()
+    db.dbinfo = url
+    try:
+        db.connect()
+        db.insert_mappings(tablename, [kwargs])
+    finally:
+        db.close()
+    return 0
+
+
 def insert(url, tablename, dataframe):
     '''
         Description
@@ -100,6 +130,7 @@ def fetch_all(url, tablename):
     finally:
         db.close()
     return df
+
 
 def fetch_query(url, query):
     '''

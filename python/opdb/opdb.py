@@ -114,6 +114,29 @@ class OpDB(object):
         ############################################################
     '''
 
+    def insert_mappings(self, tablename, mappings):
+        '''
+            Description
+            -----------
+                Insert information into a table
+
+            Parameters
+            ----------
+                tablename : `string`
+                mappings : `dictionnary list`
+
+            Returns
+            -------
+                None
+        '''
+        model = getattr(models, tablename)
+        try:
+            self.session.bulk_insert_mappings(model, mappings)
+            self.session.commit()
+        except:
+            self.session.rollback()
+            raise
+
     def insert(self, tablename, dataframe):
         '''
             Description
@@ -133,13 +156,8 @@ class OpDB(object):
             ----
                 Column labels of `dataframe` should be exactly the same as those of the table
         '''
-        model = getattr(models, tablename)
-        try:
-            self.session.bulk_insert_mappings(model, dataframe.to_dict(orient="records"))
-            self.session.commit()
-        except:
-            self.session.rollback()
-            raise
+        self.insert_mappings(tablename, dataframe.to_dict(orient="records"))
+
 
     def update(self, tablename, dataframe):
         '''
