@@ -476,7 +476,7 @@ class pfs_visit(Base):
     pfs_design_id = Column(BigInteger)
     issued_at = Column(DateTime, comment='Issued time [YYYY-MM-DDThh:mm:ss]')
 
-    def __init__(self, pfs_visit_id, pfs_visit_description, pfs_design_id issued_at):
+    def __init__(self, pfs_visit_id, pfs_visit_description, pfs_design_id, issued_at):
         self.pfs_visit_id = pfs_visit_id
         self.pfs_visit_description = pfs_visit_description
         self.pfs_design_id = pfs_design_id
