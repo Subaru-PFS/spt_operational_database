@@ -472,12 +472,14 @@ class pfs_visit(Base):
     __tablename__ = 'pfs_visit'
 
     pfs_visit_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
-    pfs_visit_description = Column(String, comment='Description of the visit')
+    pfs_visit_description = Column(String)
+    pfs_design_id = Column(BigInteger)
     issued_at = Column(DateTime, comment='Issued time [YYYY-MM-DDThh:mm:ss]')
 
-    def __init__(self, pfs_visit_id, pfs_visit_description, issued_at):
+    def __init__(self, pfs_visit_id, pfs_visit_description, pfs_design_id issued_at):
         self.pfs_visit_id = pfs_visit_id
         self.pfs_visit_description = pfs_visit_description
+        self.pfs_design_id = pfs_design_id
         self.issued_at = issued_at
 
 
