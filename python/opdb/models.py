@@ -476,6 +476,9 @@ class pfs_visit(Base):
     pfs_design_id = Column(BigInteger)
     issued_at = Column(DateTime, comment='Issued time [YYYY-MM-DDThh:mm:ss]')
 
+    sps_visit = relation('sps_visit', uselist=False, back_populates='pfs_visit')
+    mcs_exposure = relation('mcs_exposure', back_populates='pfs_visit')
+
     def __init__(self, pfs_visit_id, pfs_visit_description, pfs_design_id, issued_at):
         self.pfs_visit_id = pfs_visit_id
         self.pfs_visit_description = pfs_visit_description
@@ -526,6 +529,8 @@ class mcs_exposure(Base):
     mcs_m1_temperature = Column(REAL, comment='MCS primary mirror temperature [degC]')
     taken_at = Column(DateTime, comment='The time at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
     taken_in_hst_at = Column(DateTime, comment='The time (in HST) at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
+
+    pfs_visit = relation('pfs_visit', back_populates='mcs_exposure')
 
     def __init__(self, mcs_frame_id, pfs_visit_id, mcs_exptime, altitude, azimuth, insrot, adc_pa,
                  dome_temperature, dome_pressure, dome_humidity, outside_temperature, outside_pressure, outside_humidity,
@@ -866,6 +871,10 @@ class sps_visit(Base):
                           autoincrement=False)
     exp_type = Column(String, comment='Type of exposure: BIAS, FLAT, DFLAT etc.')
 
+    pfs_visit = relation('pfs_visit', uselist=False, back_populates='sps_visit')
+    sps_exposure = relation('sps_exposure', back_populates='sps_visit')
+    visit_set = relation('visit_set', uselist=False, back_populates='sps_visit')
+
     def __init__(self, pfs_visit_id, exp_type):
         self.pfs_visit_id = pfs_visit_id
         self.exp_type = exp_type
@@ -880,6 +889,8 @@ class sps_sequence(Base):
     comments = Column(String, comment='Comments for the sequence')
     cmd_str = Column(String, comment='ICS command string that generates exposures for this set of visits')
     status = Column(String, comment='Status of the sequence')
+
+    visit_set = relation('visit_set', uselist=False, back_populates='sps_sequence')
 
     def __init__(self, visit_set_id, sequence_type, name, comments, cmd_str, status):
         self.visit_set_id = visit_set_id
@@ -896,6 +907,9 @@ class visit_set(Base):
     pfs_visit_id = Column(Integer, ForeignKey('sps_visit.pfs_visit_id'), primary_key=True, unique=True, autoincrement=False)
     visit_set_id = Column(Integer, ForeignKey('sps_sequence.visit_set_id'))
 
+    sps_visit = relation('sps_visit', uselist=False, back_populates='visit_set')
+    sps_sequence = relation('sps_sequence', uselist=False, back_populates='visit_set')
+
     def __init__(self, pfs_visit_id, visit_set_id):
         self.pfs_visit_id = pfs_visit_id
         self.visit_set_id = visit_set_id
@@ -911,6 +925,8 @@ class sps_exposure(Base):
     time_exp_start = Column(DateTime, comment='Start time for exposure [YYYY-MM-DDThh:mm:ss]')
     time_exp_end = Column(DateTime, comment='End time for exposure [YYYY-MM-DDThh:mm:ss]')
     beam_config_date = Column(FLOAT, comment='MJD when the configuration changed')
+
+    sps_visit = relation('sps_visit', back_populates='sps_exposure')
 
     def __init__(self, pfs_visit_id, sps_camera_id,
                  exptime, time_exp_start, time_exp_end,
