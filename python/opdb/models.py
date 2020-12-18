@@ -478,6 +478,7 @@ class pfs_visit(Base):
 
     sps_visit = relation('sps_visit', uselist=False, back_populates='pfs_visit')
     mcs_exposure = relation('mcs_exposure', back_populates='pfs_visit')
+    obslog_notes = relation('obslog_visit_note')
 
     def __init__(self, pfs_visit_id, pfs_visit_description, pfs_design_id, issued_at):
         self.pfs_visit_id = pfs_visit_id
@@ -531,6 +532,7 @@ class mcs_exposure(Base):
     taken_in_hst_at = Column(DateTime, comment='The time (in HST) at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
 
     pfs_visit = relation('pfs_visit', back_populates='mcs_exposure')
+    obslog_notes = relation('obslog_mcs_exposure_note')
 
     def __init__(self, mcs_frame_id, pfs_visit_id, mcs_exptime, altitude, azimuth, insrot, adc_pa,
                  dome_temperature, dome_pressure, dome_humidity, outside_temperature, outside_pressure, outside_humidity,
@@ -891,6 +893,7 @@ class sps_sequence(Base):
     status = Column(String, comment='Status of the sequence')
 
     visit_set = relation('visit_set', uselist=False, back_populates='sps_sequence')
+    obslog_notes = relation('obslog_visit_set_note')
 
     def __init__(self, visit_set_id, sequence_type, name, comments, cmd_str, status):
         self.visit_set_id = visit_set_id
@@ -1476,6 +1479,53 @@ class drp_ga(Base):
         self.flags = flags
         self.processed_at = processed_at
         self.drp_ga_version = drp_ga_version
+
+
+class obslog_user(Base):
+    __tablename__ = 'obslog_user'
+
+    id = Column(Integer, primary_key=True)
+    account_name = Column(String, nullable=False, unique=True)
+
+    visit_notes = relation('obslog_visit_note')
+    visit_set_notes = relation('obslog_visit_set_note')
+    mcs_exposure_notes = relation('obslog_mcs_exposure_note')
+
+
+class obslog_visit_set_note(Base):
+    __tablename__ = 'obslog_visit_set_note'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('obslog_user.id'))
+    visit_set_id = Column(Integer, ForeignKey('sps_sequence.visit_set_id'))
+    body = Column(String, nullable=False)
+
+    user = relation('obslog_user', back_populates='visit_set_notes')
+    sps_sequence = relation('sps_sequence', back_populates='obslog_notes')
+
+
+class obslog_visit_note(Base):
+    __tablename__ = 'obslog_visit_note'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('obslog_user.id'))
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
+    body = Column(String, nullable=False)
+
+    user = relation('obslog_user', back_populates='visit_notes')
+    pfs_visit = relation('pfs_visit', back_populates='obslog_notes')
+
+
+class obslog_mcs_exposure_note(Base):
+    __tablename__ = 'obslog_mcs_exposure_note'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('obslog_user.id'))
+    mcs_exposure_frame_id = Column(Integer, ForeignKey('mcs_exposure.mcs_frame_id'))
+    body = Column(String, nullable=False)
+
+    user = relation('obslog_user', back_populates='mcs_exposure_notes')
+    mcs_exposure = relation('mcs_exposure', back_populates='obslog_notes')
 
 
 def make_database(dbinfo):
