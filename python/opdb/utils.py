@@ -1,10 +1,11 @@
+import pandas as pd
 from . import opdb
 
 '''
     ############################################################
     functionality to insert/update information into the database
     ############################################################
-    '''
+'''
 
 
 def insert_row(url, tablename, **kwargs):
@@ -96,6 +97,53 @@ def update(url, tablename, dataframe):
         db.close()
     return 0
 
+
+def insert_pfs_design(url, pfsDesign, tile_id):
+    '''
+        Description
+        -----------
+            Extract information from pfsDesign object and insert into `pfs_design` & `pfs_design_fiber`
+
+        Parameters
+        ----------
+            url       : `string` (e.g., 'postgresql://username:password@hostname:port/dbname')
+            pfsDesign : `pfsDesign` object
+            tile_id : `int`
+
+        Returns
+        -------
+            None
+
+        Note
+        ----
+    '''
+    db = opdb.OpDB()
+    db.dbinfo = url
+    ''' insert `pfs_design` '''
+    df = pd.DataFrame({'pfs_design_id': [pfsDesign.pfsDesignId],
+                       'tile_id': [tile_id],
+                       'ra_center_designed': [pfsDesign.raBoresight],
+                       'dec_center_designed': [pfsDesign.decBoresight]
+                       })
+    try:
+        db.connect()
+        db.insert('pfs_design', df)
+    finally:
+        db.close()
+    ''' insert `pfs_design_fiber` '''
+    cobra_id = pfsDesign.fiberId
+    df = pd.DataFrame({'pfs_design_id': [pfsDesign.pfsDesignId for _ in cobra_id],
+                       'cobra_id': cobra_id,
+                       'pfi_target_x_mm': pfsDesign.pfiNominal.transpose()[0],
+                       'pfi_target_y_mm': pfsDesign.pfiNominal.transpose()[1]
+                       })
+    try:
+        db.connect()
+        db.insert('pfs_design_fiber', df)
+    finally:
+        db.close()
+
+    return 0
 
 '''
     ##################################################
