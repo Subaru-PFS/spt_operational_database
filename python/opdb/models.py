@@ -991,12 +991,15 @@ class sps_camera(Base):
 
 class sps_annotation(Base):
     __tablename__ = 'sps_annotation'
+    __table_args__ = (ForeignKeyConstraint(['pfs_visit_id', 'sps_camera_id'],
+                                           ['sps_exposure.pfs_visit_id', 'sps_exposure.sps_camera_id']),
+                      {})
 
     annotation_id = Column(Integer, primary_key=True, autoincrement=False,
                            comment='SpS annotation identifier (primary key)')
-    pfs_visit_id = Column(Integer, ForeignKey('sps_exposure.pfs_visit_id'),
+    pfs_visit_id = Column(Integer,
                           comment='PFS visit identifier')
-    sps_camera_id = Column(Integer, ForeignKey('sps_exposure.sps_camera_id'),
+    sps_camera_id = Column(Integer,
                            comment='SpS camera identifier [1-16]')
     data_flag = Column(Integer,
                        comment='Flag of obtained data')
