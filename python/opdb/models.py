@@ -971,21 +971,27 @@ class sps_camera(Base):
 
 class sps_annotation(Base):
     __tablename__ = 'sps_annotation'
-    __table_args__ = (UniqueConstraint('pfs_visit_id', 'sps_camera_id'),
-                      ForeignKeyConstraint(['pfs_visit_id', 'sps_camera_id'],
-                                           ['sps_exposure.pfs_visit_id', 'sps_exposure.sps_camera_id']),
-                      {})
 
-    pfs_visit_id = Column(Integer, primary_key=True)
-    sps_camera_id = Column(Integer, primary_key=True)
-    data_flag = Column(Integer, comment='Flag of obtained data')
-    notes = Column(String, comment='Notes of obtained data')
+    annotation_id = Column(Integer, primary_key=True, autoincrement=False,
+                           comment='annotation ID (primary key)')
+    pfs_visit_id = Column(Integer, ForeignKey('sps_exposure.pfs_visit_id'),
+                          comment='PFS visit ID')
+    sps_camera_id = Column(Integer, ForeignKey('sps_exposure.sps_camera_id'),
+                           comment='SpS camera ID')
+    data_flag = Column(Integer,
+                       comment='Flag of obtained data')
+    notes = Column(String,
+                   comment='Notes of obtained data')
+    created_at = Column(DateTime,
+                        comment='Creation time [YYYY-MM-DDThh:mm:ss]')
 
-    def __init__(self, pfs_visit_id, sps_camera_id, data_flag, notes):
+    def __init__(self, annotation_id, pfs_visit_id, sps_camera_id, data_flag, notes, created_at):
+        self.annotation_id = annotation_id
         self.pfs_visit_id = pfs_visit_id
         self.sps_camera_id = sps_camera_id
         self.data_flag = data_flag
         self.notes = notes
+        self.created_at = created_at
 
 
 class sps_condition(Base):
