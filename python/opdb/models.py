@@ -995,7 +995,7 @@ class sps_annotation(Base):
                                            ['sps_exposure.pfs_visit_id', 'sps_exposure.sps_camera_id']),
                       {})
 
-    annotation_id = Column(Integer, primary_key=True, autoincrement=False,
+    annotation_id = Column(Integer, primary_key=True, autoincrement=True,
                            comment='SpS annotation identifier (primary key)')
     pfs_visit_id = Column(Integer,
                           comment='PFS visit identifier')
