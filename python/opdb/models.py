@@ -869,9 +869,11 @@ class cobra_status(Base):
 class sps_visit(Base):
     __tablename__ = 'sps_visit'
 
-    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), primary_key=True, unique=True,
-                          autoincrement=False)
-    exp_type = Column(String, comment='Type of exposure: BIAS, FLAT, DFLAT etc.')
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
+                          primary_key=True, unique=True, autoincrement=False,
+                          comment='PFS visit identifier')
+    exp_type = Column(String,
+                      comment='Type of exposure: BIAS, FLAT, DFLAT etc.')
 
     pfs_visit = relation('pfs_visit', uselist=False, back_populates='sps_visit')
     sps_exposure = relation('sps_exposure', back_populates='sps_visit')
@@ -885,12 +887,18 @@ class sps_visit(Base):
 class sps_sequence(Base):
     __tablename__ = 'sps_sequence'
 
-    visit_set_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
-    sequence_type = Column(String, comment='SpS sequence type')
-    name = Column(String, comment='The unique name assigned to this set of visits')
-    comments = Column(String, comment='Comments for the sequence')
-    cmd_str = Column(String, comment='ICS command string that generates exposures for this set of visits')
-    status = Column(String, comment='Status of the sequence')
+    visit_set_id = Column(Integer, primary_key=True, unique=True, autoincrement=False,
+                          comment='SpS visit set identifier')
+    sequence_type = Column(String,
+                           comment='SpS sequence type')
+    name = Column(String,
+                  comment='The unique name assigned to this set of visits')
+    comments = Column(String,
+                      comment='Comments for the sequence')
+    cmd_str = Column(String,
+                     comment='ICS command string that generates exposures for this set of visits')
+    status = Column(String,
+                    comment='Status of the sequence')
 
     visit_set = relation('visit_set', uselist=False, back_populates='sps_sequence')
     obslog_notes = relation('obslog_visit_set_note')
@@ -922,12 +930,18 @@ class sps_exposure(Base):
     __tablename__ = 'sps_exposure'
     __table_args__ = (UniqueConstraint('pfs_visit_id', 'sps_camera_id'), {})
 
-    pfs_visit_id = Column(Integer, ForeignKey('sps_visit.pfs_visit_id'), primary_key=True)
-    sps_camera_id = Column(Integer, ForeignKey('sps_camera.sps_camera_id'), primary_key=True)
-    exptime = Column(REAL, comment='Exposure time for visit [sec]')
-    time_exp_start = Column(DateTime, comment='Start time for exposure [YYYY-MM-DDThh:mm:ss]')
-    time_exp_end = Column(DateTime, comment='End time for exposure [YYYY-MM-DDThh:mm:ss]')
-    beam_config_date = Column(FLOAT, comment='MJD when the configuration changed')
+    pfs_visit_id = Column(Integer, ForeignKey('sps_visit.pfs_visit_id'), primary_key=True,
+                          comment='PFS visit identifier')
+    sps_camera_id = Column(Integer, ForeignKey('sps_camera.sps_camera_id'), primary_key=True,
+                           comment='SpS camera identifier [1-16]')
+    exptime = Column(REAL,
+                     comment='Exposure time for visit [sec]')
+    time_exp_start = Column(DateTime,
+                            comment='Start time for exposure [YYYY-MM-DDThh:mm:ss]')
+    time_exp_end = Column(DateTime,
+                          comment='End time for exposure [YYYY-MM-DDThh:mm:ss]')
+    beam_config_date = Column(FLOAT,
+                              comment='MJD when the configuration changed')
 
     sps_visit = relation('sps_visit', back_populates='sps_exposure')
 
@@ -946,8 +960,10 @@ class sps_exposure(Base):
 class sps_module(Base):
     __tablename__ = 'sps_module'
 
-    sps_module_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
-    description = Column(String)
+    sps_module_id = Column(Integer, primary_key=True, unique=True, autoincrement=False,
+                           comment='SpS module identifier [1-4]')
+    description = Column(String,
+                         comment='SpS module name')
 
     def __init__(self, sps_module_id, description):
         self.sps_module_id = sps_module_id
@@ -957,10 +973,14 @@ class sps_module(Base):
 class sps_camera(Base):
     __tablename__ = 'sps_camera'
 
-    sps_camera_id = Column(Integer, primary_key=True, autoincrement=False)
-    sps_module_id = Column(Integer, ForeignKey('sps_module.sps_module_id'), comment='SPS module identifier [1-4]')
-    arm = Column(String(1), comment='Spectrograph arm identifier [B, R, N, M]')
-    arm_num = Column(Integer, comment='Spectrograph arm identifier as a number [1-4]')
+    sps_camera_id = Column(Integer, primary_key=True, autoincrement=False,
+                           comment='SpS camera identifier [1-16]')
+    sps_module_id = Column(Integer, ForeignKey('sps_module.sps_module_id'),
+                           comment='SpS module identifier [1-4]')
+    arm = Column(String(1),
+                 comment='Spectrograph arm identifier [b, r, n, m]')
+    arm_num = Column(Integer,
+                     comment='Spectrograph arm identifier as a number [1-4]')
 
     def __init__(self, sps_camera_id, sps_module_id, arm, arm_num):
         self.sps_camera_id = sps_camera_id
@@ -971,21 +991,30 @@ class sps_camera(Base):
 
 class sps_annotation(Base):
     __tablename__ = 'sps_annotation'
-    __table_args__ = (UniqueConstraint('pfs_visit_id', 'sps_camera_id'),
-                      ForeignKeyConstraint(['pfs_visit_id', 'sps_camera_id'],
+    __table_args__ = (ForeignKeyConstraint(['pfs_visit_id', 'sps_camera_id'],
                                            ['sps_exposure.pfs_visit_id', 'sps_exposure.sps_camera_id']),
                       {})
 
-    pfs_visit_id = Column(Integer, primary_key=True)
-    sps_camera_id = Column(Integer, primary_key=True)
-    data_flag = Column(Integer, comment='Flag of obtained data')
-    notes = Column(String, comment='Notes of obtained data')
+    annotation_id = Column(Integer, primary_key=True, autoincrement=True,
+                           comment='SpS annotation identifier (primary key)')
+    pfs_visit_id = Column(Integer,
+                          comment='PFS visit identifier')
+    sps_camera_id = Column(Integer,
+                           comment='SpS camera identifier [1-16]')
+    data_flag = Column(Integer,
+                       comment='Flag of obtained data')
+    notes = Column(String,
+                   comment='Notes of obtained data')
+    created_at = Column(DateTime,
+                        comment='Creation time [YYYY-MM-DDThh:mm:ss]')
 
-    def __init__(self, pfs_visit_id, sps_camera_id, data_flag, notes):
+    def __init__(self, annotation_id, pfs_visit_id, sps_camera_id, data_flag, notes, created_at):
+        self.annotation_id = annotation_id
         self.pfs_visit_id = pfs_visit_id
         self.sps_camera_id = sps_camera_id
         self.data_flag = data_flag
         self.notes = notes
+        self.created_at = created_at
 
 
 class sps_condition(Base):
@@ -995,10 +1024,14 @@ class sps_condition(Base):
                                            ['sps_exposure.pfs_visit_id', 'sps_exposure.sps_camera_id']),
                       {})
 
-    pfs_visit_id = Column(Integer, primary_key=True)
-    sps_camera_id = Column(Integer, primary_key=True)
-    background = Column(REAL)
-    throughput = Column(REAL)
+    pfs_visit_id = Column(Integer, primary_key=True,
+                          comment='PFS visit identifier')
+    sps_camera_id = Column(Integer, primary_key=True,
+                           comment='SpS camera identifier [1-16]')
+    background = Column(REAL,
+                        comment='Background level (TBD)')
+    throughput = Column(REAL,
+                        comment='System throughput (TBD)')
 
     def __init__(self, pfs_visit_id, sps_camera_id,
                  background, throughput,
