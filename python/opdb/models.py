@@ -440,8 +440,8 @@ class pfs_design_fiber(Base):
                            autoincrement=False)
     cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'), primary_key=True, autoincrement=False)
     target_id = Column(BigInteger, ForeignKey('target.target_id'))
-    pfi_target_x_mm = Column(REAL, comment='Target x-position on the PFI [mm]')
-    pfi_target_y_mm = Column(REAL, comment='Target y-position on the PFI [mm]')
+    pfi_nominal_x_mm = Column(REAL, comment='Nominal x-position on the PFI [mm]')
+    pfi_nominal_y_mm = Column(REAL, comment='Nominal y-position on the PFI [mm]')
     ets_priority = Column(Integer)
     ets_cost_function = Column(FLOAT)
     ets_cobra_motor_movement = Column(String)
@@ -451,14 +451,14 @@ class pfs_design_fiber(Base):
     targets = relation(target, backref=backref('psf_design_fiber'))
 
     def __init__(self, pfs_design_id, cobra_id, target_id,
-                 pfi_target_x_mm, pfi_target_y_mm,
+                 pfi_nominal_x_mm, pfi_nominal_y_mm,
                  ets_priority, ets_cost_function, ets_cobra_motor_movement,
                  is_on_source=True):
         self.pfs_design_id = pfs_design_id
         self.cobra_id = cobra_id
         self.target_id = target_id
-        self.pfi_target_x_mm = pfi_target_x_mm
-        self.pfi_target_y_mm = pfi_target_y_mm
+        self.pfi_nominal_x_mm = pfi_nominal_x_mm
+        self.pfi_nominal_y_mm = pfi_nominal_y_mm
         self.ets_priority = ets_priority
         self.ets_cost_function = ets_cost_function
         self.ets_cobra_motor_movement = ets_cobra_motor_movement
@@ -789,81 +789,116 @@ class cobra_convergence_test(Base):
         self.signal_to_noise_ratio = signal_to_noise_ratio
 
 
-class cobra_movement(Base):
+class cobra_target(Base):
     ''' The actual movement of the cobra motor, in terms of individual MCS frames.
     '''
-    __tablename__ = 'cobra_movement'
-    __table_args__ = (UniqueConstraint('mcs_frame_id', 'cobra_id'),
-                      ForeignKeyConstraint(['mcs_frame_id', 'cobra_id'],
-                                           ['cobra_status.mcs_frame_id',
-                                            'cobra_status.cobra_id']),
+    __tablename__ = 'cobra_target'
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'iteration', 'cobra_id'),
                       {})
 
-    mcs_frame_id = Column(Integer, primary_key=True, index=True, autoincrement=False,
-                          comment='MCS frame identifier. Provided by Gen2')
-    cobra_id = Column(Integer, primary_key=True, autoincrement=False,
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
+                          primary_key=True, unique=False, autoincrement=False,
+                          comment='PFS visit identifier')
+    iteration = Column(Integer,
+                       primary_key=True, unique=False, autoincrement=False,
+                       comment='Iteration number for this frame')
+    cobra_id = Column(Integer,
+                      primary_key=True, unique=False, autoincrement=False,
                       comment='Fiber identifier')
-    cobra_motor_calib_id = Column(Integer, ForeignKey('cobra_motor_calib.cobra_motor_calib_id'))
+    pfs_config_id = Column(BigInteger)
+    pfi_nominal_x_mm = Column(REAL,
+                              comment='Nominal x-position on the PFI as determined from the '
+                              ' pfs_design_fiber table [mm]')
+    pfi_nominal_y_mm = Column(REAL,
+                              comment='Nominal y-position on the PFI as determined from the '
+                              ' pfs_design_fiber table [mm]')
+    pfi_target_x_mm = Column(REAL,
+                             comment='Target x-position on the PFI for each iteration')
+    pfi_target_y_mm = Column(REAL,
+                             comment='Target y-position on the PFI for each iteration')
+    cobra_motor_model_id_theta = Column(Integer)
+    motor_target_theta = Column(REAL,
+                                comment='the target angle of the theta motor'
+                                )
     motor_num_step_theta = Column(Integer,
                                   comment='the number of steps the theta motor has undertaken')
     motor_on_time_theta = Column(REAL,
                                  comment='the theta motor ontime value')
+    cobra_motor_model_id_phi = Column(Integer)
+    motor_target_phi = Column(REAL,
+                              comment='the target angle of the phi motor'
+                              )
     motor_num_step_phi = Column(Integer, comment='the number of steps the phi motor has undertaken')
     motor_on_time_phi = Column(REAL, comment='the phi motor ontime value')
+    flags = Column(Integer, comment='flags for movement etc.')
 
     def __init__(self, mcs_frame_id, cobra_id,
+                 iteration, pfs_config_id,
+                 pfi_nominal_x_mm, pfi_nominal_y_mm,
+                 pfi_target_x_mm, pfi_target_y_mm,
                  cobra_motor_calib_id,
-                 motor_num_step_theta, motor_on_time_theta,
-                 motor_num_step_phi, motor_on_time_phi
+                 motor_target_theta, motor_num_step_theta, motor_on_time_theta,
+                 motor_target_phi, motor_num_step_phi, motor_on_time_phi,
+                 flags
                  ):
         self.mcs_frame_id = mcs_frame_id
         self.cobra_id = cobra_id
+        self.iteration = iteration
+        self.pfs_config_id = pfs_config_id
+        self.pfi_nominal_x_mm = pfi_nominal_x_mm
+        self.pfi_nominal_y_mm = pfi_nominal_y_mm
+        self.pfi_target_x_mm = pfi_target_x_mm
+        self.pfi_target_y_mm = pfi_target_y_mm
         self.cobra_motor_map_model_id = cobra_motor_calib_id
+        self.motor_target_theta = motor_target_theta
         self.motor_num_step_theta = motor_num_step_theta
         self.motor_on_time_theta = motor_on_time_theta
+        self.motor_target_phi = motor_target_phi
         self.motor_num_step_phi = motor_num_step_phi
         self.motor_on_time_phi = motor_on_time_phi
+        self.flags = flags
 
 
-class cobra_status(Base):
+class cobra_match(Base):
     '''Defines the status of each cobra at each step during convergence.
     '''
-    __tablename__ = 'cobra_status'
-    __table_args__ = (UniqueConstraint('mcs_frame_id', 'cobra_id'),
+    __tablename__ = 'cobra_match'
+    __table_args__ = (UniqueConstraint('mcs_frame_id', 'spot_id'),
                       ForeignKeyConstraint(['mcs_frame_id', 'spot_id'],
                                            ['mcs_data.mcs_frame_id', 'mcs_data.spot_id']),
+                      ForeignKeyConstraint(['pfs_visit_id', 'iteration', 'cobra_id'],
+                                           ['cobra_target.pfs_visit_id', 'cobra_target.iteration', 'cobra_target.cobra_id']),
                       {})
 
-    mcs_frame_id = Column(Integer, primary_key=True, index=True, autoincrement=False)
-    cobra_id = Column(Integer, primary_key=True, autoincrement=False,
+    mcs_frame_id = Column(Integer,
+                          primary_key=True, index=True, autoincrement=False)
+    spot_id = Column(Integer,
+                     primary_key=True, autoincrement=False,
+                     comment='Corresponding MCS image spot identifier ')
+    pfs_visit_id = Column(Integer,
+                          primary_key=False, autoincrement=False,
+                          comment='PFS visit identifier')
+    iteration = Column(Integer,
+                       primary_key=False, autoincrement=False,
+                       comment='Iteration number for this frame')
+    cobra_id = Column(Integer,
+                      primary_key=False, autoincrement=False,
                       comment='Fiber identifier')
-    spot_id = Column(Integer, comment='Corresponding MCS image spot identifier ')
-    pfs_config_id = Column(BigInteger)
-    iteration = Column(Integer, comment='Iteration number for this frame')
-    pfi_target_x_mm = Column(REAL,
-                             comment='Target x-position on the PFI as determined from the '
-                             ' pfs_design_fiber table [mm]')
-    pfi_target_y_mm = Column(REAL,
-                             comment='Target y-position on the PFI as determined from the '
-                             ' pfs_design_fiber table [mm]')
     pfi_center_x_mm = Column(REAL,
                              comment='Actual x-position on the PFI [mm]')
     pfi_center_y_mm = Column(REAL,
                              comment='Actual y-position on the PFI [mm]')
+    flags = Column(Integer, comment='flags for movement etc.')
 
-    def __init__(self, mcs_frame_id, cobra_id,
-                 pfs_config_id, spot_id, iteration,
-                 pfi_nominal_x_mm, pfi_nominal_y_mm, pfi_center_x_mm, pfi_center_y_mm
+    def __init__(self, mcs_frame_id, cobra_id, spot_id,
+                 pfi_center_x_mm, pfi_center_y_mm, flags
                  ):
         self.mcs_frame_id = mcs_frame_id
         self.cobra_id = cobra_id
         self.spot_id = spot_id
-        self.pfs_config_id = pfs_config_id
-        self.iteration = iteration
-        self.pfi_target_x_mm = pfi_nominal_x_mm
-        self.pfi_target_y_mm = pfi_nominal_y_mm
         self.pfi_center_x_mm = pfi_center_x_mm
         self.pfi_center_y_mm = pfi_center_y_mm
+        self.flags = flags
 
 
 class sps_visit(Base):
