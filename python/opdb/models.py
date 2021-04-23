@@ -595,6 +595,36 @@ class mcs_data(Base):
         self.peakvalue = peakvalue
 
 
+class mcs_pfi_transformation(Base):
+    ''' The MCS-PFI coordinate transformation including coefficients
+    '''
+    __tablename__ = 'mcs_pfi_transformation'
+
+    mcs_frame_id = Column(Integer, ForeignKey('mcs_exposure.mcs_frame_id'),
+                          primary_key=True, unique=True, autoincrement=False,
+                          comment='MCS frame identifier as generated from Gen2')
+    x_trans = Column(REAL,
+                     comment='Affine transformation x shift')
+    y_trans = Column(REAL,
+                     comment='Affine transformation y shift')
+    x_scale = Column(REAL,
+                     comment='Affine transformation x scale')
+    y_scale = Column(REAL,
+                     comment='Affine transformation y scale')
+    angle = Column(REAL,
+                   comment='Affine transformation rotation angle')
+
+    def __init__(self, mcs_frame_id,
+                 x_trans, y_trans, x_scale, y_scale, angle
+                 ):
+        self.mcs_frame_id = mcs_frame_id
+        self.x_trans = x_trans
+        self.y_trans = y_trans
+        self.x_scale = x_scale
+        self.y_scale = y_scale
+        self.angle = angle
+
+
 class pfs_config(Base):
     __tablename__ = 'pfs_config'
 
@@ -832,8 +862,8 @@ class cobra_target(Base):
     motor_on_time_phi = Column(REAL, comment='the phi motor ontime value')
     flags = Column(Integer, comment='flags for movement etc.')
 
-    def __init__(self, mcs_frame_id, cobra_id,
-                 iteration, pfs_config_id,
+    def __init__(self, pfs_visit_id, iteration, cobra_id,
+                 pfs_config_id,
                  pfi_nominal_x_mm, pfi_nominal_y_mm,
                  pfi_target_x_mm, pfi_target_y_mm,
                  cobra_motor_calib_id,
@@ -841,9 +871,9 @@ class cobra_target(Base):
                  motor_target_phi, motor_num_step_phi, motor_on_time_phi,
                  flags
                  ):
-        self.mcs_frame_id = mcs_frame_id
-        self.cobra_id = cobra_id
+        self.pfs_visit_id = pfs_visit_id
         self.iteration = iteration
+        self.cobra_id = cobra_id
         self.pfs_config_id = pfs_config_id
         self.pfi_nominal_x_mm = pfi_nominal_x_mm
         self.pfi_nominal_y_mm = pfi_nominal_y_mm
@@ -870,8 +900,8 @@ class cobra_match(Base):
                                            ['cobra_target.pfs_visit_id', 'cobra_target.iteration', 'cobra_target.cobra_id']),
                       {})
 
-    mcs_frame_id = Column(Integer,
-                          primary_key=True, index=True, autoincrement=False)
+    mcs_frame_id = Column(Integer, primary_key=True, unique=True, autoincrement=False,
+                          comment='MCS frame identifier as generated from Gen2')
     spot_id = Column(Integer,
                      primary_key=True, autoincrement=False,
                      comment='Corresponding MCS image spot identifier ')
@@ -890,12 +920,15 @@ class cobra_match(Base):
                              comment='Actual y-position on the PFI [mm]')
     flags = Column(Integer, comment='flags for movement etc.')
 
-    def __init__(self, mcs_frame_id, cobra_id, spot_id,
+    def __init__(self, mcs_frame_id, spot_id,
+                 pfs_visit_id, iteration, cobra_id,
                  pfi_center_x_mm, pfi_center_y_mm, flags
                  ):
         self.mcs_frame_id = mcs_frame_id
-        self.cobra_id = cobra_id
         self.spot_id = spot_id
+        self.pfs_visit_id = pfs_visit_id
+        self.iteration = iteration
+        self.cobra_id = cobra_id
         self.pfi_center_x_mm = pfi_center_x_mm
         self.pfi_center_y_mm = pfi_center_y_mm
         self.flags = flags
