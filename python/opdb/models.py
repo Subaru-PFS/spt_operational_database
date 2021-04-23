@@ -603,20 +603,26 @@ class mcs_pfi_transformation(Base):
     mcs_frame_id = Column(Integer, ForeignKey('mcs_exposure.mcs_frame_id'),
                           primary_key=True, unique=True, autoincrement=False,
                           comment='MCS frame identifier as generated from Gen2')
-    c0 = Column(REAL,
-                comment='coefficient 0')
-    c1 = Column(REAL,
-                comment='coefficient 1')
-    c2 = Column(REAL,
-                comment='coefficient 2')
+    x_trans = Column(REAL,
+                     comment='Affine transformation x shift')
+    y_trans = Column(REAL,
+                     comment='Affine transformation y shift')
+    x_scale = Column(REAL,
+                     comment='Affine transformation x scale')
+    y_scale = Column(REAL,
+                     comment='Affine transformation y scale')
+    angle = Column(REAL,
+                   comment='Affine transformation rotation angle')
 
     def __init__(self, mcs_frame_id,
-                 c0, c1, c2
+                 x_trans, y_trans, x_scale, y_scale, angle
                  ):
         self.mcs_frame_id = mcs_frame_id
-        self.c0 = c0
-        self.c1 = c1
-        self.c2 = c2
+        self.x_trans = x_trans
+        self.y_trans = y_trans
+        self.x_scale = x_scale
+        self.y_scale = y_scale
+        self.angle = angle
 
 
 class pfs_config(Base):
