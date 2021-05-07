@@ -134,8 +134,8 @@ def insert_pfs_design(url, pfsDesign, tile_id):
     cobra_id = pfsDesign.fiberId
     df = pd.DataFrame({'pfs_design_id': [pfsDesign.pfsDesignId for _ in cobra_id],
                        'cobra_id': cobra_id,
-                       'pfi_target_x_mm': pfsDesign.pfiNominal.transpose()[0],
-                       'pfi_target_y_mm': pfsDesign.pfiNominal.transpose()[1]
+                       'pfi_nominal_x_mm': pfsDesign.pfiNominal.transpose()[0],
+                       'pfi_nominal_y_mm': pfsDesign.pfiNominal.transpose()[1]
                        })
     try:
         db.connect()
