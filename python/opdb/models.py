@@ -893,43 +893,43 @@ class cobra_match(Base):
     '''Defines the status of each cobra at each step during convergence.
     '''
     __tablename__ = 'cobra_match'
-    __table_args__ = (UniqueConstraint('mcs_frame_id', 'spot_id'),
-                      ForeignKeyConstraint(['mcs_frame_id', 'spot_id'],
-                                           ['mcs_data.mcs_frame_id', 'mcs_data.spot_id']),
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'iteration', 'cobra_id'),
                       ForeignKeyConstraint(['pfs_visit_id', 'iteration', 'cobra_id'],
                                            ['cobra_target.pfs_visit_id', 'cobra_target.iteration', 'cobra_target.cobra_id']),
+                      ForeignKeyConstraint(['mcs_frame_id', 'spot_id'],
+                                           ['mcs_data.mcs_frame_id', 'mcs_data.spot_id']),
                       {})
 
-    mcs_frame_id = Column(Integer,
-                          primary_key=True, unique=False, autoincrement=False,
-                          comment='MCS frame identifier as generated from Gen2')
-    spot_id = Column(Integer,
-                     primary_key=True, unique=False, autoincrement=False,
-                     comment='Corresponding MCS image spot identifier ')
     pfs_visit_id = Column(Integer,
-                          primary_key=False, autoincrement=False,
+                          primary_key=True, unique=False, autoincrement=False,
                           comment='PFS visit identifier')
     iteration = Column(Integer,
-                       primary_key=False, autoincrement=False,
+                       primary_key=True, unique=False, autoincrement=False,
                        comment='Iteration number for this frame')
     cobra_id = Column(Integer,
-                      primary_key=False, autoincrement=False,
+                      primary_key=True, unique=False, autoincrement=False,
                       comment='Fiber identifier')
+    mcs_frame_id = Column(Integer,
+                          primary_key=False, unique=False, autoincrement=False,
+                          comment='MCS frame identifier as generated from Gen2')
+    spot_id = Column(Integer,
+                     primary_key=False, unique=False, autoincrement=False,
+                     comment='Corresponding MCS image spot identifier ')
     pfi_center_x_mm = Column(REAL,
                              comment='Actual x-position on the PFI [mm]')
     pfi_center_y_mm = Column(REAL,
                              comment='Actual y-position on the PFI [mm]')
     flags = Column(Integer, comment='flags for movement etc.')
 
-    def __init__(self, mcs_frame_id, spot_id,
-                 pfs_visit_id, iteration, cobra_id,
+    def __init__(self, pfs_visit_id, iteration, cobra_id,
+                 mcs_frame_id, spot_id,
                  pfi_center_x_mm, pfi_center_y_mm, flags
                  ):
-        self.mcs_frame_id = mcs_frame_id
-        self.spot_id = spot_id
         self.pfs_visit_id = pfs_visit_id
         self.iteration = iteration
         self.cobra_id = cobra_id
+        self.mcs_frame_id = mcs_frame_id
+        self.spot_id = spot_id
         self.pfi_center_x_mm = pfi_center_x_mm
         self.pfi_center_y_mm = pfi_center_y_mm
         self.flags = flags
