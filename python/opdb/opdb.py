@@ -158,6 +158,15 @@ class OpDB(object):
         '''
         self.insert_mappings(tablename, dataframe.to_dict(orient="records"))
 
+    def insert_copy_from(self, tablename, data, colnames):
+        '''
+        '''
+        conn = self.engine.raw_connection()
+        cur = conn.cursor()
+        cur.copy_from(data, tablename, ',', columns=colnames)
+        conn.commit()
+        cur.close()
+        conn.close()
 
     def update(self, tablename, dataframe):
         '''

@@ -68,6 +68,36 @@ def insert(url, tablename, dataframe):
     return 0
 
 
+def insert_copy_from(url, tablename, data, colnames):
+    '''
+        Description
+        -----------
+            Insert information into a table
+
+        Parameters
+        ----------
+            url      : `string` (e.g., 'postgresql://username:password@hostname:port/dbname')
+            data     : `io.StringIO` (comma-separated)
+            colnames : `list` of `string`
+
+        Returns
+        -------
+            None
+
+        Note
+        ----
+            Column labels of `dataframe` should be exactly the same as those of the table
+    '''
+    db = opdb.OpDB()
+    db.dbinfo = url
+    try:
+        db.connect()
+        db.insert_copy_from(tablename, data, colnames)
+    finally:
+        db.close()
+    return 0
+
+
 def update(url, tablename, dataframe):
     '''
         Description
