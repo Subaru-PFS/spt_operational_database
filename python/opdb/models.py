@@ -1039,19 +1039,33 @@ class sps_sequence(Base):
                       comment='Comments for the sequence')
     cmd_str = Column(String,
                      comment='ICS command string that generates exposures for this set of visits')
-    status = Column(String,
-                    comment='Status of the sequence')
 
     visit_set = relation('visit_set', uselist=False, back_populates='sps_sequence')
     obslog_notes = relation('obslog_visit_set_note')
 
-    def __init__(self, visit_set_id, sequence_type, name, comments, cmd_str, status):
+    def __init__(self, visit_set_id, sequence_type, name, comments, cmd_str):
         self.visit_set_id = visit_set_id
         self.sequence_type = sequence_type
         self.name = name
         self.comments = comments
         self.cmd_str = cmd_str
+
+
+class sps_sequence_status(Base):
+    __tablename__ = 'sps_sequence_status'
+
+    visit_set_id = Column(Integer, ForeignKey('sps_sequence.visit_set_id'),
+                          primary_key=True, unique=True, autoincrement=False,
+                          comment='SpS visit set identifier')
+    status = Column(String,
+                    comment='Status of the sequence')
+    comments = Column(String,
+                      comment='Comments for the sequence')
+
+    def __init__(self, visit_set_id, status, comments):
+        self.visit_set_id = visit_set_id
         self.status = status
+        self.comments = comments
 
 
 class visit_set(Base):
