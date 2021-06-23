@@ -158,8 +158,25 @@ class OpDB(object):
         '''
         self.insert_mappings(tablename, dataframe.to_dict(orient="records"))
 
-    def insert_copy_from(self, tablename, data, colnames):
+    def insert_by_copy(self, tablename, data, colnames):
         '''
+            Description
+            -----------
+                Insert information into a table using COPY FROM method
+
+            Parameters
+            ----------
+                tablename : `string`
+                data : `a text stream`
+                colnames: `list` of `string`
+
+
+            Returns
+            -------
+                None
+
+            Note
+            ----
         '''
         conn = self.engine.raw_connection()
         cur = conn.cursor()
@@ -281,6 +298,33 @@ class OpDB(object):
             raise
 
         return df
+
+    def fetch_by_copy(self, tablename, colnames):
+        '''
+            Description
+            -----------
+                Get selected records from a table by using COPY TO method
+
+            Parameters
+            ----------
+                tablename : `string`
+                colnames: `list` of `string`
+
+            Returns
+            -------
+                data : `a text stream`
+
+            Note
+            ----
+        '''
+        data = io.StringIO()
+        conn = self.engine.raw_connection()
+        cur = conn.cursor()
+        cur.copy_to(data, tablename, sep=',', null='\\N', columns=colnames)
+        cur.close()
+        conn.close()
+        data.seek(0)
+        return data
 
     def fetch_sps_exposures(self, pfs_visit_id):
         '''
