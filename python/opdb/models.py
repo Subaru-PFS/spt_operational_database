@@ -1673,14 +1673,16 @@ class agc_data(Base):
     '''
 
     __tablename__ = 'agc_data'
-    __table_args__ = (UniqueConstraint('agc_exposure_id', 'spot_id'),
+    __table_args__ = (UniqueConstraint('agc_exposure_id', 'agc_camera_id', 'spot_id'),
                       {})
 
     agc_exposure_id = Column(Integer, ForeignKey('agc_exposure.agc_exposure_id'),
                              primary_key=True, autoincrement=False,
                              comment='AGC exposure number identifier')
-    spot_id = Column(Integer, primary_key=True, autoincrement=False, comment='The AGC spot identifier')
-    agc_camera_id = Column(Integer, comment='AGC camera identifier')
+    agc_camera_id = Column(Integer, primary_key=True, autoincrement=False,
+                           comment='AGC camera identifier')
+    spot_id = Column(Integer, primary_key=True, autoincrement=False,
+                     comment='The AGC spot identifier')
     image_moment_00_pix = Column(REAL, comment='')
     centroid_x_pix = Column(REAL, comment='The x-center of the spot image in AGC [pix]')
     centroid_y_pix = Column(REAL, comment='The y-center of the spot image in AGC [pix]]')
