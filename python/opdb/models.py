@@ -1635,12 +1635,10 @@ class agc_exposure(Base):
     '''
 
     __tablename__ = 'agc_exposure'
-    __table_args__ = (UniqueConstraint('pfs_visit_id', 'agc_exposure_id'), {})
 
-    pfs_visit_id = Column(Integer, primary_key=True, unique=False, autoincrement=False,
-                          comment='PFS visit identifier')
-    agc_exposure_id = Column(Integer, primary_key=True, unique=False, autoincrement=False,
+    agc_exposure_id = Column(Integer, primary_key=True, unique=True, autoincrement=False,
                              comment='AGC exposure number identifier')
+    pfs_visit_id = Column(Integer, comment='PFS visit identifier')
     agc_exptime = Column(REAL, comment='The exposure time for the frame [sec]')
     altitude = Column(REAL, comment='The telescope altitude [deg]')
     azimuth = Column(REAL, comment='The telescope azimuth [deg]')
@@ -1652,11 +1650,11 @@ class agc_exposure(Base):
     outside_humidity = Column(REAL, comment='Outside humidity [%]')
     taken_at = Column(DateTime, comment='The time at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
 
-    def __init__(self, pfs_visit_id, agc_exposure_id, agc_exptime, altitude, azimuth, insrot, adc_pa,
+    def __init__(self, agc_exposure_id, pfs_visit_id, agc_exptime, altitude, azimuth, insrot, adc_pa,
                  m2_pos3, outside_temperature, outside_pressure, outside_humidity,
                  taken_at):
-        self.pfs_visit_id = pfs_visit_id
         self.agc_exposure_id = agc_exposure_id
+        self.pfs_visit_id = pfs_visit_id
         self.agc_exptime = agc_exptime
         self.altitude = altitude
         self.azimuth = azimuth
@@ -1675,20 +1673,16 @@ class agc_data(Base):
     '''
 
     __tablename__ = 'agc_data'
-    __table_args__ = (UniqueConstraint('pfs_visit_id', 'agc_exposure_id', 'agc_camera_id', 'spot_id'),
-                      ForeignKeyConstraint(['pfs_visit_id', 'agc_exposure_id'],
-                                           ['agc_exposure.pfs_visit_id', 'agc_exposure.agc_exposure_id']),
+    __table_args__ = (UniqueConstraint('agc_exposure_id', 'agc_camera_id', 'spot_id'),
                       {})
 
-    pfs_visit_id = Column(Integer,
-                          primary_key=True, autoincrement=False,
-                          comment='PFS visit identifier')
-    agc_exposure_id = Column(Integer,
+    agc_exposure_id = Column(Integer, ForeignKey('agc_exposure.agc_exposure_id'),
                              primary_key=True, autoincrement=False,
                              comment='AGC exposure number identifier')
     agc_camera_id = Column(Integer, primary_key=True, autoincrement=False,
                            comment='AGC camera identifier')
-    spot_id = Column(Integer, primary_key=True, autoincrement=False, comment='The AGC spot identifier')
+    spot_id = Column(Integer, primary_key=True, autoincrement=False,
+                     comment='The AGC spot identifier')
     image_moment_00_pix = Column(REAL, comment='')
     centroid_x_pix = Column(REAL, comment='The x-center of the spot image in AGC [pix]')
     centroid_y_pix = Column(REAL, comment='The y-center of the spot image in AGC [pix]]')
@@ -1704,15 +1698,14 @@ class agc_data(Base):
     background = Column(REAL, comment='The background value')
     flags = Column(Integer, comment='Flags')
 
-    def __init__(self, pfs_visit_id, agc_exposure_id, agc_camera_id, spot_id,
+    def __init__(self, agc_exposure_id, spot_id, agc_camera_id,
                  image_moment_00_pix, centroid_x_pix, centroid_y_pix,
                  central_image_moment_11_pix, central_image_moment_20_pix, central_image_moment_02_pix,
                  peak_pixel_x_pix, peak_pixel_y_pix, peak_intensity,
                  background, flags):
-        self.pfs_visit_id = pfs_visit_id
         self.agc_exposure_id = agc_exposure_id
-        self.agc_camera_id = agc_camera_id
         self.spot_id = spot_id
+        self.agc_camera_id = agc_camera_id
         self.image_moment_00_pix = image_moment_00_pix
         self.centroid_x_pix = centroid_x_pix
         self.centroid_y_pix = centroid_y_pix
