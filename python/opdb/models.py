@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Column, BigInteger, Integer, String, FLOAT, ForeignKey, DateTime, Boolean, REAL
+from sqlalchemy import Column, BigInteger, Integer, String, FLOAT, ForeignKey, DateTime, Boolean, REAL, ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relation, backref
 from sqlalchemy import UniqueConstraint, ForeignKeyConstraint
@@ -669,6 +669,33 @@ class mcs_pfi_transformation(Base):
         self.x_scale = x_scale
         self.y_scale = y_scale
         self.angle = angle
+
+
+class camera_model_f3c_mcs(Base):
+    ''' Distortion parameters for sanity check
+    '''
+    __tablename__ = 'camera_model_f3c_mcs'
+
+    mcs_frame_id = Column(Integer, ForeignKey('mcs_exposure.mcs_frame_id'),
+                          primary_key=True, unique=True, autoincrement=False,
+                          comment='MCS frame identifier as generated from Gen2')
+    matrix = Column(ARRAY(REAL),
+                    comment='camMatrix')
+    distor = Column(ARRAY(REAL),
+                    comment='camDistor')
+    rot_vector = Column(ARRAY(REAL),
+                        comment='camRotVec')
+    tran_vector = Column(ARRAY(REAL),
+                         comment='camTranVec')
+
+    def __init__(self, mcs_frame_id,
+                 matrix, distor, rot_vector, tran_vector
+                 ):
+        self.mcs_frame_id = mcs_frame_id
+        self.matrix = matrix
+        self.distor = distor
+        self.rot_vector = rot_vector
+        self.tran_vector = tran_vector
 
 
 class pfs_config(Base):
