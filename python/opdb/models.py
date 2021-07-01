@@ -244,19 +244,43 @@ class fiducial_fiber(Base):
         self.version = version
 
 
+class fiducial_fiber_calib(Base):
+    '''Defines the fiducial fiber calibration profile
+    '''
+    __tablename__ = 'fiducial_fiber_calib'
+
+    fiducial_fiber_calib_id = Column(Integer, primary_key=True, autoincrement=True)
+    calibrated_at = Column(DateTime,
+                           comment='Date of the calibration [YYYY-MM-DDhh:mm:ss]')
+    comments = Column(String, comment='Comments')
+
+    def __init__(self, calibrated_at, comments):
+        self.calibrated_at = calibrated_at
+        self.comments = comments
+
+
 class fiducial_fiber_geometry(Base):
     __tablename__ = 'fiducial_fiber_geometry'
+    __table_args__ = (UniqueConstraint('fiducial_fiber_id', 'fiducial_fiber_calib_id'),
+                      {})
 
     fiducial_fiber_id = Column(Integer, ForeignKey('fiducial_fiber.fiducial_fiber_id'), primary_key=True, autoincrement=False)
+    fiducial_fiber_calib_id = Column(Integer, ForeignKey('fiducial_fiber_calib.fiducial_fiber_calib_id'), primary_key=True, autoincrement=False)
     ff_center_on_pfi_x_mm = Column(REAL)
     ff_center_on_pfi_y_mm = Column(REAL)
+    elevation = Column(REAL, comment='Elevation')
+    ambient_temp = Column(REAL, comment='Ambient temperature')
 
-    def __init__(self, fiducial_fiber_id,
-                 ff_center_on_pfi_x_mm, ff_center_on_pfi_y_mm
+    def __init__(self, fiducial_fiber_id, fiducial_fiber_calib_id,
+                 ff_center_on_pfi_x_mm, ff_center_on_pfi_y_mm,
+                 elevation, ambient_temp
                  ):
         self.fiducial_fiber_id = fiducial_fiber_id
+        self.fiducial_fiber_calib_id = fiducial_fiber_calib_id
         self.ff_center_on_pfi_x_mm = ff_center_on_pfi_x_mm
         self.ff_center_on_pfi_y_mm = ff_center_on_pfi_y_mm
+        self.elevation = elevation
+        self.ambient_temp = ambient_temp
 
 
 class target(Base):
