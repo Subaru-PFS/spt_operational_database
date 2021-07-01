@@ -158,33 +158,55 @@ class cobra(Base):
     '''
     __tablename__ = 'cobra'
 
-    cobra_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
-    field_on_pfi = Column(Integer)     # 1-3
-    cobra_in_field = Column(Integer)   # 1-798
-    module_in_field = Column(Integer)  # 1-14
-    cobra_in_module = Column(Integer)  # 1-57
-    module_name = Column(String(3))    # e.g.,13B
-    sps_camera_id = Column(Integer, ForeignKey('sps_camera.sps_camera_id'))
-    slit_hole_sps = Column(Integer)
-    cobra_id_sps = Column(Integer)
-    cobra_id_lna = Column(String(12))
+    cobra_id = Column(Integer, primary_key=True, unique=True, autoincrement=False,
+                      comment='Cobra identifier (1..2394). There is one of these for each science fiber.')
+    field_on_pfi = Column(Integer, comment='Field (1..3).')
+    cobra_in_field = Column(Integer, comment='Cobra-in-field (1..798). cf = 57*(mf-1)+cm.')
+    cobra_module_id = Column(Integer, comment='Cobra module id (1..42)')
+    module_in_field = Column(Integer, comment='Module-in-field (1..14). The number of the module within the field, with 1 at the center of the PFI.')
+    cobra_in_module = Column(Integer, comment='Cobra-in-module (1..57). 1 is the bottom-left cobra in a module when looked at with the wide (29-cobra) board down. Increasing as you move across the module.')
+    cobra_in_board = Column(Integer, comment='Cobra-in-board (1..29). Each board has either 29 or 28 cobras.')
+    cobra_board_id = Column(Integer, comment='Cobra board id (1..84). One Cobra module has two boards.')
+    mtp = Column(String(3), comment='Cobra module id associated with MTP ferrule. There are 84 of these, numbered 1 through 42 with A and B suffixes. (e.g.,13B)')
+    sps_module_id = Column(Integer, comment='Spectrograph that the cobra feeds (1..4)')
+    sps_slit_hole = Column(Integer, comment='Fiber hole (1..651). This is the position in the spectrograph slit head.')
+    science_fiber_id = Column(Integer, comment=' Science fiber (1..2394). This is a unique identifier for each science fiber.')
+    fiber_id = Column(Integer, comment='The fiber identifier (1..2604). This is a unique identifier for each fiber (both science and engineering). fiberId = 651*(sp-1)+fh.')
+    sunns_id = Column(String(4), comment='SuNSS fiber id. ID consists of fiber number and mode (i is imaging, and d is diffuse).')
+    mtp_a_id = Column(String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = A)')
+    mtp_c_id = Column(String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = C)')
+    mtp_ba_id = Column(String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = BA)')
+    mtp_bc_id = Column(String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = BC)')
     version = Column(String)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
 
-    def __init__(self, cobra_id, field_on_pfi, cobra_in_field,
-                 module_in_field, cobra_in_module, module_name,
-                 sps_camera_id, slit_hole_sps, cobra_id_sps,
-                 cobra_id_lna, version):
+    def __init__(self, cobra_id, field_on_pfi, cobra_in_field, cobra_module_id,
+                 module_in_field, cobra_in_module, cobra_in_board, cobra_board_id,
+                 mtp, sps_module_id, sps_slit_hole, science_fiber_id, fiber_id,
+                 sunss_id, mtp_a_id, mtp_c_id, mtp_ba_id, mtp_bc_id,
+                 version, created_at, updated_at):
         self.cobra_id = cobra_id
         self.field_on_pfi = field_on_pfi
         self.cobra_in_field = cobra_in_field
+        self.cobra_module_id = cobra_module_id
         self.module_in_field = module_in_field
         self.cobra_in_module = cobra_in_module
-        self.module_name = module_name
-        self.sps_camera_id = sps_camera_id
-        self.slit_hole_sps = slit_hole_sps
-        self.cobra_id_sps = cobra_id_sps
-        self.cobra_id_lna = cobra_id_lna
+        self.cobra_in_board = cobra_in_board
+        self.cobra_board_id = cobra_board_id
+        self.mtp = mtp
+        self.sps_module_id = sps_module_id
+        self.sps_slit_hole = sps_slit_hole
+        self.science_fiber_id = science_fiber_id
+        self.fiber_id = fiber_id
+        self.sunss_id = sunss_id
+        self.mtp_a_id = mtp_a_id
+        self.mtp_c_id = mtp_b_id
+        self.mtp_ba_id = mtp_ba_id
+        self.mtp_bc_id = mtp_bc_id
         self.version = version
+        self.created_at = created_at
+        self.updated_at = updated_at
 
 
 class cobra_geometry(Base):
