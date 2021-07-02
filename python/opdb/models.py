@@ -172,7 +172,7 @@ class cobra(Base):
     sps_slit_hole = Column(Integer, comment='Fiber hole (1..651). This is the position in the spectrograph slit head.')
     science_fiber_id = Column(Integer, comment=' Science fiber (1..2394). This is a unique identifier for each science fiber.')
     fiber_id = Column(Integer, comment='The fiber identifier (1..2604). This is a unique identifier for each fiber (both science and engineering). fiberId = 651*(sp-1)+fh.')
-    sunns_id = Column(String(4), comment='SuNSS fiber id. ID consists of fiber number and mode (i is imaging, and d is diffuse).')
+    sunss_id = Column(String(4), comment='SuNSS fiber id. ID consists of fiber number and mode (i is imaging, and d is diffuse).')
     mtp_a_id = Column(String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = A)')
     mtp_c_id = Column(String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = C)')
     mtp_ba_id = Column(String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = BA)')
