@@ -276,13 +276,13 @@ def fetch_by_copy(url, tablename, colnames):
 
         Parameters
         ----------
-            url      : `string` (e.g., 'postgresql://username:password@hostname:port/dbname')
+            url       : `string` (e.g., 'postgresql://username:password@hostname:port/dbname')
             tablename : `string`
-            colnames : `list` of `string`
+            colnames  : `list` of `string`
 
         Returns
         -------
-            None
+            res       : `io.StringIO` (comma-separated)
 
         Note
         ----

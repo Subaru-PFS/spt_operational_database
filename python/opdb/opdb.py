@@ -308,11 +308,11 @@ class OpDB(object):
             Parameters
             ----------
                 tablename : `string`
-                colnames: `list` of `string`
+                colnames  : `list` of `string`
 
             Returns
             -------
-                data : `a text stream`
+                data      : `io.StringIO` (comma-separated)
 
             Note
             ----
