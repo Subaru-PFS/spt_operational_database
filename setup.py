@@ -1,8 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
+# For ICS, try to get a setuptools which gives us the layout we want
 
+try:
+    import sdss3tools
+    from sdss3tools import setup
+except ImportError:
+    from setuptools import setup
 
 def main():
     setup(name='opdb',
