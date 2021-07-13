@@ -68,7 +68,7 @@ def insert(url, tablename, dataframe):
     return 0
 
 
-def insert_copy_from(url, tablename, data, colnames):
+def insert_by_copy(url, tablename, data, colnames):
     '''
         Description
         -----------
@@ -77,6 +77,7 @@ def insert_copy_from(url, tablename, data, colnames):
         Parameters
         ----------
             url      : `string` (e.g., 'postgresql://username:password@hostname:port/dbname')
+            tablename : `string`
             data     : `io.StringIO` (comma-separated)
             colnames : `list` of `string`
 
@@ -92,7 +93,7 @@ def insert_copy_from(url, tablename, data, colnames):
     db.dbinfo = url
     try:
         db.connect()
-        db.insert_copy_from(tablename, data, colnames)
+        db.insert_by_copy(tablename, data, colnames)
     finally:
         db.close()
     return 0
@@ -265,6 +266,37 @@ def fetch_by_id(url, tablename, **kwargs):
     finally:
         db.close()
     return df
+
+
+def fetch_by_copy(url, tablename, colnames):
+    '''
+        Description
+        -----------
+            Insert information into a table
+
+        Parameters
+        ----------
+            url       : `string` (e.g., 'postgresql://username:password@hostname:port/dbname')
+            tablename : `string`
+            colnames  : `list` of `string`
+
+        Returns
+        -------
+            res       : `io.StringIO` (comma-separated)
+
+        Note
+        ----
+            Column labels of `dataframe` should be exactly the same as those of the table
+    '''
+    db = opdb.OpDB()
+    db.dbinfo = url
+    res = None
+    try:
+        db.connect()
+        res = db.fetch_by_copy(tablename, colnames)
+    finally:
+        db.close()
+    return res
 
 
 def fetch_sps_exposures(url, pfs_visit_id):
