@@ -1100,10 +1100,10 @@ class visit_set(Base):
     __tablename__ = 'visit_set'
 
     pfs_visit_id = Column(Integer, ForeignKey('sps_visit.pfs_visit_id'), primary_key=True, unique=True, autoincrement=False)
-    visit_set_id = Column(Integer, ForeignKey('sps_sequence.visit_set_id'))
+    visit_set_id = Column(Integer, ForeignKey('iic_sequence.visit_set_id'))
 
     sps_visit = relation('sps_visit', uselist=False, back_populates='visit_set')
-    sps_sequence = relation('sps_sequence', uselist=False, back_populates='visit_set')
+    iic_sequence = relation('iic_sequence', uselist=False, back_populates='visit_set')
 
     def __init__(self, pfs_visit_id, visit_set_id):
         self.pfs_visit_id = pfs_visit_id
