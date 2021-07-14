@@ -1057,7 +1057,7 @@ class sps_sequence(Base):
 class iic_sequence(Base):
     __tablename__ = 'iic_sequence'
 
-    visit_set_id = Column(Integer, primary_key=True, unique=True, autoincrement=False,
+    visit_set_id = Column(Integer, primary_key=True, autoincrement=False,
                           comment='Visit set identifier')
     sequence_type = Column(String,
                            comment='Sequence type')
@@ -1083,7 +1083,7 @@ class iic_sequence_status(Base):
     __tablename__ = 'iic_sequence_status'
 
     visit_set_id = Column(Integer, ForeignKey('iic_sequence.visit_set_id'),
-                          primary_key=True, unique=True, autoincrement=False,
+                          primary_key=True, autoincrement=False,
                           comment='Visit set identifier')
     status_flag = Column(Integer,
                          comment='Status flag of the sequence')
@@ -1099,10 +1099,10 @@ class iic_sequence_status(Base):
 class visit_set(Base):
     __tablename__ = 'visit_set'
 
-    pfs_visit_id = Column(Integer, ForeignKey('sps_visit.pfs_visit_id'), primary_key=True, unique=True, autoincrement=False)
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), primary_key=True, unique=True, autoincrement=False)
     visit_set_id = Column(Integer, ForeignKey('iic_sequence.visit_set_id'))
 
-    sps_visit = relation('sps_visit', uselist=False, back_populates='visit_set')
+    pfs_visit = relation('pfs_visit', uselist=False, back_populates='visit_set')
     iic_sequence = relation('iic_sequence', uselist=False, back_populates='visit_set')
 
     def __init__(self, pfs_visit_id, visit_set_id):
@@ -1239,7 +1239,7 @@ class processing_status(Base):
 
     status_id = Column(Integer, primary_key=True, autoincrement=False,
                        comment='Unique processing status identifier')
-    visit_set_id = Column(Integer, ForeignKey('sps_sequence.visit_set_id'))
+    visit_set_id = Column(Integer)
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
     are_data_ok = Column(Boolean, comment='The result of the quality assessment')
     comments = Column(String, comment='Detailed comments on the QA results')
@@ -1722,11 +1722,11 @@ class obslog_visit_set_note(Base):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('obslog_user.id'))
-    visit_set_id = Column(Integer, ForeignKey('sps_sequence.visit_set_id'))
+    visit_set_id = Column(Integer, ForeignKey('iic_sequence.visit_set_id'))
     body = Column(String, nullable=False)
 
     user = relation('obslog_user', back_populates='visit_set_notes')
-    sps_sequence = relation('sps_sequence', back_populates='obslog_notes')
+    iic_sequence = relation('iic_sequence', back_populates='obslog_notes')
 
 
 class obslog_visit_note(Base):
