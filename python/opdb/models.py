@@ -1099,7 +1099,7 @@ class iic_sequence_status(Base):
 class visit_set(Base):
     __tablename__ = 'visit_set'
 
-    pfs_visit_id = Column(Integer, ForeignKey('sps_visit.pfs_visit_id'), primary_key=True, unique=True, autoincrement=False)
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), primary_key=True, unique=True, autoincrement=False)
     visit_set_id = Column(Integer, ForeignKey('iic_sequence.visit_set_id'))
 
     sps_visit = relation('sps_visit', uselist=False, back_populates='visit_set')
