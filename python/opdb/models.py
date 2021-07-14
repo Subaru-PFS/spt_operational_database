@@ -1117,16 +1117,24 @@ class sps_camera(Base):
 
     sps_camera_id = Column(Integer, primary_key=True, autoincrement=False,
                            comment='SpS camera identifier [1-16]')
+    sps_camera_name = Column(String(2),
+                             comment='SpS camera name [e.g. "b3"]')
     sps_module_id = Column(Integer, ForeignKey('sps_module.sps_module_id'),
                            comment='SpS module identifier [1-4]')
+    sps_module_name = Column(String(3),
+                             comment='SpS module name [e.g. "sm3"]')
     arm = Column(String(1),
                  comment='Spectrograph arm identifier [b, r, n, m]')
     arm_num = Column(Integer,
                      comment='Spectrograph arm identifier as a number [1-4]')
 
-    def __init__(self, sps_camera_id, sps_module_id, arm, arm_num):
+    def __init__(self, sps_camera_id, sps_camera_name,
+                 sps_module_id, sps_module_name,
+                 arm, arm_num):
         self.sps_camera_id = sps_camera_id
+        self.sps_camera_name = sps_camera_name
         self.sps_module_id = sps_module_id
+        self.sps_module_name = sps_module_name
         self.arm = arm
         self.arm_num = arm_num
 
