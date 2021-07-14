@@ -1054,6 +1054,48 @@ class sps_sequence(Base):
         self.status = status
 
 
+class iic_sequence(Base):
+    __tablename__ = 'iic_sequence'
+
+    visit_set_id = Column(Integer, primary_key=True, unique=True, autoincrement=False,
+                          comment='Visit set identifier')
+    sequence_type = Column(String,
+                           comment='Sequence type')
+    name = Column(String,
+                  comment='The unique name assigned to this set of visits')
+    comments = Column(String,
+                      comment='Comments for the sequence')
+    cmd_str = Column(String,
+                     comment='ICS command string that generates exposures for this set of visits')
+
+    visit_set = relation('visit_set', uselist=False, back_populates='iic_sequence')
+    obslog_notes = relation('obslog_visit_set_note')
+
+    def __init__(self, visit_set_id, sequence_type, name, comments, cmd_str):
+        self.visit_set_id = visit_set_id
+        self.sequence_type = sequence_type
+        self.name = name
+        self.comments = comments
+        self.cmd_str = cmd_str
+
+
+class iic_sequence_status(Base):
+    __tablename__ = 'iic_sequence_status'
+
+    visit_set_id = Column(Integer, ForeignKey('iic_sequence.visit_set_id'),
+                          primary_key=True, unique=True, autoincrement=False,
+                          comment='Visit set identifier')
+    status_flag = Column(Integer,
+                         comment='Status flag of the sequence')
+    cmd_output = Column(String,
+                        comment='Status output')
+
+    def __init__(self, visit_set_id, status_flag, cmd_output):
+        self.visit_set_id = visit_set_id
+        self.status_flag = status_flag
+        self.cmd_output = cmd_output
+
+
 class visit_set(Base):
     __tablename__ = 'visit_set'
 
