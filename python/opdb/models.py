@@ -679,16 +679,6 @@ class mcs_exposure(Base):
                           comment='MCS frame identifier as generated from Gen2')
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
     mcs_exptime = Column(REAL, comment='The exposure time for the frame [sec]')
-    altitude = Column(REAL, comment='The telescope attitude [deg]')
-    azimuth = Column(REAL, comment='The telescope azimuth [deg]')
-    insrot = Column(REAL, comment='The telescope instrument rotation angle [deg]')
-    adc_pa = Column(REAL, comment='ADC PA at which the exposure started [deg]')
-    dome_temperature = Column(REAL, comment='Dome temperature [K]')
-    dome_pressure = Column(REAL, comment='Dome pressure [hPa]')
-    dome_humidity = Column(REAL, comment='Dome humidity [%]')
-    outside_temperature = Column(REAL, comment='Outside temperature [K]')
-    outside_pressure = Column(REAL, comment='Outside pressure [hPa]')
-    outside_humidity = Column(REAL, comment='Outside humidity [%]')
     mcs_cover_temperature = Column(REAL, comment='MCS cover panel temperature [degC]')
     mcs_m1_temperature = Column(REAL, comment='MCS primary mirror temperature [degC]')
     taken_at = Column(DateTime, comment='The time at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
@@ -697,22 +687,11 @@ class mcs_exposure(Base):
     pfs_visit = relation('pfs_visit', back_populates='mcs_exposure')
     obslog_notes = relation('obslog_mcs_exposure_note')
 
-    def __init__(self, mcs_frame_id, pfs_visit_id, mcs_exptime, altitude, azimuth, insrot, adc_pa,
-                 dome_temperature, dome_pressure, dome_humidity, outside_temperature, outside_pressure, outside_humidity,
+    def __init__(self, mcs_frame_id, pfs_visit_id, mcs_exptime,
                  mcs_cover_temperature, mcs_m1_temperature, taken_at, taken_in_hst_at):
         self.mcs_frame_id = mcs_frame_id
         self.pfs_visit_id = pfs_visit_id
         self.mcs_exptime = mcs_exptime
-        self.altitude = altitude
-        self.azimuth = azimuth
-        self.insrot = insrot
-        self.adc_pa = adc_pa
-        self.dome_temperature = dome_temperature
-        self.dome_pressure = dome_pressure
-        self.dome_humidity = dome_humidity
-        self.outside_temperature = outside_temperature
-        self.outside_pressure = outside_pressure
-        self.outside_humidity = outside_humidity
         self.mcs_cover_temperature = mcs_cover_temperature
         self.mcs_m1_temperature = mcs_m1_temperature
         self.taken_at = taken_at
