@@ -537,13 +537,13 @@ class tel_status(Base):
     '''Tracks the telescope status.
     '''
     __tablename__ = 'tel_status'
-    __table_args__ = (UniqueConstraint('pfs_visit_id', 'status_sequence_id'),
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'tel_status_sequence_id'),
                       {})
 
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
                           primary_key=True, unique=False, autoincrement=False)
-    status_sequence_id = Column(Integer, primary_key=True, unique=False, autoincrement=False,
-                                comment='Gen2 status sequence')
+    tel_status_sequence_id = Column(Integer, primary_key=True, unique=False, autoincrement=False,
+                                    comment='Gen2 status sequence')
     altitude = Column(REAL, comment='The telescope altitude [deg]')
     azimuth = Column(REAL, comment='The telescope azimuth [deg]')
     insrot = Column(REAL, comment='The telescope instrument rotation angle [deg]')
@@ -556,14 +556,14 @@ class tel_status(Base):
     created_at = Column(DateTime, index=True,
                         comment='Issued time [YYYY-MM-DDThh:mm:ss]')
 
-    def __init__(self, pfs_visit_id, status_sequence_id
+    def __init__(self, pfs_visit_id, tel_status_sequence_id,
                  altitude, azimuth, insrot, adc_pa, m2_pos3,
                  tel_ra, tel_dec,
                  dome_shutter_status, dome_light_status,
                  created_at
                  ):
         self.pfs_visit_id = pfs_visit_id
-        self.status_sequence_id = status_sequence_id
+        self.tel_status_sequence_id = tel_status_sequence_id
         self.altitude = altitude
         self.azimuth = azimuth
         self.insrot = insrot
@@ -580,13 +580,13 @@ class env_condition(Base):
     '''Tracks the telescope environment condition.
     '''
     __tablename__ = 'env_condition'
-    __table_args__ = (UniqueConstraint('pfs_visit_id', 'status_sequence_id'),
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'env_condition_sequence_id'),
                       {})
 
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
                           primary_key=True, unique=False, autoincrement=False)
-    status_sequence_id = Column(Integer, primary_key=True, unique=False, autoincrement=False,
-                                comment='Gen2 status sequence')
+    env_condition_sequence_id = Column(Integer, primary_key=True, unique=False, autoincrement=False,
+                                       comment='Environmental condition sequence')
     dome_temperature = Column(REAL, comment='Dome temperature [K]')
     dome_pressure = Column(REAL, comment='Dome pressure [hPa]')
     dome_humidity = Column(REAL, comment='Dome humidity [%]')
@@ -596,13 +596,13 @@ class env_condition(Base):
     created_at = Column(DateTime, index=True,
                         comment='Issued time [YYYY-MM-DDThh:mm:ss]')
 
-    def __init__(self, pfs_visit_id, status_sequence_id,
+    def __init__(self, pfs_visit_id, env_condition_sequence_id,
                  dome_temperature, dome_pressure, dome_humidity,
                  outside_temperature, outside_pressure, outside_humidity,
                  created_at
                  ):
         self.pfs_visit_id = pfs_visit_id
-        self.status_sequence_id = status_sequence_id
+        self.env_condition_sequence_id = env_condition_sequence_id
         self.dome_temperature = dome_temperature
         self.dome_pressure = dome_pressure
         self.dome_humidity = dome_humidity
@@ -616,13 +616,13 @@ class obs_condition(Base):
     '''Tracks the telescope environment condition.
     '''
     __tablename__ = 'obs_condition'
-    __table_args__ = (UniqueConstraint('pfs_visit_id', 'status_sequence_id'),
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'obs_condition_sequence_id'),
                       {})
 
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
                           primary_key=True, unique=False, autoincrement=False)
-    status_sequence_id = Column(Integer, primary_key=True, unique=False, autoincrement=False,
-                                comment='Gen2 status sequence')
+    obs_condition_sequence_id = Column(Integer, primary_key=True, unique=False, autoincrement=False,
+                                       comment='Gen2 status sequence')
     airmass = Column(REAL)
     moon_phase = Column(REAL)
     moon_alt = Column(REAL)
@@ -633,13 +633,13 @@ class obs_condition(Base):
     created_at = Column(DateTime, index=True,
                         comment='Issued time [YYYY-MM-DDThh:mm:ss]')
 
-    def __init__(self, pfs_visit_id, status_sequence_id,
+    def __init__(self, pfs_visit_id, obs_condition_sequence_id,
                  airmass, moon_phase, moon_altitude, moon_separation, seeing, transparency,
                  cloud_condition_id,
                  created_at
                  ):
         self.pfs_visit_id = pfs_visit_id
-        self.status_sequence_id = status_sequence_id
+        self.obs_condition_sequence_id = obs_condition_sequence_id
         self.airmass = airmass
         self.moon_phase = moon_phase
         self.moon_altitude = moon_altitude
@@ -678,6 +678,10 @@ class mcs_exposure(Base):
     mcs_frame_id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=False,
                           comment='MCS frame identifier as generated from Gen2')
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
+    tel_status_sequence_id = Column(Integer,
+                                    comment='Gen2 status sequence')
+    env_condition_sequence_id = Column(Integer,
+                                       comment='Environmental condition sequence')
     mcs_exptime = Column(REAL, comment='The exposure time for the frame [sec]')
     mcs_cover_temperature = Column(REAL, comment='MCS cover panel temperature [degC]')
     mcs_m1_temperature = Column(REAL, comment='MCS primary mirror temperature [degC]')
