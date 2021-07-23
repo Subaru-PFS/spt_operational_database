@@ -10,13 +10,12 @@ from . import models
 class OpDB(object):
     url = 'postgresql://pfs@db-ics:5432/opdb'
 
-    def __init__(self, hostname='localhost', port='5432', dbname='test', username='test', passwd='ask someone', dialect='postgresql'):
-        self.dbinfo = "{0}://{1}:{2}@{3}:{4}/{5}".format(dialect,
-                                                         username,
-                                                         passwd,
-                                                         hostname,
-                                                         port,
-                                                         dbname)
+    def __init__(self, hostname='localhost', port='5432', dbname='test', username='test', dialect='postgresql'):
+        self.dbinfo = "{0}://{1}@{2}:{3}/{4}".format(dialect,
+                                                     username,
+                                                     hostname,
+                                                     port,
+                                                     dbname)
 
     def connect(self):
         self.engine = create_engine(self.dbinfo)
