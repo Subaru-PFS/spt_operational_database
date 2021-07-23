@@ -18,6 +18,7 @@ class OpDB(object):
                                                      port,
                                                      dbname)
         self.logger = logging.getLogger('opdb')
+        self.connect()
 
     def connect(self):
         self.engine = create_engine(self.dbinfo)
