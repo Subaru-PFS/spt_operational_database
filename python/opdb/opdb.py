@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 import io
 from sqlalchemy import create_engine
@@ -16,6 +17,7 @@ class OpDB(object):
                                                      hostname,
                                                      port,
                                                      dbname)
+        self.logger = logging.getLogger('opdb')
 
     def connect(self):
         self.engine = create_engine(self.dbinfo)
