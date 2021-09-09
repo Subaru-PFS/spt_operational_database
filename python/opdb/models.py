@@ -436,7 +436,7 @@ class pfs_design(Base):
     __tablename__ = 'pfs_design'
 
     pfs_design_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=False)
-    tile_id = Column(Integer, ForeignKey('tile.tile_id'))
+    tile_id = Column(Integer)
     ra_center_designed = Column(FLOAT)
     dec_center_designed = Column(FLOAT)
     pa_designed = Column(REAL)
@@ -452,7 +452,6 @@ class pfs_design(Base):
     to_be_observed_at = Column(DateTime)
     is_obsolete = Column(Boolean)
 
-    tiles = relation(tile, backref=backref('pfs_design'))
     pfs_design_agcs = relation('pfs_design_agc', back_populates='pfs_design')
     pfs_design_fibers = relation('pfs_design_fiber', back_populates='pfs_design')
 
@@ -486,8 +485,8 @@ class pfs_design_fiber(Base):
 
     pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'), primary_key=True,
                            autoincrement=False)
-    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'), primary_key=True, autoincrement=False)
-    target_id = Column(BigInteger, ForeignKey('target.target_id'))
+    cobra_id = Column(Integer, primary_key=True, autoincrement=False)
+    target_id = Column(BigInteger)
     pfi_nominal_x_mm = Column(REAL, comment='Nominal x-position on the PFI [mm]')
     pfi_nominal_y_mm = Column(REAL, comment='Nominal y-position on the PFI [mm]')
     ets_priority = Column(Integer)
@@ -496,8 +495,6 @@ class pfs_design_fiber(Base):
     is_on_source = Column(Boolean)
 
     pfs_design = relation('pfs_design', back_populates='pfs_design_fibers')
-    
-    targets = relation(target, backref=backref('psf_design_fiber'))
 
     def __init__(self, pfs_design_id, cobra_id, target_id,
                  pfi_nominal_x_mm, pfi_nominal_y_mm,
@@ -800,8 +797,8 @@ class pfs_config_fiber(Base):
 
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'), primary_key=True,
                            autoincrement=False)
-    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'), primary_key=True, autoincrement=False)
-    target_id = Column(BigInteger, ForeignKey('target.target_id'))
+    cobra_id = Column(Integer, primary_key=True, autoincrement=False)
+    target_id = Column(BigInteger)
     pfi_center_final_x_mm = Column(REAL)
     pfi_center_final_y_mm = Column(REAL)
     motor_map_summary = Column(String)
@@ -809,7 +806,6 @@ class pfs_config_fiber(Base):
     is_on_source = Column(Boolean)
 
     pfs_configs = relation(pfs_config, backref=backref('psf_config_fiber'))
-    targets = relation(target, backref=backref('psf_config_fiber'))
 
     def __init__(self, pfs_config_id, cobra_id, target_id,
                  pfi_center_final_x_mm, pfi_center_final_y_mm,
