@@ -481,11 +481,11 @@ class pfs_design_fiber(Base):
     '''Pre-operations information for each fiber.
     '''
     __tablename__ = 'pfs_design_fiber'
-    __table_args__ = (UniqueConstraint('pfs_design_id', 'cobra_id'), {})
+    __table_args__ = (UniqueConstraint('pfs_design_id', 'fiber_id'), {})
 
     pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'), primary_key=True,
                            autoincrement=False)
-    cobra_id = Column(Integer, primary_key=True, autoincrement=False)
+    fiber_id = Column(Integer, primary_key=True, autoincrement=False)
     target_id = Column(BigInteger)
     pfi_nominal_x_mm = Column(REAL, comment='Nominal x-position on the PFI [mm]')
     pfi_nominal_y_mm = Column(REAL, comment='Nominal y-position on the PFI [mm]')
@@ -496,12 +496,12 @@ class pfs_design_fiber(Base):
 
     pfs_design = relation('pfs_design', back_populates='pfs_design_fibers')
 
-    def __init__(self, pfs_design_id, cobra_id, target_id,
+    def __init__(self, pfs_design_id, fiber_id, target_id,
                  pfi_nominal_x_mm, pfi_nominal_y_mm,
                  ets_priority, ets_cost_function, ets_cobra_motor_movement,
                  is_on_source=True):
         self.pfs_design_id = pfs_design_id
-        self.cobra_id = cobra_id
+        self.fiber_id = fiber_id
         self.target_id = target_id
         self.pfi_nominal_x_mm = pfi_nominal_x_mm
         self.pfi_nominal_y_mm = pfi_nominal_y_mm
@@ -792,12 +792,12 @@ class pfs_config(Base):
 
 class pfs_config_fiber(Base):
     __tablename__ = 'pfs_config_fiber'
-    __table_args__ = (UniqueConstraint('pfs_config_id', 'cobra_id'),
+    __table_args__ = (UniqueConstraint('pfs_config_id', 'fiber_id'),
                       {})
 
     pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'), primary_key=True,
                            autoincrement=False)
-    cobra_id = Column(Integer, primary_key=True, autoincrement=False)
+    fiber_id = Column(Integer, primary_key=True, autoincrement=False)
     target_id = Column(BigInteger)
     pfi_center_final_x_mm = Column(REAL)
     pfi_center_final_y_mm = Column(REAL)
@@ -807,12 +807,12 @@ class pfs_config_fiber(Base):
 
     pfs_configs = relation(pfs_config, backref=backref('psf_config_fiber'))
 
-    def __init__(self, pfs_config_id, cobra_id, target_id,
+    def __init__(self, pfs_config_id, fiber_id, target_id,
                  pfi_center_final_x_mm, pfi_center_final_y_mm,
                  motor_map_summary, config_elapsed_time,
                  is_on_source=True):
         self.pfs_config_id = pfs_config_id
-        self.cobra_id = cobra_id
+        self.fiber_id = fiber_id
         self.target_id = target_id
         self.pfi_center_final_x_mm = pfi_center_final_x_mm
         self.pfi_center_final_y_mm = pfi_center_final_y_mm
