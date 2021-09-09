@@ -511,6 +511,56 @@ class pfs_design_fiber(Base):
         self.is_on_source = is_on_source
 
 
+class pfs_design_agc(Base):
+    '''Pre-operations information for AGC.
+    '''
+    __tablename__ = 'pfs_design_agc'
+    __table_args__ = (UniqueConstraint('pfs_design_id', 'guide_star_id'), {})
+
+    pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'),
+                           primary_key=True, autoincrement=False
+                           )
+    guide_star_id = Column(BigInteger,
+                           primary_key=True, autoincrement=False,
+                           comment='GuideStar identifier'
+                           )
+    epoch = Column(String, comment='epoch')
+    guide_star_ra = Column(FLOAT, comment='GuideStar R.A. [deg.]')
+    guide_star_dec = Column(FLOAT, comment='GuideStar Dec. [deg.]')
+    guide_star_pm_ra = Column(REAL, comment='GuideStar proper motion in R.A. [mas/yr]')
+    guide_star_pm_dec = Column(REAL, comment='GuideStar proper motion in Dec. [mas/yr]')
+    guide_star_parallax = Column(REAL, comment='GuideStar parallax [mas]')
+    guide_star_magnitude = Column(REAL, comment='GuideStar magnitude [mag]')
+    passband = Column(String, comment='passband')
+    guide_star_color = Column(REAL, comment='GuideStar color [mag]')
+    agc_camera_id = Column(Integer, comment='AGC camera identifier')
+    agc_target_x_pix = Column(REAL, comment='Target x-position on the AGC [pix]')
+    agc_target_y_pix = Column(REAL, comment='Target y-position on the AGC [pix]')
+    comments = Column(String, comment='comments')
+
+    pfs_designs = relation(pfs_design, backref=backref('psf_design_fiber'))
+
+    def __init__(self, pfs_design_id, guide_star_id,
+                 epoch, guide_star_ra, guide_star_dec, guide_star_pm_ra, guide_star_pm_dec,
+                 guide_star_parallax, guide_star_magnitude, passband, guide_star_color,
+                 agc_camera_id, agc_target_x_pix, agc_target_y_pix, comments):
+        self.pfs_design_id = pfs_design_id
+        self.guide_star_id = guide_star_id
+        self.epoch = epoch
+        self.guide_star_ra = guide_star_ra
+        self.guide_star_dec = guide_star_dec
+        self.guide_star_pm_ra = guide_star_pm_ra
+        self.guide_star_pm_dec = guide_star_pm_dec
+        self.guide_star_parallax = guide_star_parallax
+        self.guide_star_magnitude = guide_star_magnitude
+        self.passband = passband
+        self.guide_star_color = guide_star_color
+        self.agc_camera_id = agc_camera_id
+        self.agc_target_x_pix = agc_target_x_pix
+        self.agc_target_y_pix = agc_target_y_pix
+        self.comments = comments
+
+
 class pfs_visit(Base):
     '''Tracks the Gen2 visit identifier.
     This is the fundamental identifier for all instrument exposures (MCS, AGC, SPS)
@@ -769,6 +819,34 @@ class pfs_config_fiber(Base):
         self.motor_map_summary = motor_map_summary
         self.config_elapsed_time = config_elapsed_time
         self.is_on_source = is_on_source
+
+
+class pfs_config_agc(Base):
+    __tablename__ = 'pfs_config_agc'
+    __table_args__ = (UniqueConstraint('pfs_config_id', 'guide_star_id'), {})
+
+    pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'),
+                           primary_key=True, autoincrement=False
+                           )
+    guide_star_id = Column(BigInteger,
+                           primary_key=True, autoincrement=False,
+                           comment='GuideStar identifier'
+                           )
+    agc_camera_id = Column(Integer, comment='AGC camera identifier')
+    agc_final_x_pix = Column(REAL, comment='Final x-position on the AGC [pix]')
+    agc_final_y_pix = Column(REAL, comment='Final y-position on the AGC [pix]')
+    comments = Column(String, comment='comments')
+
+    pfs_configs = relation(pfs_config, backref=backref('psf_config_fiber'))
+
+    def __init__(self, pfs_config_id, guide_star_id,
+                 agc_camera_id, agc_final_x_pix, agc_final_y_pix, comments):
+        self.pfs_config_id = pfs_config_id
+        self.guide_star_id = guide_star_id
+        self.agc_camera_id = agc_camera_id
+        self.agc_final_x_pix = agc_final_x_pix
+        self.agc_final_y_pix = agc_final_y_pix
+        self.comments = comments
 
 
 class cobra_motor_axis(Base):
