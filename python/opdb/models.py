@@ -819,7 +819,6 @@ class pfs_config_fiber(Base):
     visit0 = Column(Integer, primary_key=True, autoincrement=False,
                     comment='The first visit of the set')
     fiber_id = Column(Integer, primary_key=True, autoincrement=False)
-    target_id = Column(BigInteger)
     pfi_center_final_x_mm = Column(REAL)
     pfi_center_final_y_mm = Column(REAL)
     motor_map_summary = Column(String)
@@ -828,14 +827,13 @@ class pfs_config_fiber(Base):
 
     pfs_configs = relation(pfs_config, backref=backref('psf_config_fiber'))
 
-    def __init__(self, pfs_design_id, visit0, fiber_id, target_id,
+    def __init__(self, pfs_design_id, visit0, fiber_id,
                  pfi_center_final_x_mm, pfi_center_final_y_mm,
                  motor_map_summary, config_elapsed_time,
                  is_on_source=True):
         self.pfs_design_id = pfs_design_id
         self.visit0 = visit0
         self.fiber_id = fiber_id
-        self.target_id = target_id
         self.pfi_center_final_x_mm = pfi_center_final_x_mm
         self.pfi_center_final_y_mm = pfi_center_final_y_mm
         self.motor_map_summary = motor_map_summary
