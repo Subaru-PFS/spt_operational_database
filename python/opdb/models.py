@@ -500,6 +500,7 @@ class pfs_design_fiber(Base):
     ets_cost_function = Column(FLOAT)
     ets_cobra_motor_movement = Column(String)
     is_on_source = Column(Boolean)
+    comments = Column(String, comment='comments')
 
     pfs_design = relation('pfs_design', back_populates='pfs_design_fibers')
 
@@ -508,7 +509,7 @@ class pfs_design_fiber(Base):
                  target_ra, target_dec, target_type, fiber_status,
                  pfi_nominal_x_mm, pfi_nominal_y_mm,
                  ets_priority, ets_cost_function, ets_cobra_motor_movement,
-                 is_on_source=True):
+                 is_on_source, comments):
         self.pfs_design_id = pfs_design_id
         self.fiber_id = fiber_id
         self.target_cat_id = target_cat_id
@@ -525,6 +526,7 @@ class pfs_design_fiber(Base):
         self.ets_cost_function = ets_cost_function
         self.ets_cobra_motor_movement = ets_cobra_motor_movement
         self.is_on_source = is_on_source
+        self.comments = comments
 
 
 class pfs_design_agc(Base):
@@ -824,13 +826,14 @@ class pfs_config_fiber(Base):
     motor_map_summary = Column(String)
     config_elapsed_time = Column(REAL)
     is_on_source = Column(Boolean)
+    comments = Column(String, comment='comments')
 
     pfs_configs = relation(pfs_config, backref=backref('psf_config_fiber'))
 
     def __init__(self, pfs_design_id, visit0, fiber_id,
                  pfi_center_final_x_mm, pfi_center_final_y_mm,
                  motor_map_summary, config_elapsed_time,
-                 is_on_source=True):
+                 is_on_source, comments):
         self.pfs_design_id = pfs_design_id
         self.visit0 = visit0
         self.fiber_id = fiber_id
@@ -839,6 +842,7 @@ class pfs_config_fiber(Base):
         self.motor_map_summary = motor_map_summary
         self.config_elapsed_time = config_elapsed_time
         self.is_on_source = is_on_source
+        self.comments = comments
 
 
 class pfs_config_agc(Base):
