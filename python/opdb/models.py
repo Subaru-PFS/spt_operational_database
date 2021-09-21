@@ -486,7 +486,14 @@ class pfs_design_fiber(Base):
     pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'), primary_key=True,
                            autoincrement=False)
     fiber_id = Column(Integer, primary_key=True, autoincrement=False)
-    target_id = Column(BigInteger)
+    target_cat_id = Column(Integer, comment='catId of the target')
+    target_tract = Column(Integer, comment='tract of the target')
+    target_patch = Column(String, comment='patch of the target')
+    target_obj_id = Column(BigInteger, comment='objId of the target')
+    target_ra = Column(FLOAT, comment='R.A. of the target')
+    target_dec = Column(FLOAT, comment='Dec. of the target')
+    target_type = Column(Integer, comment='targetType: enumerated e.g. SCIENCE,SKY,FLUXSTD')
+    fiber_status = Column(Integer, comment='fiberStatus: enumerated e.g. GOOD,BROKENFIBER,BLOCKED,BLACKSPOT')
     pfi_nominal_x_mm = Column(REAL, comment='Nominal x-position on the PFI [mm]')
     pfi_nominal_y_mm = Column(REAL, comment='Nominal y-position on the PFI [mm]')
     ets_priority = Column(Integer)
@@ -496,13 +503,22 @@ class pfs_design_fiber(Base):
 
     pfs_design = relation('pfs_design', back_populates='pfs_design_fibers')
 
-    def __init__(self, pfs_design_id, fiber_id, target_id,
+    def __init__(self, pfs_design_id, fiber_id,
+                 target_cat_id, target_tract, target_patch, target_obj_id,
+                 target_ra, target_dec, target_type, fiber_status,
                  pfi_nominal_x_mm, pfi_nominal_y_mm,
                  ets_priority, ets_cost_function, ets_cobra_motor_movement,
                  is_on_source=True):
         self.pfs_design_id = pfs_design_id
         self.fiber_id = fiber_id
-        self.target_id = target_id
+        self.target_cat_id = target_cat_id
+        self.target_tract = target_tract
+        self.target_patch = target_patch
+        self.target_obj_id = target_obj_id
+        self.target_ra = target_ra
+        self.target_dec = target_dec
+        self.target_type = target_type
+        self.fiber_status = fiber_status
         self.pfi_nominal_x_mm = pfi_nominal_x_mm
         self.pfi_nominal_y_mm = pfi_nominal_y_mm
         self.ets_priority = ets_priority
