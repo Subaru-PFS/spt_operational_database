@@ -21,6 +21,12 @@ def main():
           license='',
           package_dir={'': 'python'},
           packages=['opdb'],
+          extras_require={
+              'dev': [
+                  'pytest',
+                  'alembic',
+              ],
+          },
           )
 
 if __name__ == '__main__':

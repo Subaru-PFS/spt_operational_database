@@ -84,3 +84,13 @@ $ alembic upgrade head
 
 * make announcement / change SpS AIT log status / and close JIRA ticket
 
+## Tests
+
+To test the consistency of relations of models, run the following commands.
+
+```
+python -m venv .venv
+./.venv/bin/pip install --editable .
+./.venv/bin/pip install --editable '.[dev]'
+./.venv/bin/pytest
+```
