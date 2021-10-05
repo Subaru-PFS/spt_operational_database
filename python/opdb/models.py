@@ -201,7 +201,7 @@ class cobra(Base):
         self.fiber_id = fiber_id
         self.sunss_id = sunss_id
         self.mtp_a_id = mtp_a_id
-        self.mtp_c_id = mtp_b_id
+        self.mtp_c_id = mtp_c_id
         self.mtp_ba_id = mtp_ba_id
         self.mtp_bc_id = mtp_bc_id
         self.version = version
@@ -241,8 +241,8 @@ class cobra_geometry(Base):
         self.cobra_motor_theta_limit0 = cobra_motor_theta_limit0
         self.cobra_motor_theta_limit1 = cobra_motor_theta_limit1
         self.cobra_motor_theta_length = cobra_motor_theta_length
-        self.cobra_motor_phi_limit_in = cobra_motor_theta_limit_in
-        self.cobra_motor_phi_limit_out = cobra_motor_theta_limit_out
+        self.cobra_motor_phi_limit_in = cobra_motor_phi_limit_in
+        self.cobra_motor_phi_limit_out = cobra_motor_phi_limit_out
         self.cobra_motor_phi_length = cobra_motor_phi_length
         self.cobra_status = cobra_status
 
@@ -782,8 +782,8 @@ class pfs_config(Base):
         self.num_cal_allocated = num_cal_allocated
         self.num_sky_allocated = num_sky_allocated
         self.num_guide_stars_allocated = num_guide_stars_allocated
-        self.converg_num_iter = alloc_num_cobra_iter
-        self.converg_elapsed_time = alloc_elapsed_time
+        self.converg_num_iter = converg_num_iter
+        self.converg_elapsed_time = converg_elapsed_time
         self.alloc_rms_scatter = alloc_rms_scatter
         self.allocated_at = allocated_at
         self.was_observed = was_observed
