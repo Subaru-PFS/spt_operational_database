@@ -93,4 +93,5 @@ python -m venv .venv
 ./.venv/bin/pip install --editable .
 ./.venv/bin/pip install --editable '.[dev]'
 ./.venv/bin/pytest
+./.venv/bin/pylint --errors-only opdb.models
 ```

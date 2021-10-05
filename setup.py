@@ -25,6 +25,7 @@ def main():
               'dev': [
                   'pytest',
                   'alembic',
+                  'pylint',
               ],
           },
           )
