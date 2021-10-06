@@ -2,7 +2,7 @@ import logging
 import numpy as np
 import io
 from sqlalchemy import create_engine
-from sqlalchemy import update
+from sqlalchemy import update, insert
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
 from . import models
@@ -159,6 +159,33 @@ class OpDB(object):
                 Column labels of `dataframe` should be exactly the same as those of the table
         '''
         self.insert_mappings(tablename, dataframe.to_dict(orient="records"))
+
+    def insert_kw(self, tablename, **kw):
+        '''
+            Description
+            -----------
+                Insert information into a table
+
+            Parameters
+            ----------
+                tablename : `string`
+                **kw : column values
+
+            Returns
+            -------
+                None
+
+            Note
+            ----
+                Column labels of `kw` should be exactly the same as those of the table
+        '''
+
+        table = getattr(models, tablename).__table__
+        insertStatement = insert(table).values(**kw)
+        with self.engine.connect() as conn:
+            conn.execute(insertStatement)
+
+        return insertStatement
 
     def insert_by_copy(self, tablename, data, colnames):
         '''
