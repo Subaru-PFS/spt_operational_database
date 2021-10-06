@@ -538,7 +538,7 @@ class pfs_design_agc(Base):
     agc_target_y_pix = Column(REAL, comment='Target y-position on the AGC [pix]')
     comments = Column(String, comment='comments')
 
-    pfs_designs = relation(pfs_design, backref=backref('psf_design_fiber'))
+    pfs_designs = relation(pfs_design, backref=backref('pfs_design_agc'))
 
     def __init__(self, pfs_design_id, guide_star_id,
                  epoch, guide_star_ra, guide_star_dec, guide_star_pm_ra, guide_star_pm_dec,
@@ -574,6 +574,7 @@ class pfs_visit(Base):
 
     sps_visit = relation('sps_visit', uselist=False, back_populates='pfs_visit')
     mcs_exposure = relation('mcs_exposure', back_populates='pfs_visit')
+    visit_set = relation('visit_set', back_populates='pfs_visit', uselist=False)
     obslog_notes = relation('obslog_visit_note')
 
     def __init__(self, pfs_visit_id, pfs_visit_description, pfs_design_id, issued_at):
@@ -837,7 +838,7 @@ class pfs_config_agc(Base):
     agc_final_y_pix = Column(REAL, comment='Final y-position on the AGC [pix]')
     comments = Column(String, comment='comments')
 
-    pfs_configs = relation(pfs_config, backref=backref('psf_config_fiber'))
+    pfs_configs = relation(pfs_config, backref=backref('pfs_config_agc'))
 
     def __init__(self, pfs_config_id, guide_star_id,
                  agc_camera_id, agc_final_x_pix, agc_final_y_pix, comments):
@@ -1097,7 +1098,6 @@ class sps_visit(Base):
 
     pfs_visit = relation('pfs_visit', uselist=False, back_populates='sps_visit')
     sps_exposure = relation('sps_exposure', back_populates='sps_visit')
-    visit_set = relation('visit_set', uselist=False, back_populates='sps_visit')
 
     def __init__(self, pfs_visit_id, exp_type):
         self.pfs_visit_id = pfs_visit_id
@@ -1119,9 +1119,6 @@ class sps_sequence(Base):
                      comment='ICS command string that generates exposures for this set of visits')
     status = Column(String,
                     comment='Status of the sequence')
-
-    visit_set = relation('visit_set', uselist=False, back_populates='sps_sequence')
-    obslog_notes = relation('obslog_visit_set_note')
 
     def __init__(self, visit_set_id, sequence_type, name, comments, cmd_str, status):
         self.visit_set_id = visit_set_id
