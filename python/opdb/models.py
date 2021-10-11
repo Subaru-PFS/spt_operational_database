@@ -1144,6 +1144,7 @@ class iic_sequence(Base):
                      comment='ICS command string that generates exposures for this set of visits')
 
     visit_set = relation('visit_set', uselist=False, back_populates='iic_sequence')
+    iic_sequence_status = relation('iic_sequence_status', uselist=False, back_populates='iic_sequence')
     obslog_notes = relation('obslog_visit_set_note')
 
     def __init__(self, visit_set_id, sequence_type, name, comments, cmd_str):
@@ -1164,6 +1165,8 @@ class iic_sequence_status(Base):
                          comment='Status flag of the sequence')
     cmd_output = Column(String,
                         comment='Status output')
+
+    iic_sequence = relation('iic_sequence', back_populates='iic_sequence_status')
 
     def __init__(self, visit_set_id, status_flag, cmd_output):
         self.visit_set_id = visit_set_id
