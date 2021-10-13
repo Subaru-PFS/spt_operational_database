@@ -453,6 +453,7 @@ class pfs_design(Base):
     is_obsolete = Column(Boolean)
 
     tiles = relation(tile, backref=backref('pfs_design'))
+    pfs_design_agcs = relation('pfs_design_agc', back_populates='pfs_design')
 
     def __init__(self, pfs_design_id, tile_id, ra_center_designed, dec_center_designed, pa_designed,
                  num_sci_designed, num_cal_designed, num_sky_designed, num_guide_stars,
@@ -538,7 +539,7 @@ class pfs_design_agc(Base):
     agc_target_y_pix = Column(REAL, comment='Target y-position on the AGC [pix]')
     comments = Column(String, comment='comments')
 
-    pfs_designs = relation(pfs_design, backref=backref('pfs_design_agc'))
+    pfs_design = relation('pfs_design', back_populates='pfs_design_agcs')
 
     def __init__(self, pfs_design_id, guide_star_id,
                  epoch, guide_star_ra, guide_star_dec, guide_star_pm_ra, guide_star_pm_dec,
