@@ -454,6 +454,7 @@ class pfs_design(Base):
 
     tiles = relation(tile, backref=backref('pfs_design'))
     pfs_design_agcs = relation('pfs_design_agc', back_populates='pfs_design')
+    pfs_design_fibers = relation('pfs_design_fiber', back_populates='pfs_design')
 
     def __init__(self, pfs_design_id, tile_id, ra_center_designed, dec_center_designed, pa_designed,
                  num_sci_designed, num_cal_designed, num_sky_designed, num_guide_stars,
@@ -494,7 +495,8 @@ class pfs_design_fiber(Base):
     ets_cobra_motor_movement = Column(String)
     is_on_source = Column(Boolean)
 
-    pfs_designs = relation(pfs_design, backref=backref('psf_design_fiber'))
+    pfs_design = relation('pfs_design', back_populates='pfs_design_fibers')
+    
     targets = relation(target, backref=backref('psf_design_fiber'))
 
     def __init__(self, pfs_design_id, cobra_id, target_id,
