@@ -1210,6 +1210,8 @@ class sps_exposure(Base):
 
     sps_visit = relation('sps_visit', back_populates='sps_exposure')
 
+    sps_annotation = relation('sps_annotation', back_populates='sps_exposure')
+
     def __init__(self, pfs_visit_id, sps_camera_id,
                  exptime, time_exp_start, time_exp_end,
                  beam_config_date
@@ -1280,6 +1282,8 @@ class sps_annotation(Base):
                    comment='Notes of obtained data')
     created_at = Column(DateTime,
                         comment='Creation time [YYYY-MM-DDThh:mm:ss]')
+
+    sps_exposure = relation('sps_exposure', back_populates='sps_annotation')
 
     def __init__(self, annotation_id, pfs_visit_id, sps_camera_id, data_flag, notes, created_at):
         self.annotation_id = annotation_id
