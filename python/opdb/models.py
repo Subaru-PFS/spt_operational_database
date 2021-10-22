@@ -436,7 +436,7 @@ class pfs_design(Base):
     __tablename__ = 'pfs_design'
 
     pfs_design_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=False)
-    tile_id = Column(Integer, ForeignKey('tile.tile_id'))
+    tile_id = Column(Integer)
     ra_center_designed = Column(FLOAT)
     dec_center_designed = Column(FLOAT)
     pa_designed = Column(REAL)
@@ -452,7 +452,6 @@ class pfs_design(Base):
     to_be_observed_at = Column(DateTime)
     is_obsolete = Column(Boolean)
 
-    tiles = relation(tile, backref=backref('pfs_design'))
     pfs_design_agcs = relation('pfs_design_agc', back_populates='pfs_design')
     pfs_design_fibers = relation('pfs_design_fiber', back_populates='pfs_design')
 
@@ -482,36 +481,52 @@ class pfs_design_fiber(Base):
     '''Pre-operations information for each fiber.
     '''
     __tablename__ = 'pfs_design_fiber'
-    __table_args__ = (UniqueConstraint('pfs_design_id', 'cobra_id'), {})
+    __table_args__ = (UniqueConstraint('pfs_design_id', 'fiber_id'), {})
 
     pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'), primary_key=True,
                            autoincrement=False)
-    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'), primary_key=True, autoincrement=False)
-    target_id = Column(BigInteger, ForeignKey('target.target_id'))
+    fiber_id = Column(Integer, primary_key=True, autoincrement=False)
+    target_cat_id = Column(Integer, comment='catId of the target')
+    target_tract = Column(Integer, comment='tract of the target')
+    target_patch = Column(String, comment='patch of the target')
+    target_obj_id = Column(BigInteger, comment='objId of the target')
+    target_ra = Column(FLOAT, comment='R.A. of the target')
+    target_dec = Column(FLOAT, comment='Dec. of the target')
+    target_type = Column(Integer, comment='targetType: enumerated e.g. SCIENCE,SKY,FLUXSTD')
+    fiber_status = Column(Integer, comment='fiberStatus: enumerated e.g. GOOD,BROKENFIBER,BLOCKED,BLACKSPOT')
     pfi_nominal_x_mm = Column(REAL, comment='Nominal x-position on the PFI [mm]')
     pfi_nominal_y_mm = Column(REAL, comment='Nominal y-position on the PFI [mm]')
     ets_priority = Column(Integer)
     ets_cost_function = Column(FLOAT)
     ets_cobra_motor_movement = Column(String)
     is_on_source = Column(Boolean)
+    comments = Column(String, comment='comments')
 
     pfs_design = relation('pfs_design', back_populates='pfs_design_fibers')
-    
-    targets = relation(target, backref=backref('psf_design_fiber'))
 
-    def __init__(self, pfs_design_id, cobra_id, target_id,
+    def __init__(self, pfs_design_id, fiber_id,
+                 target_cat_id, target_tract, target_patch, target_obj_id,
+                 target_ra, target_dec, target_type, fiber_status,
                  pfi_nominal_x_mm, pfi_nominal_y_mm,
                  ets_priority, ets_cost_function, ets_cobra_motor_movement,
-                 is_on_source=True):
+                 is_on_source, comments):
         self.pfs_design_id = pfs_design_id
-        self.cobra_id = cobra_id
-        self.target_id = target_id
+        self.fiber_id = fiber_id
+        self.target_cat_id = target_cat_id
+        self.target_tract = target_tract
+        self.target_patch = target_patch
+        self.target_obj_id = target_obj_id
+        self.target_ra = target_ra
+        self.target_dec = target_dec
+        self.target_type = target_type
+        self.fiber_status = fiber_status
         self.pfi_nominal_x_mm = pfi_nominal_x_mm
         self.pfi_nominal_y_mm = pfi_nominal_y_mm
         self.ets_priority = ets_priority
         self.ets_cost_function = ets_cost_function
         self.ets_cobra_motor_movement = ets_cobra_motor_movement
         self.is_on_source = is_on_source
+        self.comments = comments
 
 
 class pfs_design_agc(Base):
@@ -754,10 +769,12 @@ class camera_model_f3c_mcs(Base):
 
 class pfs_config(Base):
     __tablename__ = 'pfs_config'
+    __table_args__ = (UniqueConstraint('pfs_design_id', 'visit0'), {})
 
-    pfs_config_id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
-    pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'))
-    visit0 = Column(Integer, comment='The first visit of the set')
+    pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'),
+                           primary_key=True, autoincrement=False)
+    visit0 = Column(Integer, primary_key=True, autoincrement=False,
+                    comment='The first visit of the set')
     ra_center_config = Column(FLOAT, comment='The right ascension of the PFI center [deg]')
     dec_center_config = Column(FLOAT, comment='The declination of the PFI center [deg]')
     pa_config = Column(REAL, comment='The position angle of the PFI [deg]')
@@ -795,43 +812,49 @@ class pfs_config(Base):
 
 class pfs_config_fiber(Base):
     __tablename__ = 'pfs_config_fiber'
-    __table_args__ = (UniqueConstraint('pfs_config_id', 'cobra_id'),
+    __table_args__ = (UniqueConstraint('pfs_design_id', 'visit0', 'fiber_id'),
+                      ForeignKeyConstraint(['pfs_design_id', 'visit0'],
+                                           ['pfs_config.pfs_design_id', 'pfs_config.visit0']),
                       {})
 
-    pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'), primary_key=True,
-                           autoincrement=False)
-    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'), primary_key=True, autoincrement=False)
-    target_id = Column(BigInteger, ForeignKey('target.target_id'))
+    pfs_design_id = Column(BigInteger, primary_key=True, autoincrement=False)
+    visit0 = Column(Integer, primary_key=True, autoincrement=False,
+                    comment='The first visit of the set')
+    fiber_id = Column(Integer, primary_key=True, autoincrement=False)
     pfi_center_final_x_mm = Column(REAL)
     pfi_center_final_y_mm = Column(REAL)
     motor_map_summary = Column(String)
     config_elapsed_time = Column(REAL)
     is_on_source = Column(Boolean)
+    comments = Column(String, comment='comments')
 
     pfs_configs = relation(pfs_config, backref=backref('psf_config_fiber'))
-    targets = relation(target, backref=backref('psf_config_fiber'))
 
-    def __init__(self, pfs_config_id, cobra_id, target_id,
+    def __init__(self, pfs_design_id, visit0, fiber_id,
                  pfi_center_final_x_mm, pfi_center_final_y_mm,
                  motor_map_summary, config_elapsed_time,
-                 is_on_source=True):
-        self.pfs_config_id = pfs_config_id
-        self.cobra_id = cobra_id
-        self.target_id = target_id
+                 is_on_source, comments):
+        self.pfs_design_id = pfs_design_id
+        self.visit0 = visit0
+        self.fiber_id = fiber_id
         self.pfi_center_final_x_mm = pfi_center_final_x_mm
         self.pfi_center_final_y_mm = pfi_center_final_y_mm
         self.motor_map_summary = motor_map_summary
         self.config_elapsed_time = config_elapsed_time
         self.is_on_source = is_on_source
+        self.comments = comments
 
 
 class pfs_config_agc(Base):
     __tablename__ = 'pfs_config_agc'
-    __table_args__ = (UniqueConstraint('pfs_config_id', 'guide_star_id'), {})
+    __table_args__ = (UniqueConstraint('pfs_design_id', 'visit0', 'guide_star_id'),
+                      ForeignKeyConstraint(['pfs_design_id', 'visit0'],
+                                           ['pfs_config.pfs_design_id', 'pfs_config.visit0']),
+                      {})
 
-    pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'),
-                           primary_key=True, autoincrement=False
-                           )
+    pfs_design_id = Column(BigInteger, primary_key=True, autoincrement=False)
+    visit0 = Column(Integer, primary_key=True, autoincrement=False,
+                    comment='The first visit of the set')
     guide_star_id = Column(BigInteger,
                            primary_key=True, autoincrement=False,
                            comment='GuideStar identifier'
@@ -843,9 +866,10 @@ class pfs_config_agc(Base):
 
     pfs_configs = relation(pfs_config, backref=backref('pfs_config_agc'))
 
-    def __init__(self, pfs_config_id, guide_star_id,
+    def __init__(self, pfs_design_id, visit0, guide_star_id,
                  agc_camera_id, agc_final_x_pix, agc_final_y_pix, comments):
-        self.pfs_config_id = pfs_config_id
+        self.pfs_design_id = pfs_design_id
+        self.visit0 = visit0
         self.guide_star_id = guide_star_id
         self.agc_camera_id = agc_camera_id
         self.agc_final_x_pix = agc_final_x_pix
@@ -1359,7 +1383,6 @@ class tel_visit(Base):
     __tablename__ = 'tel_visit'
 
     tel_visit_id = Column(Integer, primary_key=True, autoincrement=False)
-    pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
     ra_tel = Column(REAL)
     dec_tel = Column(REAL)
     beam_switch_mode_id = Column(Integer, ForeignKey('beam_switch_mode.beam_switch_mode_id'))
@@ -1367,11 +1390,10 @@ class tel_visit(Base):
     beam_switch_offset_dec = Column(REAL)
 
     def __init__(self, tel_visit_id,
-                 pfs_config_id, ra_tel, dec_tel,
+                 ra_tel, dec_tel,
                  beam_switch_mode_id, beam_switch_offset_ra, beam_switch_offset_dec
                  ):
         self.tel_visit_id = tel_visit_id
-        self.pfs_config_id = pfs_config_id
         self.ra_tel = ra_tel
         self.dec_tel = dec_tel
         self.beam_switch_mode_id = beam_switch_mode_id
@@ -1417,14 +1439,14 @@ class calib(Base):
     calib_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=True)
     calib_type = Column(String)
     sps_frames_to_use = Column(String)
-    pfs_config_id = Column(BigInteger, ForeignKey('pfs_config.pfs_config_id'))
+    pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'))
     calib_date = Column(DateTime)
 
-    def __init__(self, calib_id, calib_type, sps_frames_to_use, pfs_config_id, calib_date):
+    def __init__(self, calib_id, calib_type, sps_frames_to_use, pfs_design_id, calib_date):
         self.calib_id = calib_id
         self.calib_type = calib_type
         self.sps_frames_to_use = sps_frames_to_use
-        self.pfs_config_id = pfs_config_id
+        self.pfs_design_id = pfs_design_id
         self.calib_date = calib_date
 
 
