@@ -2008,41 +2008,42 @@ class agc_data(Base):
         self.flags = flags
 
 
-class agc_match(Base):
+class guide_star_match(Base):
     '''AGC matching information.
     '''
 
-    __tablename__ = 'agc_match'
-    __table_args__ = (UniqueConstraint('agc_exposure_id', 'agc_camera_id', 'spot_id'),
+    __tablename__ = 'guide_star_match'
+    __table_args__ = (UniqueConstraint('pfs_design_id', 'guide_star_id'),
                       ForeignKeyConstraint(['agc_exposure_id', 'agc_camera_id', 'spot_id'],
                                            ['agc_data.agc_exposure_id', 'agc_data.agc_camera_id', 'agc_data.spot_id']),
                       {})
 
+    pfs_design_id = Column(BigInteger,
+                           primary_key=True, unique=False, autoincrement=False,
+                           comment='pfsDesignId'
+                           )
+    guide_star_id = Column(BigInteger,
+                           primary_key=True, unique=False, autoincrement=False,
+                           comment='GuideStar identifier'
+                           )
     agc_exposure_id = Column(Integer,
-                             primary_key=True, unique=False, autoincrement=False,
                              comment='AGC exposure number identifier')
     agc_camera_id = Column(Integer,
-                           primary_key=True, unique=False, autoincrement=False,
                            comment='AGC camera identifier')
     spot_id = Column(Integer,
-                     primary_key=True, unique=False, autoincrement=False,
                      comment='The AGC spot identifier')
-    pfs_design_id = Column(BigInteger,
-                           comment='pfsDesignId')
-    guide_star_id = Column(BigInteger,
-                           comment='GuideStar identifier')
     column_placeholder = Column(REAL)
     flags = Column(Integer, comment='Flags')
 
-    def __init__(self, agc_exposure_id, spot_id, agc_camera_id,
-                 pfs_design_id, guide_star_id,
+    def __init__(self, pfs_design_id, guide_star_id,
+                 agc_exposure_id, agc_camera_id, spot_id,
                  column_placeholder,
                  flags):
-        self.agc_exposure_id = agc_exposure_id
-        self.spot_id = spot_id
-        self.agc_camera_id = agc_camera_id
         self.pfs_design_id = pfs_design_id
         self.guide_star_id = guide_star_id
+        self.agc_exposure_id = agc_exposure_id
+        self.agc_camera_id = agc_camera_id
+        self.spot_id = spot_id
         self.column_placeholder = column_placeholder
         self.flags = flags
 
