@@ -2008,43 +2008,53 @@ class agc_data(Base):
         self.flags = flags
 
 
-class guide_star_match(Base):
+class agc_match(Base):
     '''AGC matching information.
     '''
 
-    __tablename__ = 'guide_star_match'
-    __table_args__ = (UniqueConstraint('pfs_design_id', 'guide_star_id'),
+    __tablename__ = 'agc_match'
+    __table_args__ = (UniqueConstraint('agc_exposure_id', 'agc_camera_id', 'spot_id'),
                       ForeignKeyConstraint(['agc_exposure_id', 'agc_camera_id', 'spot_id'],
                                            ['agc_data.agc_exposure_id', 'agc_data.agc_camera_id', 'agc_data.spot_id']),
                       {})
 
-    pfs_design_id = Column(BigInteger,
-                           primary_key=True, unique=False, autoincrement=False,
-                           comment='pfsDesignId'
-                           )
-    guide_star_id = Column(BigInteger,
-                           primary_key=True, unique=False, autoincrement=False,
-                           comment='GuideStar identifier'
-                           )
     agc_exposure_id = Column(Integer,
+                             primary_key=True, unique=False, autoincrement=False,
                              comment='AGC exposure number identifier')
     agc_camera_id = Column(Integer,
+                           primary_key=True, unique=False, autoincrement=False,
                            comment='AGC camera identifier')
     spot_id = Column(Integer,
+                     primary_key=True, unique=False, autoincrement=False,
                      comment='The AGC spot identifier')
-    column_placeholder = Column(REAL)
+    pfs_design_id = Column(BigInteger,
+                           comment='pfsDesignId')
+    guide_star_id = Column(BigInteger,
+                           comment='GuideStar identifier')
+    agc_nominal_x_mm = Column(REAL,
+                              comment='Nominal designed x-position on the AGC [PFI mm]')
+    agc_nominal_y_mm = Column(REAL,
+                              comment='Nominal designed y-position on the AGC [PFI mm]')
+    agc_center_x_mm = Column(REAL,
+                             comment='Center measured x-position on the AGC [PFI mm]')
+    agc_center_y_mm = Column(REAL,
+                             comment='Center measured y-position on the AGC [PFI mm]')
     flags = Column(Integer, comment='Flags')
 
-    def __init__(self, pfs_design_id, guide_star_id,
-                 agc_exposure_id, agc_camera_id, spot_id,
-                 column_placeholder,
+    def __init__(self, agc_exposure_id, spot_id, agc_camera_id,
+                 pfs_design_id, guide_star_id,
+                 agc_nominal_x_mm, agc_nominal_y_mm,
+                 agc_center_x_mm, agc_center_y_mm,
                  flags):
+        self.agc_exposure_id = agc_exposure_id
+        self.spot_id = spot_id
+        self.agc_camera_id = agc_camera_id
         self.pfs_design_id = pfs_design_id
         self.guide_star_id = guide_star_id
-        self.agc_exposure_id = agc_exposure_id
-        self.agc_camera_id = agc_camera_id
-        self.spot_id = spot_id
-        self.column_placeholder = column_placeholder
+        self.agc_nominal_x_mm = agc_nominal_x_mm
+        self.agc_nominal_y_mm = agc_nominal_y_mm
+        self.agc_center_x_mm = agc_center_x_mm
+        self.agc_center_y_mm = agc_center_y_mm
         self.flags = flags
 
 
