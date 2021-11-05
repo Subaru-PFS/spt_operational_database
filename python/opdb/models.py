@@ -742,9 +742,9 @@ class mcs_camera(Base):
     __tablename__ = 'mcs_camera'
 
     mcs_camera_id = Column(Integer, primary_key=True, autoincrement=False,
-                           comment='MCS camera identifier [0=MCS, 1=71M]')
+                           comment='MCS camera identifier [e.g. 0=Canon_50M, 1=RMOD_71M]')
     mcs_camera_name = Column(String,
-                             comment='MCS camera name [e.g. "MCS", "71M"]')
+                             comment='MCS camera name [e.g. "Canon_50M", "RMOD_71M"]')
     comments = Column(String)
 
     def __init__(self, mcs_camera_id, mcs_camera_name,
