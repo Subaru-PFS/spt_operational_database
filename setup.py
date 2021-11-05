@@ -18,9 +18,16 @@ def main():
           install_requires=['sqlalchemy'],
           zip_safe=False,
           include_package_data=True,
-          license=license,
+          license='',
           package_dir={'': 'python'},
           packages=['opdb'],
+          extras_require={
+              'dev': [
+                  'pytest',
+                  'alembic',
+                  'pylint',
+              ],
+          },
           )
 
 if __name__ == '__main__':
