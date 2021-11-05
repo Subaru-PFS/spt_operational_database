@@ -738,6 +738,22 @@ class mcs_boresight(Base):
         self.calculated_at = calculated_at
 
 
+class mcs_camera(Base):
+    __tablename__ = 'mcs_camera'
+
+    mcs_camera_id = Column(Integer, primary_key=True, autoincrement=False,
+                           comment='MCS camera identifier [e.g. 0=Canon_50M, 1=RMOD_71M]')
+    mcs_camera_name = Column(String,
+                             comment='MCS camera name [e.g. "Canon_50M", "RMOD_71M"]')
+    comments = Column(String)
+
+    def __init__(self, mcs_camera_id, mcs_camera_name,
+                 comments):
+        self.mcs_camera_id = mcs_camera_id
+        self.mcs_camera_name = mcs_camera_name
+        self.comments = comments
+
+
 class mcs_exposure(Base):
     ''' Provides instrument and telescope information related to a single MCS exposure.
     '''
@@ -760,6 +776,7 @@ class mcs_exposure(Base):
     outside_humidity = Column(REAL, comment='Outside humidity [%]')
     mcs_cover_temperature = Column(REAL, comment='MCS cover panel temperature [degC]')
     mcs_m1_temperature = Column(REAL, comment='MCS primary mirror temperature [degC]')
+    mcs_camera_id = Column(Integer, ForeignKey('mcs_camera.mcs_camera_id'))
     taken_at = Column(DateTime, comment='The time at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
     taken_in_hst_at = Column(DateTime, comment='The time (in HST) at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
 
@@ -768,7 +785,7 @@ class mcs_exposure(Base):
 
     def __init__(self, mcs_frame_id, pfs_visit_id, mcs_exptime, altitude, azimuth, insrot, adc_pa,
                  dome_temperature, dome_pressure, dome_humidity, outside_temperature, outside_pressure, outside_humidity,
-                 mcs_cover_temperature, mcs_m1_temperature, taken_at, taken_in_hst_at):
+                 mcs_cover_temperature, mcs_m1_temperature, mcs_camera_id, taken_at, taken_in_hst_at):
         self.mcs_frame_id = mcs_frame_id
         self.pfs_visit_id = pfs_visit_id
         self.mcs_exptime = mcs_exptime
@@ -784,6 +801,7 @@ class mcs_exposure(Base):
         self.outside_humidity = outside_humidity
         self.mcs_cover_temperature = mcs_cover_temperature
         self.mcs_m1_temperature = mcs_m1_temperature
+        self.mcs_camera_id = mcs_camera_id
         self.taken_at = taken_at
         self.taken_in_hst_at = taken_in_hst_at
 
