@@ -602,6 +602,123 @@ class pfs_visit(Base):
         self.issued_at = issued_at
 
 
+class tel_status(Base):
+    '''Tracks the telescope status.
+    '''
+    __tablename__ = 'tel_status'
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'status_sequence_id'),
+                      {})
+
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
+                          primary_key=True, unique=False, autoincrement=False)
+    status_sequence_id = Column(Integer, primary_key=True, unique=False, autoincrement=False,
+                                comment='Gen2 status sequence')
+    altitude = Column(REAL, comment='The telescope altitude [deg]')
+    azimuth = Column(REAL, comment='The telescope azimuth [deg]')
+    insrot = Column(REAL, comment='The telescope instrument rotation angle [deg]')
+    adc_pa = Column(REAL, comment='ADC PA at which the exposure started [deg]')
+    m2_pos3 = Column(REAL, comment='Hexapod position [mm]')
+    tel_ra = Column(REAL, comment='The telescope target R.A. [deg]')
+    tel_dec = Column(REAL, comment='The telescope target Dec. [deg]')
+    dome_shutter_status = Column(Integer, comment='Dome slit status (open/close/unknown)')
+    dome_light_status = Column(Integer, comment='Dome (room) light mask interger')
+    created_at = Column(DateTime, index=True,
+                        comment='Issued time [YYYY-MM-DDThh:mm:ss]')
+
+    def __init__(self, pfs_visit_id, status_sequence_id,
+                 altitude, azimuth, insrot, adc_pa, m2_pos3,
+                 tel_ra, tel_dec,
+                 dome_shutter_status, dome_light_status,
+                 created_at
+                 ):
+        self.pfs_visit_id = pfs_visit_id
+        self.status_sequence_id = status_sequence_id
+        self.altitude = altitude
+        self.azimuth = azimuth
+        self.insrot = insrot
+        self.adc_pa = adc_pa
+        self.m2_pos3 = m2_pos3
+        self.tel_ra = tel_ra
+        self.tel_dec = tel_dec
+        self.dome_shutter_status = dome_shutter_status
+        self.dome_light_status = dome_light_status
+        self.created_at = created_at
+
+
+class env_condition(Base):
+    '''Tracks the telescope environment condition.
+    '''
+    __tablename__ = 'env_condition'
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'status_sequence_id'),
+                      {})
+
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
+                          primary_key=True, unique=False, autoincrement=False)
+    status_sequence_id = Column(Integer, primary_key=True, unique=False, autoincrement=False,
+                                comment='Gen2 status sequence')
+    dome_temperature = Column(REAL, comment='Dome temperature [K]')
+    dome_pressure = Column(REAL, comment='Dome pressure [hPa]')
+    dome_humidity = Column(REAL, comment='Dome humidity [%]')
+    outside_temperature = Column(REAL, comment='Outside temperature [K]')
+    outside_pressure = Column(REAL, comment='Outside pressure [hPa]')
+    outside_humidity = Column(REAL, comment='Outside humidity [%]')
+    created_at = Column(DateTime, index=True,
+                        comment='Issued time [YYYY-MM-DDThh:mm:ss]')
+
+    def __init__(self, pfs_visit_id, status_sequence_id,
+                 dome_temperature, dome_pressure, dome_humidity,
+                 outside_temperature, outside_pressure, outside_humidity,
+                 created_at
+                 ):
+        self.pfs_visit_id = pfs_visit_id
+        self.status_sequence_id = status_sequence_id
+        self.dome_temperature = dome_temperature
+        self.dome_pressure = dome_pressure
+        self.dome_humidity = dome_humidity
+        self.outside_temperature = outside_temperature
+        self.outside_pressure = outside_pressure
+        self.outside_humidity = outside_humidity
+        self.created_at = created_at
+
+
+class obs_condition(Base):
+    '''Tracks the telescope environment condition.
+    '''
+    __tablename__ = 'obs_condition'
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'status_sequence_id'),
+                      {})
+
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
+                          primary_key=True, unique=False, autoincrement=False)
+    status_sequence_id = Column(Integer, primary_key=True, unique=False, autoincrement=False,
+                                comment='Gen2 status sequence')
+    airmass = Column(REAL)
+    moon_phase = Column(REAL)
+    moon_alt = Column(REAL)
+    moon_sep = Column(REAL)
+    seeing = Column(REAL)
+    transparency = Column(REAL)
+    cloud_condition_id = Column(Integer, ForeignKey('cloud_condition.cloud_condition_id'))
+    created_at = Column(DateTime, index=True,
+                        comment='Issued time [YYYY-MM-DDThh:mm:ss]')
+
+    def __init__(self, pfs_visit_id, status_sequence_id,
+                 airmass, moon_phase, moon_altitude, moon_separation, seeing, transparency,
+                 cloud_condition_id,
+                 created_at
+                 ):
+        self.pfs_visit_id = pfs_visit_id
+        self.status_sequence_id = status_sequence_id
+        self.airmass = airmass
+        self.moon_phase = moon_phase
+        self.moon_altitude = moon_altitude
+        self.moon_separation = moon_separation
+        self.seeing = seeing
+        self.transparency = transparency
+        self.cloud_condition_id = cloud_condition_id
+        self.created_at = created_at
+
+
 class mcs_boresight(Base):
     ''' The MCS boresight for a given MCS exposure.
     '''
@@ -1379,60 +1496,6 @@ class beam_switch_mode(Base):
         self.beam_switch_mode_description = beam_switch_mode_description
 
 
-class tel_visit(Base):
-    __tablename__ = 'tel_visit'
-
-    tel_visit_id = Column(Integer, primary_key=True, autoincrement=False)
-    ra_tel = Column(REAL)
-    dec_tel = Column(REAL)
-    beam_switch_mode_id = Column(Integer, ForeignKey('beam_switch_mode.beam_switch_mode_id'))
-    beam_switch_offset_ra = Column(REAL)
-    beam_switch_offset_dec = Column(REAL)
-
-    def __init__(self, tel_visit_id,
-                 ra_tel, dec_tel,
-                 beam_switch_mode_id, beam_switch_offset_ra, beam_switch_offset_dec
-                 ):
-        self.tel_visit_id = tel_visit_id
-        self.ra_tel = ra_tel
-        self.dec_tel = dec_tel
-        self.beam_switch_mode_id = beam_switch_mode_id
-        self.beam_switch_offset_ra = beam_switch_offset_ra
-        self.beam_switch_offset_dec = beam_switch_offset_dec
-
-
-class tel_condition(Base):
-    __tablename__ = 'tel_condition'
-
-    tel_visit_id = Column(Integer, ForeignKey('tel_visit.tel_visit_id'), primary_key=True, unique=True,
-                          autoincrement=False)
-    focusing_error = Column(REAL)
-    guide_error_sigma_arcsec = Column(REAL)
-    airmass = Column(REAL)
-    moon_phase = Column(REAL)
-    moon_alt = Column(REAL)
-    moon_sep = Column(REAL)
-    seeing = Column(REAL)
-    transp = Column(REAL)
-    cloud_condition_id = Column(Integer, ForeignKey('cloud_condition.cloud_condition_id'))
-
-    def __init__(self, tel_visit_id,
-                 focusing_error, guide_error_sigma_arcsec,
-                 airmass, moon_phase, moon_alt, moon_sep, seeing, transp,
-                 cloud_condition_id,
-                 ):
-        self.tel_visit_id = tel_visit_id
-        self.focusing_error = focusing_error
-        self.guide_error_sigma_arcsec = guide_error_sigma_arcsec
-        self.airmass = airmass
-        self.moon_phase = moon_phase
-        self.moon_alt = moon_alt
-        self.moon_sep = moon_sep
-        self.seeing = seeing
-        self.transp = transp
-        self.cloud_condition_id = cloud_condition_id
-
-
 class calib(Base):
     __tablename__ = 'calib'
 
@@ -1521,13 +1584,11 @@ class sky_model(Base):
 
     sky_model_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
-    tel_visit_id = Column(Integer)
     sps_camera_id = Column(Integer, ForeignKey('sps_camera.sps_camera_id'))
 
-    def __init__(self, sky_model_id, pfs_visit_id, tel_visit_id, sps_camera_id):
+    def __init__(self, sky_model_id, pfs_visit_id, sps_camera_id):
         self.sky_model_id = sky_model_id
         self.pfs_visit_id = pfs_visit_id
-        self.tel_visit_id = tel_visit_id
         self.sps_camera_id = sps_camera_id
 
 
@@ -1536,13 +1597,11 @@ class psf_model(Base):
 
     psf_model_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
-    tel_visit_id = Column(Integer)
     sps_camera_id = Column(Integer, ForeignKey('sps_camera.sps_camera_id'))
 
-    def __init__(self, psf_model_id, pfs_visit_id, tel_visit_id, sps_camera_id):
+    def __init__(self, psf_model_id, pfs_visit_id, sps_camera_id):
         self.psf_model_id = psf_model_id
         self.pfs_visit_id = pfs_visit_id
-        self.tel_visit_id = tel_visit_id
         self.sps_camera_id = sps_camera_id
 
 
