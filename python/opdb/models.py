@@ -1986,7 +1986,7 @@ class agc_exposure(Base):
     outside_temperature = Column(REAL, comment='Outside temperature [K]')
     outside_pressure = Column(REAL, comment='Outside pressure [hPa]')
     outside_humidity = Column(REAL, comment='Outside humidity [%]')
-    measurement_algorithm = Column(String, comment='Spot measurement algorithm (fast/slow)')
+    measurement_algorithm = Column(String, comment='Spot measurement algorithm (windowed/sep)')
     taken_at = Column(DateTime, comment='The time at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
 
     def __init__(self, agc_exposure_id, pfs_visit_id, agc_exptime, altitude, azimuth, insrot, adc_pa,
