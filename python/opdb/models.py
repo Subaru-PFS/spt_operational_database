@@ -436,6 +436,7 @@ class pfs_design(Base):
     __tablename__ = 'pfs_design'
 
     pfs_design_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=False)
+    design_name = Column(String, comment='Human-readable name for the design (designName)')
     tile_id = Column(Integer)
     ra_center_designed = Column(FLOAT)
     dec_center_designed = Column(FLOAT)
@@ -455,11 +456,12 @@ class pfs_design(Base):
     pfs_design_agcs = relation('pfs_design_agc', back_populates='pfs_design')
     pfs_design_fibers = relation('pfs_design_fiber', back_populates='pfs_design')
 
-    def __init__(self, pfs_design_id, tile_id, ra_center_designed, dec_center_designed, pa_designed,
+    def __init__(self, pfs_design_id, design_name, tile_id, ra_center_designed, dec_center_designed, pa_designed,
                  num_sci_designed, num_cal_designed, num_sky_designed, num_guide_stars,
                  exptime_tot, exptime_min, ets_version, ets_assigner, designed_at, to_be_observed_at,
                  is_obsolete=False):
         self.pfs_design_id = pfs_design_id
+        self.design_name = design_name
         self.tile_id = tile_id
         self.ra_center_designed = ra_center_designed
         self.dec_center_designed = dec_center_designed
