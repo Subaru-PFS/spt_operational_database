@@ -779,7 +779,7 @@ class mcs_exposure(Base):
     mcs_cover_temperature = Column(REAL, comment='MCS cover panel temperature [degC]')
     mcs_m1_temperature = Column(REAL, comment='MCS primary mirror temperature [degC]')
     mcs_camera_id = Column(Integer, ForeignKey('mcs_camera.mcs_camera_id'))
-    measurement_algorithm = Column(String, comment='Spot measurement algorithm (fast/slow)')
+    measurement_algorithm = Column(String, comment='Spot measurement algorithm (windowed/sep)')
     taken_at = Column(DateTime, comment='The time at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
     taken_in_hst_at = Column(DateTime, comment='The time (in HST) at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
 
