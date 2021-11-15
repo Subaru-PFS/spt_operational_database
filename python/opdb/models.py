@@ -910,7 +910,7 @@ class pfs_config(Base):
 
     pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'),
                            primary_key=True, autoincrement=False)
-    visit0 = Column(Integer, primary_key=True, autoincrement=False,
+    visit0 = Column(Integer, primary_key=True, autoincrement=False, unique=True,
                     comment='The first visit of the set')
     ra_center_config = Column(FLOAT, comment='The right ascension of the PFI center [deg]')
     dec_center_config = Column(FLOAT, comment='The declination of the PFI center [deg]')
