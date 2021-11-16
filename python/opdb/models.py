@@ -910,7 +910,7 @@ class pfs_config(Base):
 
     pfs_design_id = Column(BigInteger, ForeignKey('pfs_design.pfs_design_id'),
                            primary_key=True, autoincrement=False)
-    visit0 = Column(Integer, primary_key=True, autoincrement=False,
+    visit0 = Column(Integer, primary_key=True, autoincrement=False, unique=True,
                     comment='The first visit of the set')
     ra_center_config = Column(FLOAT, comment='The right ascension of the PFI center [deg]')
     dec_center_config = Column(FLOAT, comment='The declination of the PFI center [deg]')
@@ -1350,6 +1350,19 @@ class visit_set(Base):
     def __init__(self, pfs_visit_id, visit_set_id):
         self.pfs_visit_id = pfs_visit_id
         self.visit_set_id = visit_set_id
+
+
+class field_set(Base):
+    __tablename__ = 'field_set'
+    visit_set_id = Column(Integer, ForeignKey('iic_sequence.visit_set_id'), primary_key=True)
+    visit0 = Column(Integer, ForeignKey('pfs_config.visit0'))
+
+    iic_sequence = relation('iic_sequence', uselist=False, back_populates='field_set')
+    pfs_config = relation('pfs_config', uselist=False, back_populates='field_set')
+
+    def __init__(self, visit_set_id, visit0):
+        self.visit_set_id = visit_set_id
+        self.visit0 = visit0
 
 
 class sps_exposure(Base):
