@@ -3,6 +3,8 @@ from sqlalchemy import Column, BigInteger, Integer, String, FLOAT, ForeignKey, D
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relation, backref
 from sqlalchemy import UniqueConstraint, ForeignKeyConstraint
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.sql.schema import PrimaryKeyConstraint
 
 Base = declarative_base()
 
@@ -596,6 +598,7 @@ class pfs_visit(Base):
     mcs_exposure = relation('mcs_exposure', back_populates='pfs_visit')
     visit_set = relation('visit_set', back_populates='pfs_visit', uselist=False)
     obslog_notes = relation('obslog_visit_note')
+    obslog_fits_headers = relation('obslog_fits_header')
 
     def __init__(self, pfs_visit_id, pfs_visit_description, pfs_design_id, issued_at):
         self.pfs_visit_id = pfs_visit_id
@@ -1966,6 +1969,23 @@ class obslog_mcs_exposure_note(Base):
 
     user = relation('obslog_user', back_populates='mcs_exposure_notes')
     mcs_exposure = relation('mcs_exposure', back_populates='obslog_notes')
+
+
+class obslog_fits_header(Base):
+    ''' Headers of FITS file belonging to a visit
+    '''
+    __tablename__ = 'obslog_fits_header'
+    __table_args__ = (PrimaryKeyConstraint('filestem', 'hdu_index'),
+                      {})
+
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), index=True)
+
+    filestem = Column(String) # ex.) agcc_20210919_0455221 or PFSA01967911
+    hdu_index = Column(Integer) # ex.) 0 or 1
+    cards_dict = Column(JSONB, nullable=False) # ex.) {"SIMPLE": true, "BITPIX": 8, ...}
+    cards_list = Column(JSONB, nullable=False) # ex.) [["SIMPLE", true, "conform..."], ...]
+
+    pfs_visit = relation('pfs_visit', back_populates='obslog_fits_headers')
 
 
 class agc_exposure(Base):

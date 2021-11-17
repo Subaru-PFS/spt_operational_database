@@ -15,7 +15,7 @@ def main():
           description='PFS operational database (opDB) tools',
           author='Kiyoto Yabe',
           url='https://github.com/Subaru-PFS/spt_operational_database',
-          install_requires=['sqlalchemy'],
+          install_requires=['sqlalchemy', 'psycopg2-binary'],
           zip_safe=False,
           include_package_data=True,
           license='',
@@ -23,6 +23,9 @@ def main():
           packages=['opdb'],
           extras_require={
               'dev': [
+                  'numpy',
+                  'pandas',
+                  'astropy',
                   'pytest',
                   'alembic',
                   'pylint',
