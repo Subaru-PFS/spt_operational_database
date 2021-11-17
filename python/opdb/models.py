@@ -211,40 +211,40 @@ class cobra(Base):
 
 class cobra_geometry(Base):
     __tablename__ = 'cobra_geometry'
-    __table_args__ = (UniqueConstraint('cobra_motor_calib_id', 'cobra_id'),
+    __table_args__ = (UniqueConstraint('cobra_geometry_calib_id', 'cobra_id'),
                       {})
 
-    cobra_motor_calib_id = Column(Integer, ForeignKey('cobra_motor_calib.cobra_motor_calib_id'), primary_key=True, autoincrement=False)
-    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'), primary_key=True, autoincrement=False)
-    cobra_center_on_pfi_x_mm = Column(REAL)
-    cobra_center_on_pfi_y_mm = Column(REAL)
-    cobra_distance_from_center_mm = Column(REAL)
-    cobra_motor_theta_limit0 = Column(REAL)
-    cobra_motor_theta_limit1 = Column(REAL)
-    cobra_motor_theta_length = Column(REAL)
-    cobra_motor_phi_limit_in = Column(REAL)
-    cobra_motor_phi_limit_out = Column(REAL)
-    cobra_motor_phi_length = Column(REAL)
-    cobra_status = Column(String, comment='OK/INVISIBLE/LOCKED_THETA/LOCKED_PHI/BAD_THETA/BAD_PHI')
+    cobra_geometry_calib_id = Column(Integer, ForeignKey('cobra_geometry_calib.cobra_geometry_calib_id'),
+                                     primary_key=True, autoincrement=False)
+    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'),
+                      primary_key=True, autoincrement=False)
+    center_x_mm = Column(REAL)
+    center_y_mm = Column(REAL)
+    motor_theta_limit0 = Column(REAL)
+    motor_theta_limit1 = Column(REAL)
+    motor_theta_length_mm = Column(REAL)
+    motor_phi_limit_in = Column(REAL)
+    motor_phi_limit_out = Column(REAL)
+    motor_phi_length_mm = Column(REAL)
+    status = Column(Integer,
+                    comment='0x0001=OK/0x0002=INVISIBLE/0x0004=BROKEN_THETA/0x0008=BROKEN_PHI')
 
     def __init__(self, cobra_id,
-                 cobra_center_on_pfi_x_mm, cobra_center_on_pfi_y_mm,
-                 cobra_distance_from_center_mm,
-                 cobra_motor_theta_limit0, cobra_motor_theta_limit1, cobra_motor_theta_length,
-                 cobra_motor_phi_limit_in, cobra_motor_phi_limit_out, cobra_motor_phi_length,
-                 cobra_status
+                 center_x_mm, center_y_mm,
+                 motor_theta_limit0, motor_theta_limit1, motor_theta_length_mm,
+                 motor_phi_limit_in, motor_phi_limit_out, motor_phi_length_mm,
+                 status
                  ):
         self.cobra_id = cobra_id
-        self.cobra_center_on_pfi_x_mm = cobra_center_on_pfi_x_mm
-        self.cobra_center_on_pfi_y_mm = cobra_center_on_pfi_y_mm
-        self.cobra_distance_from_center_mm = cobra_distance_from_center_mm
-        self.cobra_motor_theta_limit0 = cobra_motor_theta_limit0
-        self.cobra_motor_theta_limit1 = cobra_motor_theta_limit1
-        self.cobra_motor_theta_length = cobra_motor_theta_length
-        self.cobra_motor_phi_limit_in = cobra_motor_phi_limit_in
-        self.cobra_motor_phi_limit_out = cobra_motor_phi_limit_out
-        self.cobra_motor_phi_length = cobra_motor_phi_length
-        self.cobra_status = cobra_status
+        self.center_x_mm = center_x_mm
+        self.center_y_mm = center_y_mm
+        self.motor_theta_limit0 = motor_theta_limit0
+        self.motor_theta_limit1 = motor_theta_limit1
+        self.motor_theta_length_mm = motor_theta_length_mm
+        self.motor_phi_limit_in = motor_phi_limit_in
+        self.motor_phi_limit_out = motor_phi_limit_out
+        self.motor_phi_length_mm = motor_phi_length_mm
+        self.status = status
 
 
 class fiducial_fiber(Base):
@@ -1044,6 +1044,22 @@ class cobra_motor_direction(Base):
     def __init__(self, cobra_motor_direction_id, cobra_motor_direction_name):
         self.cobra_motor_direction_id = cobra_motor_direction_id
         self.cobra_motor_direction_name = cobra_motor_direction_name
+
+
+class cobra_geometry_calib(Base):
+    '''Defines the cobra motor calibration profile
+    '''
+    __tablename__ = 'cobra_geometry_calib'
+
+    cobra_geometry_calib_id = Column(Integer, primary_key=True, autoincrement=True)
+    calibrated_at = Column(DateTime,
+                           comment='Date at which the model calibration took place [YYYY-MM-DDhh:mm:ss]')
+    comments = Column(String, comment='Comments')
+
+    def __init__(self, calibrated_at, comments
+                 ):
+        self.calibrated_at = calibrated_at
+        self.comments = comments
 
 
 class cobra_motor_calib(Base):
