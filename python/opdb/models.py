@@ -780,6 +780,8 @@ class mcs_exposure(Base):
     mcs_m1_temperature = Column(REAL, comment='MCS primary mirror temperature [degC]')
     mcs_camera_id = Column(Integer, ForeignKey('mcs_camera.mcs_camera_id'))
     measurement_algorithm = Column(String, comment='Spot measurement algorithm (windowed/sep)')
+    version_actor = Column(String, comment='Version of the actor')
+    version_instdata = Column(String, comment='Version of the pfs_instdata')
     taken_at = Column(DateTime, comment='The time at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
     taken_in_hst_at = Column(DateTime, comment='The time (in HST) at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
 
@@ -787,7 +789,7 @@ class mcs_exposure(Base):
     obslog_notes = relation('obslog_mcs_exposure_note')
 
     def __init__(self, mcs_frame_id, pfs_visit_id, mcs_exptime, altitude, azimuth, insrot, adc_pa,
-                 dome_temperature, dome_pressure, dome_humidity, outside_temperature, outside_pressure, outside_humidity, mcs_camera_id, mcs_cover_temperature, mcs_m1_temperature, mcs_camera_id, measurement_algorithm, taken_at, taken_in_hst_at):
+                 dome_temperature, dome_pressure, dome_humidity, outside_temperature, outside_pressure, outside_humidity, mcs_camera_id, mcs_cover_temperature, mcs_m1_temperature, mcs_camera_id, measurement_algorithm, version_actor, version_instdata, taken_at, taken_in_hst_at):
         self.mcs_frame_id = mcs_frame_id
         self.pfs_visit_id = pfs_visit_id
         self.mcs_exptime = mcs_exptime
@@ -805,6 +807,8 @@ class mcs_exposure(Base):
         self.mcs_m1_temperature = mcs_m1_temperature
         self.mcs_camera_id = mcs_camera_id
         self.measurement_algorithm = measurement_algorithm
+        self.version_actor = version_actor
+        self.version_instdata = version_instdata
         self.taken_at = taken_at
         self.taken_in_hst_at = taken_in_hst_at
 
