@@ -158,7 +158,10 @@ class OpDB(object):
             ----
                 Column labels of `dataframe` should be exactly the same as those of the table
         '''
-        self.insert_mappings(tablename, dataframe.to_dict(orient="records"))
+        #self.insert_mappings(tablename, dataframe.to_dict(orient="records"))
+        model = getattr(models, tablename)
+        with self.session.begin() as s:
+            s.session.bulk_insert_mappings(model, dataframe.to_dict(orient="records"))
 
     def insert_kw(self, tablename, **kw):
         '''
@@ -359,13 +362,13 @@ class OpDB(object):
     # types. There are many many more. If we really cared there is
     # probably a complicated way to use the rest of the pg_type table
     # to construct numpy dtypes.
-    _pgTypes = {16:np.bool,
-                20:np.int64,
-                23:np.int32,
-                700:np.float32,
-                701:np.float64,
-                1043:str,     # varchar, we want variable length string
-                1114:np.dtype('datetime64[us]'),  # nb: numpy does not do timezones
+    _pgTypes = {16: np.bool,
+                20: np.int64,
+                23: np.int32,
+                700: np.float32,
+                701: np.float64,
+                1043: str,     # varchar, we want variable length string
+                1114: np.dtype('datetime64[us]'),  # nb: numpy does not do timezones
                 }
 
     def _getColTypes(self, tablename):
@@ -416,7 +419,7 @@ class OpDB(object):
         if tablename is not None:
             dtypes = self._getColTypes(tablename)
         else:
-            dtypes =  None      # Let pandas auto-detect dtypes
+            dtypes = None      # Let pandas auto-detect dtypes
 
         if selectSql is None:
             sql = f'COPY {tablename}'
@@ -455,14 +458,17 @@ class OpDB(object):
         '''
 
         buf = io.StringIO()
-        data.to_csv(buf, header=False)
+        data.to_csv(buf, header=False, index=False)
         buf.seek(0)
 
-        sqlCmd = "COPY {tablename} FROM STDIN WITH (FORMAT csv)"
+        sqlCmd = f"COPY {tablename} FROM STDIN WITH (FORMAT csv)"
 
         with self.engine.connect() as conn:
             with conn.connection.cursor() as cursor:
-                cursor.copy_expert(sqlCmd, buf)
+                try:
+                    cursor.copy_expert(sqlCmd, buf)
+                except Exception as e:
+                    print(e)
 
     def fetch_sps_exposures(self, pfs_visit_id):
         '''
