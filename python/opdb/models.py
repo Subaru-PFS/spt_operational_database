@@ -2134,11 +2134,11 @@ class agc_guide_offset(Base):
                              primary_key=True, autoincrement=False,
                              comment='AGC exposure number identifier')
     guide_ra = Column(FLOAT,
-                      comment='The calculated FoV R.A. center [deg.]')
+                      comment='The designed FoV R.A. center [deg.]')
     guide_dec = Column(FLOAT,
-                       comment='The calculated FoV Dec. center [deg.]')
+                       comment='The designed FoV Dec. center [deg.]')
     guide_pa = Column(REAL,
-                      comment='The calculated FoV PA [deg.]')
+                      comment='The designed FoV PA [deg.]')
     guide_delta_ra = Column(REAL,
                             comment='The calculated FoV R.A. offset [arcsec.]')
     guide_delta_dec = Column(REAL,
