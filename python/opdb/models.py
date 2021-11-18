@@ -933,6 +933,8 @@ class pfs_config(Base):
     was_observed = Column(Boolean, comment='True of configuration was observed (XXX relevant?)')
 
     pfs_designs = relation(pfs_design, backref=backref('pfs_config'))
+    field_set = relation('field_set', back_populates='pfs_config')
+
 
     def __init__(self, pfs_design_id, visit0, ra_center_config, dec_center_config, pa_config,
                  num_sci_allocated, num_cal_allocated, num_sky_allocated, num_guide_stars_allocated,
@@ -1333,6 +1335,7 @@ class iic_sequence(Base):
 
     visit_set = relation('visit_set', uselist=False, back_populates='iic_sequence')
     iic_sequence_status = relation('iic_sequence_status', uselist=False, back_populates='iic_sequence')
+    field_set = relation('field_set', back_populates='iic_sequence')
     obslog_notes = relation('obslog_visit_set_note')
 
     def __init__(self, visit_set_id, sequence_type, name, comments, cmd_str):
