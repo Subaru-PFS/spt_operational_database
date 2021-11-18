@@ -789,7 +789,10 @@ class mcs_exposure(Base):
     obslog_notes = relation('obslog_mcs_exposure_note')
 
     def __init__(self, mcs_frame_id, pfs_visit_id, mcs_exptime, altitude, azimuth, insrot, adc_pa,
-                 dome_temperature, dome_pressure, dome_humidity, outside_temperature, outside_pressure, outside_humidity, mcs_camera_id, mcs_cover_temperature, mcs_m1_temperature, mcs_camera_id, measurement_algorithm, version_actor, version_instdata, taken_at, taken_in_hst_at):
+                 dome_temperature, dome_pressure, dome_humidity,
+                 outside_temperature, outside_pressure, outside_humidity,
+                 mcs_cover_temperature, mcs_m1_temperature, mcs_camera_id,
+                 measurement_algorithm, version_actor, version_instdata, taken_at, taken_in_hst_at):
         self.mcs_frame_id = mcs_frame_id
         self.pfs_visit_id = pfs_visit_id
         self.mcs_exptime = mcs_exptime
