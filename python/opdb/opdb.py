@@ -9,6 +9,15 @@ from . import models
 
 
 class OpDB(object):
+    ''' 
+        === CAUTION! ===
+
+        We remove `password` argument at some point. 
+        Password should be written in .pgpass
+
+        ================
+    '''
+
     url = 'postgresql://pfs@db-ics:5432/opdb'
 
     def __init__(self, hostname='localhost', port='5432', dbname='test', username='test', dialect='postgresql'):
