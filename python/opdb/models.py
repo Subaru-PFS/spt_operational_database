@@ -2175,15 +2175,15 @@ class agc_guide_offset(Base):
         self.guide_delta_ra = guide_delta_ra
         self.guide_delta_dec = guide_delta_dec
         self.guide_delta_insrot = guide_delta_insrot
-        self.guide_az = guide_az
-        self.guide_el = guide_el
-        self.guide_z = guide_z
-        self.guide_z1 = guide_z1
-        self.guide_z2 = guide_z2
-        self.guide_z3 = guide_z3
-        self.guide_z4 = guide_z4
-        self.guide_z5 = guide_z5
-        self.guide_z6 = guide_z6
+        self.guide_delta_az = guide_delta_az
+        self.guide_delta_el = guide_delta_el
+        self.guide_delta_z = guide_delta_z
+        self.guide_delta_z1 = guide_delta_z1
+        self.guide_delta_z2 = guide_delta_z2
+        self.guide_delta_z3 = guide_delta_z3
+        self.guide_delta_z4 = guide_delta_z4
+        self.guide_delta_z5 = guide_delta_z5
+        self.guide_delta_z6 = guide_delta_z6
 
 
 def make_database(dbinfo):
