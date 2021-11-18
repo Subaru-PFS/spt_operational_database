@@ -2124,6 +2124,68 @@ class agc_match(Base):
         self.flags = flags
 
 
+class agc_guide_offset(Base):
+    ''' Provides the final guide offset
+    '''
+
+    __tablename__ = 'agc_guide_offset'
+
+    agc_exposure_id = Column(Integer, ForeignKey('agc_exposure.agc_exposure_id'),
+                             primary_key=True, autoincrement=False,
+                             comment='AGC exposure number identifier')
+    guide_ra = Column(FLOAT,
+                      comment='The designed FoV R.A. center [deg.]')
+    guide_dec = Column(FLOAT,
+                       comment='The designed FoV Dec. center [deg.]')
+    guide_pa = Column(REAL,
+                      comment='The designed FoV PA [deg.]')
+    guide_delta_ra = Column(REAL,
+                            comment='The calculated FoV R.A. offset [arcsec.]')
+    guide_delta_dec = Column(REAL,
+                             comment='The calculated FoV Dec. offset [arcsec.]')
+    guide_delta_insrot = Column(REAL,
+                                comment='The calculated InsRot offset [arcsec.]')
+    guide_delta_az = Column(REAL,
+                            comment='The calculated Az offset [arcsec.] (optional)')
+    guide_delta_el = Column(REAL,
+                            comment='The calculated El offset [arcsec.] (optional)')
+    guide_delta_z = Column(REAL,
+                           comment='The calculated focus offset [mm]')
+    guide_delta_z1 = Column(REAL,
+                            comment='The calculated focus offset for AGC1 [mm]')
+    guide_delta_z2 = Column(REAL,
+                            comment='The calculated focus offset for AGC2 [mm]')
+    guide_delta_z3 = Column(REAL,
+                            comment='The calculated focus offset for AGC3 [mm]')
+    guide_delta_z4 = Column(REAL,
+                            comment='The calculated focus offset for AGC4 [mm]')
+    guide_delta_z5 = Column(REAL,
+                            comment='The calculated focus offset for AGC5 [mm]')
+    guide_delta_z6 = Column(REAL,
+                            comment='The calculated focus offset for AGC6 [mm]')
+
+    def __init__(self, agc_exposure_id, guide_ra, guide_dec, guide_pa,
+                 guide_delta_ra, guide_delta_dec, guide_delta_insrot,
+                 guide_delta_az, guide_delta_el, guide_delta_z,
+                 guide_delta_z1, guide_delta_z2, guide_delta_z3, guide_delta_z4, guide_delta_z5, guide_delta_z6):
+        self.agc_exposure_id = agc_exposure_id
+        self.guide_ra = guide_ra
+        self.guide_dec = guide_dec
+        self.guide_pa = guide_pa
+        self.guide_delta_ra = guide_delta_ra
+        self.guide_delta_dec = guide_delta_dec
+        self.guide_delta_insrot = guide_delta_insrot
+        self.guide_az = guide_az
+        self.guide_el = guide_el
+        self.guide_z = guide_z
+        self.guide_z1 = guide_z1
+        self.guide_z2 = guide_z2
+        self.guide_z3 = guide_z3
+        self.guide_z4 = guide_z4
+        self.guide_z5 = guide_z5
+        self.guide_z6 = guide_z6
+
+
 def make_database(dbinfo):
     '''
     dbinfo is something like this: postgresql://xxxxx:yyyyy@zzz.zzz.zzz.zz/dbname
