@@ -937,7 +937,6 @@ class pfs_config(Base):
     pfs_designs = relation(pfs_design, backref=backref('pfs_config'))
     field_set = relation('field_set', back_populates='pfs_config')
 
-
     def __init__(self, pfs_design_id, visit0, ra_center_config, dec_center_config, pa_config,
                  num_sci_allocated, num_cal_allocated, num_sky_allocated, num_guide_stars_allocated,
                  converg_num_iter, converg_elapsed_time, alloc_rms_scatter,
@@ -2027,10 +2026,10 @@ class obslog_fits_header(Base):
 
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), index=True)
 
-    filestem = Column(String) # ex.) agcc_20210919_0455221 or PFSA01967911
-    hdu_index = Column(Integer) # ex.) 0 or 1
-    cards_dict = Column(JSONB, nullable=False) # ex.) {"SIMPLE": true, "BITPIX": 8, ...}
-    cards_list = Column(JSONB, nullable=False) # ex.) [["SIMPLE", true, "conform..."], ...]
+    filestem = Column(String)  # ex.) agcc_20210919_0455221 or PFSA01967911
+    hdu_index = Column(Integer)  # ex.) 0 or 1
+    cards_dict = Column(JSONB, nullable=False)  # ex.) {"SIMPLE": true, "BITPIX": 8, ...}
+    cards_list = Column(JSONB, nullable=False)  # ex.) [["SIMPLE", true, "conform..."], ...]
 
 
 class agc_exposure(Base):
