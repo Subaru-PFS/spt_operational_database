@@ -1,6 +1,7 @@
 import logging
 import numpy as np
 import io
+import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy import update, insert
 from sqlalchemy.orm import sessionmaker
@@ -30,7 +31,7 @@ class OpDB(object):
         self.connect()
 
     def connect(self):
-        self.engine = create_engine(self.dbinfo)
+        self.engine = create_engine(self.dbinfo, poolclass=sqlalchemy.pool.NullPool)
         SessionClass = sessionmaker(self.engine)
         self.session = SessionClass()
         #print('connection to {0} started'.format(self.dbinfo))
