@@ -28,8 +28,10 @@ def fits_headers_from_hdulist(hdul: HDUList, pfs_visit_id: int, filestem: str):
             pfs_visit_id=pfs_visit_id,
             filestem=filestem,
             hdu_index=hdu_index,
-            cards_dict={name: value[0] for name, value in cards.items() if len(value) == 1},
-            cards_list=[list(card) for card in hdu.header.cards],
+            cards_dict={name: value[0] for name, value in cards.items()
+                        if len(value) == 1 and
+                        not isinstance(value[0], pyfits.Undefined)},
+            cards_list=[list(card) for card in hdu.header.cards if not isinstance(card[1], pyfits.Undefined)],
         )
         records.append(record)
     return records
