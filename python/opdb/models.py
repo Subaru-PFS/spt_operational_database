@@ -598,6 +598,7 @@ class pfs_visit(Base):
     mcs_exposure = relation('mcs_exposure', back_populates='pfs_visit')
     visit_set = relation('visit_set', back_populates='pfs_visit', uselist=False)
     obslog_notes = relation('obslog_visit_note')
+    agc_exposures = relation('agc_exposure', back_populates='pfs_visit')
 
     def __init__(self, pfs_visit_id, pfs_visit_description, pfs_design_id, issued_at):
         self.pfs_visit_id = pfs_visit_id
@@ -2040,7 +2041,7 @@ class agc_exposure(Base):
 
     agc_exposure_id = Column(Integer, primary_key=True, unique=True, autoincrement=False,
                              comment='AGC exposure number identifier')
-    pfs_visit_id = Column(Integer, comment='PFS visit identifier')
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), comment='PFS visit identifier')
     agc_exptime = Column(REAL, comment='The exposure time for the frame [sec]')
     altitude = Column(REAL, comment='The telescope altitude [deg]')
     azimuth = Column(REAL, comment='The telescope azimuth [deg]')
@@ -2054,6 +2055,9 @@ class agc_exposure(Base):
     version_actor = Column(String, comment='Version of the actor')
     version_instdata = Column(String, comment='Version of the pfs_instdata')
     taken_at = Column(DateTime, comment='The time at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
+
+    pfs_visit = relation('pfs_visit', back_populates='agc_exposures')
+    agc_guide_offset = relation('agc_guide_offset', uselist=False, back_populates='agc_exposure')
 
     def __init__(self, agc_exposure_id, pfs_visit_id, agc_exptime, altitude, azimuth, insrot, adc_pa,
                  m2_pos3, outside_temperature, outside_pressure, outside_humidity,
@@ -2216,6 +2220,8 @@ class agc_guide_offset(Base):
                             comment='The calculated focus offset for AGC5 [mm]')
     guide_delta_z6 = Column(REAL,
                             comment='The calculated focus offset for AGC6 [mm]')
+
+    agc_exposure = relation('agc_exposure', back_populates='agc_guide_offset')
 
     def __init__(self, agc_exposure_id, guide_ra, guide_dec, guide_pa,
                  guide_delta_ra, guide_delta_dec, guide_delta_insrot,
