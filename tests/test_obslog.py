@@ -12,7 +12,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
 
 HERE = Path(__file__).parent
-db_url_file = HERE / 'secrets' / 'testdb.sample.url'
+db_url_file = HERE / 'secrets' / 'testdb.url'
 
 FitsFromCardsType = Callable[[List[List[Tuple[str, Any, str]]], str], Path]
 
