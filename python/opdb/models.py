@@ -257,14 +257,16 @@ class fiducial_fiber(Base):
     ff_in_field = Column(Integer)    # 1-32
     ff_type = Column(String(5))      # spoke/edge/agfid
     ff_id_in_type = Column(Integer)  # 1-14 for spoke, 1-14 for edge, 1-4 for agfid
+    mask = Column(Integer)           # bit mask for FF status
     version = Column(String)
 
-    def __init__(self, fiducial_fiber_id, field_on_pfi, ff_in_field, ff_type, ff_id_in_type, version):
+    def __init__(self, fiducial_fiber_id, field_on_pfi, ff_in_field, ff_type, ff_id_in_type, mask, version):
         self.fiducial_fiber_id = fiducial_fiber_id
         self.field_on_pfi = field_on_pfi
         self.ff_in_field = ff_in_field
         self.ff_type = ff_type
         self.ff_id_in_type = ff_id_in_type
+        self.mask = mask
         self.version = version
 
 
