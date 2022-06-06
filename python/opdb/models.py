@@ -534,6 +534,33 @@ class pfs_design_fiber(Base):
         self.is_on_source = is_on_source
         self.comments = comments
 
+class pfs_design_fiber_final(Base):
+    '''Pre-operations information for each fiber (just before the cobra configuration).
+    '''
+    __tablename__ = 'pfs_design_fiber_final'
+    __table_args__ = (UniqueConstraint('pfs_design_id', 'fiber_id'),
+                      ForeignKeyConstraint(['pfs_design_id', 'fiber_id'],
+                                           ['pfs_design_fiber.pfs_design_id', 'pfs_design_fiber.fiber_id']),
+                      {})
+
+    pfs_design_id = Column(BigInteger, primary_key=True, autoincrement=False)
+    fiber_id = Column(Integer, primary_key=True, autoincrement=False)
+    target_final_ra = Column(FLOAT, comment='Final R.A. of the target at the observing time')
+    target_final_dec = Column(FLOAT, comment='Final Dec. of the target at the observing time')
+    pfi_final_x_mm = Column(REAL, comment='Final designed x-position on the PFI [mm]')
+    pfi_final_y_mm = Column(REAL, comment='Final designed y-position on the PFI [mm]')
+
+
+    def __init__(self, pfs_design_id, fiber_id,
+                 target_final_ra, target_final_dec,
+                 pfi_final_x_mm, pfi_final_y_mm
+                 ):
+        self.pfs_design_id = pfs_design_id
+        self.fiber_id = fiber_id
+        self.target_final_ra = target_final_ra
+        self.target_final_dec = target_final_dec
+        self.pfi_final_x_mm = pfi_final_x_mm
+        self.pfi_final_y_mm = pfi_final_y_mm
 
 class pfs_design_agc(Base):
     '''Pre-operations information for AGC.
