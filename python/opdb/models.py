@@ -845,10 +845,11 @@ class mcs_data(Base):
                                       ' of the image [pix^2]')
     bgvalue = Column(REAL, comment='The background level')
     peakvalue = Column(REAL, comment='The peak image value')
+    flags = Column(Integer, comment='Flags about the fitted centroids parameters')
 
     def __init__(self, mcs_frame_id, spot_id, mcs_center_x_pix, mcs_center_y_pix,
                  mcs_second_moment_x_pix, mcs_second_moment_y_pix, mcs_second_moment_xy_pix,
-                 bgvalue, peakvalue):
+                 bgvalue, peakvalue, flags):
         self.mcs_frame_id = mcs_frame_id
         self.spot_id = spot_id
         self.mcs_center_x_pix = mcs_center_x_pix
@@ -858,6 +859,7 @@ class mcs_data(Base):
         self.mcs_second_moment_xy_pix = mcs_second_moment_xy_pix
         self.bgvalue = bgvalue
         self.peakvalue = peakvalue
+        self.flags = flags
 
 
 class mcs_pfi_transformation(Base):
