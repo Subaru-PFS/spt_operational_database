@@ -28,9 +28,14 @@ class test(Base):
 class e2e_processing(Base):
     __tablename__ = 'e2e_processing'
 
-    run_id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+    run_id = Column(Integer,
+                    primary_key=True,
+                    unique=True,
+                    autoincrement=True)
     run_description = Column(String,
                              comment='description of the processing run')
+    run_sample = Column(String,
+                        comment='sample of the processing run (weekly/extended)')
     run_status = Column(String,
                         comment='status of the processing run')
     run_datetime_start = Column(DateTime,
@@ -40,12 +45,46 @@ class e2e_processing(Base):
 
     def __init__(self,
                  run_description,
+                 run_sample,
                  run_datetime_start,
                  run_datetime_end,
                  ):
         self.run_description = run_description
+        self.run_sample = run_sample
         self.run_datetime_start = run_datetime_start
         self.run_datetime_end = run_datetime_end
+
+
+class e2e_qa_redshift(Base):
+    __tablename__ = 'e2e_qa_redshift'
+
+    run_id = Column(Integer,
+                    ForeignKey('e2e_processing.run_id'),
+                    primary_key=True,
+                    )
+    num_targets = Column(Integer,
+                       comment='number of targets in this QA')
+    diff_mean = Column(REAL,
+                       comment='mean offset')
+    diff_std = Column(REAL,
+                      comment='standard deviation of the difference')
+    frac_outlier = Column(REAL,
+                          comment='fraction of outliers (abs(diff)>3sigma)')
+
+    e2e_processing = relation(e2e_processing, backref=backref('e2e_qa_redshift'))
+
+    def __init__(self,
+                 run_id,
+                 num_targets,
+                 diff_mean,
+                 diff_std,
+                 frac_outlier,
+                 ):
+        self.run_id = run_id
+        self.num_targets = num_targets
+        self.diff_mean = diff_mean
+        self.diff_std = diff_std
+        self.frac_outlier = frac_outlier
 
 
 def make_database(dbinfo):
