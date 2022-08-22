@@ -151,6 +151,75 @@ class e2e_qa_redshift(Base):
         self.frac_outlier = frac_outlier
 
 
+class reduced_visits(Base):
+    __tablename__ = 'reduced_visits'
+
+    pfs_visit_id = Column(Integer,
+                          primary_key=True,
+                          unique=True,
+                          autoincrement=False)
+    is_ingested = Column(Boolean, comment='ingested?')
+    is_isred = Column(Boolean, comment='ISRed?')
+    is_reduced = Column(Boolean, comment='reduceExposure.py done?')
+    is_merged = Column(Boolean, comment='pfsArm merged?')
+    is_calibrated = Column(Boolean, comment='flux calibrated?')
+    is_coadded = Column(Boolean, comment='coadded?')
+    updated_at = Column(DateTime,
+                        comment='datetime of the table update')
+
+    def __init__(self,
+                 pfs_visit_id,
+                 is_ingested,
+                 is_reduced,
+                 is_merged,
+                 is_calibrated,
+                 is_coadded,
+                 updated_at,
+                 ):
+        self.pfs_visit_id = pfs_visit_id
+        self.is_isred = is_isred
+        self.is_reduced = is_reduced
+        self.is_merged = is_merged
+        self.is_calibrated = is_calibrated
+        self.is_coadded = is_coadded
+        self.updated_at = updated_at
+
+
+class data_processing(Base):
+    __tablename__ = 'data_processing'
+
+    run_id = Column(Integer,
+                    primary_key=True,
+                    unique=True,
+                    autoincrement=True)
+    pfs_visit_id = Column(Integer,
+                          ForeignKey('reduced_visits.pfs_visit_id'),
+                          comment='PFS visit identifier')
+    run_description = Column(String,
+                             comment='description of the processing run')
+    run_status = Column(String,
+                        comment='status of the processing run')
+    run_datetime_start = Column(DateTime,
+                                comment='datetime of the processing run start')
+    run_datetime_end = Column(DateTime,
+                              comment='datetime of the processing run end')
+
+    reduced_visits = relation(reduced_visits, backref=backref('data_processing'))
+
+    def __init__(self,
+                 pfs_visit_id,
+                 run_description,
+                 run_sample,
+                 run_datetime_start,
+                 run_datetime_end,
+                 ):
+        self.pfs_visit_id = pfs_visit_id
+        self.run_description = run_description
+        self.run_sample = run_sample
+        self.run_datetime_start = run_datetime_start
+        self.run_datetime_end = run_datetime_end
+
+
 def make_database(dbinfo):
     '''
     dbinfo is something like this: postgresql://xxxxx:yyyyy@zzz.zzz.zzz.zz/dbname
