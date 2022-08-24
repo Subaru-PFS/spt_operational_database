@@ -50,7 +50,7 @@ class e2e_sim_dataset(Base):
                  sim2d_version,
                  created_at
                  ):
-        self.dataset_id = run_descrdataset_idiption
+        self.dataset_id = dataset_id
         self.dataset_description = dataset_description
         self.sim2d_version = sim2d_version
         self.created_at = created_at
@@ -170,6 +170,7 @@ class reduced_visits(Base):
     def __init__(self,
                  pfs_visit_id,
                  is_ingested,
+                 is_isred,
                  is_reduced,
                  is_merged,
                  is_calibrated,
@@ -177,6 +178,7 @@ class reduced_visits(Base):
                  updated_at,
                  ):
         self.pfs_visit_id = pfs_visit_id
+        self.is_ingested = is_ingested
         self.is_isred = is_isred
         self.is_reduced = is_reduced
         self.is_merged = is_merged
@@ -195,6 +197,9 @@ class data_processing(Base):
     pfs_visit_id = Column(Integer,
                           ForeignKey('reduced_visits.pfs_visit_id'),
                           comment='PFS visit identifier')
+    rerun = Column(String,
+                   comment='rerun name'
+                   )
     run_description = Column(String,
                              comment='description of the processing run')
     run_status = Column(String,
@@ -208,12 +213,14 @@ class data_processing(Base):
 
     def __init__(self,
                  pfs_visit_id,
+                 rerun,
                  run_description,
                  run_sample,
                  run_datetime_start,
                  run_datetime_end,
                  ):
         self.pfs_visit_id = pfs_visit_id
+        self.rerun = rerun
         self.run_description = run_description
         self.run_sample = run_sample
         self.run_datetime_start = run_datetime_start
