@@ -870,33 +870,26 @@ class mcs_pfi_transformation(Base):
     mcs_frame_id = Column(Integer, ForeignKey('mcs_exposure.mcs_frame_id'),
                           primary_key=True, unique=True, autoincrement=False,
                           comment='MCS frame identifier as generated from Gen2')
-    x0 = Column(REAL,
-                     comment='Transformation x shift')
-    y0 = Column(REAL,
-                     comment='Transformation y shift')
-    dscale = Column(REAL,
-                     comment='First transformation scale')
-    scale2 = Column(REAL,
-                     comment='Second transformation scale')
-    theta = Column(REAL,
-                   comment='Transformation rotation angle')
-    alpha_rot = Column(REAL,
-                   comment='coefficient for the dtheta^2 term in the penalty function')
-    camera_name = Column(String,
-                   comment='camera name for transformation function')
+    x_trans = Column(REAL,
+                     comment='Affine transformation x shift')
+    y_trans = Column(REAL,
+                     comment='Affine transformation y shift')
+    x_scale = Column(REAL,
+                     comment='Affine transformation x scale')
+    y_scale = Column(REAL,
+                     comment='Affine transformation y scale')
+    angle = Column(REAL,
+                   comment='Affine transformation rotation angle')
 
-    
     def __init__(self, mcs_frame_id,
                  x_trans, y_trans, x_scale, y_scale, angle
                  ):
         self.mcs_frame_id = mcs_frame_id
-        self.x0 = x0
-        self.y0 = y0
-        self.dscale = dscale
-        self.scale2 = scale2
+        self.x_trans = x_trans
+        self.y_trans = y_trans
+        self.x_scale = x_scale
+        self.y_scale = y_scale
         self.angle = angle
-        self.alpha_rot = alpha_rot
-        self.camera_name = camera_name
 
 
 class camera_model_f3c_mcs(Base):
