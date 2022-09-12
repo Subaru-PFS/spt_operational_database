@@ -974,7 +974,7 @@ class pfs_config(Base):
     converg_elapsed_time = Column(REAL,
                                   comment='Allocated time for convergence [sec]')
     converg_tolerance = Column(REAL,
-                                  comment='Tolerance for convergence [mm]')
+                               comment='Tolerance for convergence [mm]')
     alloc_rms_scatter = Column(REAL,
                                comment='[TBW]')
     allocated_at = Column(DateTime, comment='Time at which config was allocated [YYYY-MM-DDhhmmss] (TBC)')
@@ -1271,6 +1271,43 @@ class cobra_target(Base):
                              comment='Target x-position on the PFI for each iteration')
     pfi_target_y_mm = Column(REAL,
                              comment='Target y-position on the PFI for each iteration')
+    flags = Column(Integer, comment='flags for movement etc.')
+
+    def __init__(self, pfs_visit_id, iteration, cobra_id,
+                 pfs_config_id,
+                 pfi_nominal_x_mm, pfi_nominal_y_mm,
+                 pfi_target_x_mm, pfi_target_y_mm,
+                 flags
+                 ):
+        self.pfs_visit_id = pfs_visit_id
+        self.iteration = iteration
+        self.cobra_id = cobra_id
+        self.pfs_config_id = pfs_config_id
+        self.pfi_nominal_x_mm = pfi_nominal_x_mm
+        self.pfi_nominal_y_mm = pfi_nominal_y_mm
+        self.pfi_target_x_mm = pfi_target_x_mm
+        self.pfi_target_y_mm = pfi_target_y_mm
+        self.flags = flags
+
+
+class cobra_move(Base):
+    ''' The actual movement of the cobra motor, in terms of individual MCS frames.
+    '''
+    __tablename__ = 'cobra_move'
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'iteration', 'cobra_id'),
+                      ForeignKeyConstraint(['pfs_visit_id', 'iteration', 'cobra_id'],
+                                           ['cobra_target.pfs_visit_id', 'cobra_target.iteration', 'cobra_target.cobra_id']),
+                      {})
+
+    pfs_visit_id = Column(Integer,
+                          primary_key=True, unique=False, autoincrement=False,
+                          comment='PFS visit identifier')
+    iteration = Column(Integer,
+                       primary_key=True, unique=False, autoincrement=False,
+                       comment='Iteration number for this frame')
+    cobra_id = Column(Integer,
+                      primary_key=True, unique=False, autoincrement=False,
+                      comment='Fiber identifier')
     cobra_motor_model_id_theta = Column(Integer)
     motor_target_theta = Column(REAL,
                                 comment='the target angle of the theta motor'
@@ -1288,9 +1325,6 @@ class cobra_target(Base):
     flags = Column(Integer, comment='flags for movement etc.')
 
     def __init__(self, pfs_visit_id, iteration, cobra_id,
-                 pfs_config_id,
-                 pfi_nominal_x_mm, pfi_nominal_y_mm,
-                 pfi_target_x_mm, pfi_target_y_mm,
                  cobra_motor_calib_id,
                  motor_target_theta, motor_num_step_theta, motor_on_time_theta,
                  motor_target_phi, motor_num_step_phi, motor_on_time_phi,
@@ -1299,11 +1333,6 @@ class cobra_target(Base):
         self.pfs_visit_id = pfs_visit_id
         self.iteration = iteration
         self.cobra_id = cobra_id
-        self.pfs_config_id = pfs_config_id
-        self.pfi_nominal_x_mm = pfi_nominal_x_mm
-        self.pfi_nominal_y_mm = pfi_nominal_y_mm
-        self.pfi_target_x_mm = pfi_target_x_mm
-        self.pfi_target_y_mm = pfi_target_y_mm
         self.cobra_motor_map_model_id = cobra_motor_calib_id
         self.motor_target_theta = motor_target_theta
         self.motor_num_step_theta = motor_num_step_theta
@@ -1320,7 +1349,7 @@ class cobra_match(Base):
     __tablename__ = 'cobra_match'
     __table_args__ = (UniqueConstraint('pfs_visit_id', 'iteration', 'cobra_id'),
                       ForeignKeyConstraint(['pfs_visit_id', 'iteration', 'cobra_id'],
-                                           ['cobra_target.pfs_visit_id', 'cobra_target.iteration', 'cobra_target.cobra_id']),
+                                           ['cobra_move.pfs_visit_id', 'cobra_move.iteration', 'cobra_move.cobra_id']),
                       ForeignKeyConstraint(['mcs_frame_id', 'spot_id'],
                                            ['mcs_data.mcs_frame_id', 'mcs_data.spot_id']),
                       {})
