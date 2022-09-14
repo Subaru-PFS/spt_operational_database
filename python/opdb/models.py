@@ -629,6 +629,9 @@ class tel_status(Base):
     m2_pos3 = Column(REAL, comment='Hexapod position [mm]')
     tel_ra = Column(REAL, comment='The telescope target R.A. [deg]')
     tel_dec = Column(REAL, comment='The telescope target Dec. [deg]')
+    dither_ra = Column(REAL, comment='Offset to the R.A. coordinate [arcsec]')
+    dither_dec = Column(REAL, comment='Offset to the DEC. coordinate [arcsec]')
+    dither_pa = Column(REAL, comment='Offset to the INST_PA [arcsec]')
     dome_shutter_status = Column(Integer, comment='Dome slit status (open/close/unknown)')
     dome_light_status = Column(Integer, comment='Dome (room) light mask interger')
     created_at = Column(DateTime, index=True,
@@ -636,7 +639,7 @@ class tel_status(Base):
 
     def __init__(self, pfs_visit_id, status_sequence_id,
                  altitude, azimuth, insrot, adc_pa, m2_pos3,
-                 tel_ra, tel_dec,
+                 tel_ra, tel_dec, dither_ra, dither_dec, dither_pa,
                  dome_shutter_status, dome_light_status,
                  created_at
                  ):
@@ -649,6 +652,9 @@ class tel_status(Base):
         self.m2_pos3 = m2_pos3
         self.tel_ra = tel_ra
         self.tel_dec = tel_dec
+        self.dither_ra = dither_ra
+        self.dither_dec = dither_dec
+        self.dither_pa = dither_pa
         self.dome_shutter_status = dome_shutter_status
         self.dome_light_status = dome_light_status
         self.created_at = created_at
