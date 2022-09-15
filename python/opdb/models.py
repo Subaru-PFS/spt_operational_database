@@ -166,14 +166,16 @@ class cobra(Base):
     cobra_in_field = Column(Integer, comment='Cobra-in-field (1..798). cf = 57*(mf-1)+cm.')
     cobra_module_id = Column(Integer, comment='Cobra module id (1..42)')
     module_in_field = Column(Integer, comment='Module-in-field (1..14). The number of the module within the field, with 1 at the center of the PFI.')
-    cobra_in_module = Column(Integer, comment='Cobra-in-module (1..57). 1 is the bottom-left cobra in a module when looked at with the wide (29-cobra) board down. Increasing as you move across the module.')
+    cobra_in_module = Column(
+        Integer, comment='Cobra-in-module (1..57). 1 is the bottom-left cobra in a module when looked at with the wide (29-cobra) board down. Increasing as you move across the module.')
     cobra_in_board = Column(Integer, comment='Cobra-in-board (1..29). Each board has either 29 or 28 cobras.')
     cobra_board_id = Column(Integer, comment='Cobra board id (1..84). One Cobra module has two boards.')
     mtp = Column(String(3), comment='Cobra module id associated with MTP ferrule. There are 84 of these, numbered 1 through 42 with A and B suffixes. (e.g.,13B)')
     sps_module_id = Column(Integer, comment='Spectrograph that the cobra feeds (1..4)')
     sps_slit_hole = Column(Integer, comment='Fiber hole (1..651). This is the position in the spectrograph slit head.')
     science_fiber_id = Column(Integer, comment=' Science fiber (1..2394). This is a unique identifier for each science fiber.')
-    fiber_id = Column(Integer, comment='The fiber identifier (1..2604). This is a unique identifier for each fiber (both science and engineering). fiberId = 651*(sp-1)+fh.')
+    fiber_id = Column(
+        Integer, comment='The fiber identifier (1..2604). This is a unique identifier for each fiber (both science and engineering). fiberId = 651*(sp-1)+fh.')
     sunss_id = Column(String(4), comment='SuNSS fiber id. ID consists of fiber number and mode (i is imaging, and d is diffuse).')
     mtp_a_id = Column(String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = A)')
     mtp_c_id = Column(String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = C)')
@@ -871,34 +873,33 @@ class mcs_pfi_transformation(Base):
                           primary_key=True, unique=True, autoincrement=False,
                           comment='MCS frame identifier as generated from Gen2')
     x0 = Column(REAL,
-                     comment='Transformation x shift')
+                comment='Transformation x shift')
     y0 = Column(REAL,
-                     comment='Transformation y shift')
+                comment='Transformation y shift')
     dscale = Column(REAL,
-                     comment='First transformation scale')
+                    comment='First transformation scale')
     scale2 = Column(REAL,
-                     comment='Second transformation scale')
+                    comment='Second transformation scale')
     theta = Column(REAL,
                    comment='Transformation rotation angle')
     alpha_rot = Column(REAL,
-                   comment='coefficient for the dtheta^2 term in the penalty function')
+                       comment='coefficient for the dtheta^2 term in the penalty function')
     camera_name = Column(String,
-                   comment='camera name for transformation function')
+                         comment='camera name for transformation function')
 
-    
     def __init__(self, mcs_frame_id,
-                 x_trans, y_trans, x_scale, y_scale, angle
+                 x0, y0, dscale, scale2,
+                 theta, alpha_rot, camera_name
                  ):
-                          
+
         self.mcs_frame_id = mcs_frame_id
         self.x0 = x0
         self.y0 = y0
         self.dscale = dscale
         self.scale2 = scale2
-        self.angle = angle
+        self.theta = theta
         self.alpha_rot = alpha_rot
         self.camera_name = camera_name
-
 
 
 class camera_model_f3c_mcs(Base):
