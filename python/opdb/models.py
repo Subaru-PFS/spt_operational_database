@@ -1391,18 +1391,22 @@ class iic_sequence(Base):
                       comment='Comments for the sequence')
     cmd_str = Column(String,
                      comment='ICS command string that generates exposures for this set of visits')
+    group_id = Column(Integer, nullable=False,
+                          comment='Group identifier')
 
     visit_set = relation('visit_set', uselist=False, back_populates='iic_sequence')
     iic_sequence_status = relation('iic_sequence_status', uselist=False, back_populates='iic_sequence')
     field_set = relation('field_set', back_populates='iic_sequence')
     obslog_notes = relation('obslog_visit_set_note')
 
-    def __init__(self, visit_set_id, sequence_type, name, comments, cmd_str):
+
+    def __init__(self, visit_set_id, sequence_type, name, comments, cmd_str, group_id):
         self.visit_set_id = visit_set_id
         self.sequence_type = sequence_type
         self.name = name
         self.comments = comments
         self.cmd_str = cmd_str
+        self.group_id = group_id
 
 
 class iic_sequence_status(Base):
