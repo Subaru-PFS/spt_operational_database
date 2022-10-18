@@ -602,7 +602,7 @@ class pfs_visit(Base):
     mcs_exposure = relation('mcs_exposure', back_populates='pfs_visit')
     visit_set = relation('visit_set', back_populates='pfs_visit', uselist=False)
     obslog_notes = relation('obslog_visit_note')
-    agc_exposures = relation('agc_exposure', back_populates='pfs_visit')
+    agc_exposure = relation('agc_exposure', back_populates='pfs_visit')
 
     def __init__(self, pfs_visit_id, pfs_visit_description, pfs_design_id, issued_at):
         self.pfs_visit_id = pfs_visit_id
@@ -2080,7 +2080,7 @@ class agc_exposure(Base):
     version_instdata = Column(String, comment='Version of the pfs_instdata')
     taken_at = Column(DateTime, comment='The time at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
 
-    pfs_visit = relation('pfs_visit', back_populates='agc_exposures')
+    pfs_visit = relation('pfs_visit', back_populates='agc_exposure')
     agc_guide_offset = relation('agc_guide_offset', uselist=False, back_populates='agc_exposure')
 
     def __init__(self, agc_exposure_id, pfs_visit_id, agc_exptime, altitude, azimuth, insrot, adc_pa,
