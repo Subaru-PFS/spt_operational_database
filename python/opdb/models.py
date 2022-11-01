@@ -1392,6 +1392,8 @@ class iic_sequence(Base):
     cmd_str = Column(String,
                      comment='ICS command string that generates exposures for this set of visits')
     group_id = Column(Integer, ForeignKey('sequence_group.group_id'), comment='Group identifier')
+    created_at = Column(DateTime,
+                        comment='Creation time [YYYY-MM-DDThh:mm:ss]')
 
     visit_set = relation('visit_set', uselist=False, back_populates='iic_sequence')
     iic_sequence_status = relation('iic_sequence_status', uselist=False, back_populates='iic_sequence')
@@ -1399,13 +1401,14 @@ class iic_sequence(Base):
     obslog_notes = relation('obslog_visit_set_note')
     sequence_group = relation('sequence_group', back_populates='iic_sequence')
 
-    def __init__(self, iic_sequence_id, sequence_type, name, comments, cmd_str, group_id):
+    def __init__(self, iic_sequence_id, sequence_type, name, comments, cmd_str, group_id, created_at):
         self.iic_sequence_id = iic_sequence_id
         self.sequence_type = sequence_type
         self.name = name
         self.comments = comments
         self.cmd_str = cmd_str
         self.group_id = group_id
+        self.created_at = created_at
 
 
 class iic_sequence_status(Base):
@@ -1420,11 +1423,14 @@ class iic_sequence_status(Base):
                         comment='Status output')
 
     iic_sequence = relation('iic_sequence', back_populates='iic_sequence_status')
+    finished_at = Column(DateTime,
+                        comment='End time [YYYY-MM-DDThh:mm:ss]')
 
-    def __init__(self, iic_sequence_id, status_flag, cmd_output):
+    def __init__(self, iic_sequence_id, status_flag, cmd_output, finished_at):
         self.iic_sequence_id = iic_sequence_id
         self.status_flag = status_flag
         self.cmd_output = cmd_output
+        self.finished_at = finished_at
 
 
 class visit_set(Base):
