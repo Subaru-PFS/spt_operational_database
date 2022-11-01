@@ -1381,8 +1381,8 @@ class sps_sequence(Base):
 class iic_sequence(Base):
     __tablename__ = 'iic_sequence'
 
-    visit_set_id = Column(Integer, primary_key=True, autoincrement=False,
-                          comment='Visit set identifier')
+    iic_sequence_id = Column(Integer, primary_key=True, autoincrement=False,
+                          comment='Sequence identifier')
     sequence_type = Column(String,
                            comment='Sequence type')
     name = Column(String,
@@ -1399,9 +1399,8 @@ class iic_sequence(Base):
     field_set = relation('field_set', back_populates='iic_sequence')
     obslog_notes = relation('obslog_visit_set_note')
 
-
-    def __init__(self, visit_set_id, sequence_type, name, comments, cmd_str, group_id):
-        self.visit_set_id = visit_set_id
+    def __init__(self, iic_sequence_id, sequence_type, name, comments, cmd_str, group_id):
+        self.iic_sequence_id = iic_sequence_id
         self.sequence_type = sequence_type
         self.name = name
         self.comments = comments
@@ -1412,9 +1411,9 @@ class iic_sequence(Base):
 class iic_sequence_status(Base):
     __tablename__ = 'iic_sequence_status'
 
-    visit_set_id = Column(Integer, ForeignKey('iic_sequence.visit_set_id'),
+    iic_sequence_id = Column(Integer, ForeignKey('iic_sequence.iic_sequence_id'),
                           primary_key=True, autoincrement=False,
-                          comment='Visit set identifier')
+                          comment='Sequence identifier')
     status_flag = Column(Integer,
                          comment='Status flag of the sequence')
     cmd_output = Column(String,
@@ -1422,8 +1421,8 @@ class iic_sequence_status(Base):
 
     iic_sequence = relation('iic_sequence', back_populates='iic_sequence_status')
 
-    def __init__(self, visit_set_id, status_flag, cmd_output):
-        self.visit_set_id = visit_set_id
+    def __init__(self, iic_sequence_id, status_flag, cmd_output):
+        self.iic_sequence_id = iic_sequence_id
         self.status_flag = status_flag
         self.cmd_output = cmd_output
 
@@ -1432,26 +1431,26 @@ class visit_set(Base):
     __tablename__ = 'visit_set'
 
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), primary_key=True, unique=True, autoincrement=False)
-    visit_set_id = Column(Integer, ForeignKey('iic_sequence.visit_set_id'))
+    iic_sequence_id = Column(Integer, ForeignKey('iic_sequence.iic_sequence_id'))
 
     pfs_visit = relation('pfs_visit', uselist=False, back_populates='visit_set')
     iic_sequence = relation('iic_sequence', uselist=False, back_populates='visit_set')
 
-    def __init__(self, pfs_visit_id, visit_set_id):
+    def __init__(self, pfs_visit_id, iic_sequence_id):
         self.pfs_visit_id = pfs_visit_id
-        self.visit_set_id = visit_set_id
+        self.iic_sequence_id = iic_sequence_id
 
 
 class field_set(Base):
     __tablename__ = 'field_set'
-    visit_set_id = Column(Integer, ForeignKey('iic_sequence.visit_set_id'), primary_key=True)
+    iic_sequence_id = Column(Integer, ForeignKey('iic_sequence.iic_sequence_id'), primary_key=True)
     visit0 = Column(Integer, ForeignKey('pfs_config.visit0'))
 
     iic_sequence = relation('iic_sequence', uselist=False, back_populates='field_set')
     pfs_config = relation('pfs_config', uselist=False, back_populates='field_set')
 
-    def __init__(self, visit_set_id, visit0):
-        self.visit_set_id = visit_set_id
+    def __init__(self, iic_sequence_id, visit0):
+        self.iic_sequence_id = iic_sequence_id
         self.visit0 = visit0
 
 
@@ -2011,7 +2010,7 @@ class obslog_visit_set_note(Base):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('obslog_user.id'))
-    visit_set_id = Column(Integer, ForeignKey('iic_sequence.visit_set_id'))
+    iic_sequence_id = Column(Integer, ForeignKey('iic_sequence.iic_sequence_id'))
     body = Column(String, nullable=False)
 
     user = relation('obslog_user', back_populates='visit_set_notes')
