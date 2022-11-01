@@ -1391,13 +1391,13 @@ class iic_sequence(Base):
                       comment='Comments for the sequence')
     cmd_str = Column(String,
                      comment='ICS command string that generates exposures for this set of visits')
-    group_id = Column(Integer, nullable=False,
-                          comment='Group identifier')
+    group_id = Column(Integer, ForeignKey('sequence_group.group_id'), comment='Group identifier')
 
     visit_set = relation('visit_set', uselist=False, back_populates='iic_sequence')
     iic_sequence_status = relation('iic_sequence_status', uselist=False, back_populates='iic_sequence')
     field_set = relation('field_set', back_populates='iic_sequence')
     obslog_notes = relation('obslog_visit_set_note')
+    sequence_group = relation('sequence_group', back_populates='iic_sequence')
 
     def __init__(self, iic_sequence_id, sequence_type, name, comments, cmd_str, group_id):
         self.iic_sequence_id = iic_sequence_id
@@ -1439,6 +1439,22 @@ class visit_set(Base):
     def __init__(self, pfs_visit_id, iic_sequence_id):
         self.pfs_visit_id = pfs_visit_id
         self.iic_sequence_id = iic_sequence_id
+
+
+class sequence_group(Base):
+    __tablename__ = 'sequence_group'
+
+    group_id = Column(Integer, primary_key=True, autoincrement=False,  comment='Group identifier')
+    group_name = Column(String, comment='Group name')
+    created_at = Column(DateTime,
+                        comment='Creation time [YYYY-MM-DDThh:mm:ss]')
+
+    iic_sequence = relation('iic_sequence', uselist=False, back_populates='sequence_group')
+
+    def __init__(self, group_id, group_name, created_at):
+        self.group_id = group_id
+        self.group_name = group_name
+        self.created_at = created_at
 
 
 class field_set(Base):
