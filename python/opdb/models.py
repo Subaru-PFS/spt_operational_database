@@ -602,7 +602,7 @@ class pfs_visit(Base):
     mcs_exposure = relation('mcs_exposure', back_populates='pfs_visit')
     visit_set = relation('visit_set', back_populates='pfs_visit', uselist=False)
     obslog_notes = relation('obslog_visit_note')
-    agc_exposures = relation('agc_exposure', back_populates='pfs_visit')
+    agc_exposure = relation('agc_exposure', back_populates='pfs_visit')
 
     def __init__(self, pfs_visit_id, pfs_visit_description, pfs_design_id, issued_at):
         self.pfs_visit_id = pfs_visit_id
@@ -1381,8 +1381,8 @@ class sps_sequence(Base):
 class iic_sequence(Base):
     __tablename__ = 'iic_sequence'
 
-    visit_set_id = Column(Integer, primary_key=True, autoincrement=False,
-                          comment='Visit set identifier')
+    iic_sequence_id = Column(Integer, primary_key=True, autoincrement=False,
+                          comment='Sequence identifier')
     sequence_type = Column(String,
                            comment='Sequence type')
     name = Column(String,
@@ -1391,67 +1391,88 @@ class iic_sequence(Base):
                       comment='Comments for the sequence')
     cmd_str = Column(String,
                      comment='ICS command string that generates exposures for this set of visits')
-    group_id = Column(Integer, nullable=False,
-                          comment='Group identifier')
+    group_id = Column(Integer, ForeignKey('sequence_group.group_id'), comment='Group identifier')
+    created_at = Column(DateTime,
+                        comment='Creation time [YYYY-MM-DDThh:mm:ss]')
 
     visit_set = relation('visit_set', uselist=False, back_populates='iic_sequence')
     iic_sequence_status = relation('iic_sequence_status', uselist=False, back_populates='iic_sequence')
     field_set = relation('field_set', back_populates='iic_sequence')
     obslog_notes = relation('obslog_visit_set_note')
+    sequence_group = relation('sequence_group', back_populates='iic_sequence')
 
-
-    def __init__(self, visit_set_id, sequence_type, name, comments, cmd_str, group_id):
-        self.visit_set_id = visit_set_id
+    def __init__(self, iic_sequence_id, sequence_type, name, comments, cmd_str, group_id, created_at):
+        self.iic_sequence_id = iic_sequence_id
         self.sequence_type = sequence_type
         self.name = name
         self.comments = comments
         self.cmd_str = cmd_str
         self.group_id = group_id
+        self.created_at = created_at
 
 
 class iic_sequence_status(Base):
     __tablename__ = 'iic_sequence_status'
 
-    visit_set_id = Column(Integer, ForeignKey('iic_sequence.visit_set_id'),
+    iic_sequence_id = Column(Integer, ForeignKey('iic_sequence.iic_sequence_id'),
                           primary_key=True, autoincrement=False,
-                          comment='Visit set identifier')
+                          comment='Sequence identifier')
     status_flag = Column(Integer,
                          comment='Status flag of the sequence')
     cmd_output = Column(String,
                         comment='Status output')
 
     iic_sequence = relation('iic_sequence', back_populates='iic_sequence_status')
+    finished_at = Column(DateTime,
+                        comment='End time [YYYY-MM-DDThh:mm:ss]')
 
-    def __init__(self, visit_set_id, status_flag, cmd_output):
-        self.visit_set_id = visit_set_id
+    def __init__(self, iic_sequence_id, status_flag, cmd_output, finished_at):
+        self.iic_sequence_id = iic_sequence_id
         self.status_flag = status_flag
         self.cmd_output = cmd_output
+        self.finished_at = finished_at
 
 
 class visit_set(Base):
     __tablename__ = 'visit_set'
 
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), primary_key=True, unique=True, autoincrement=False)
-    visit_set_id = Column(Integer, ForeignKey('iic_sequence.visit_set_id'))
+    iic_sequence_id = Column(Integer, ForeignKey('iic_sequence.iic_sequence_id'))
 
     pfs_visit = relation('pfs_visit', uselist=False, back_populates='visit_set')
     iic_sequence = relation('iic_sequence', uselist=False, back_populates='visit_set')
 
-    def __init__(self, pfs_visit_id, visit_set_id):
+    def __init__(self, pfs_visit_id, iic_sequence_id):
         self.pfs_visit_id = pfs_visit_id
-        self.visit_set_id = visit_set_id
+        self.iic_sequence_id = iic_sequence_id
+
+
+class sequence_group(Base):
+    __tablename__ = 'sequence_group'
+
+    group_id = Column(Integer, primary_key=True, autoincrement=False,  comment='Group identifier')
+    group_name = Column(String, comment='Group name')
+    created_at = Column(DateTime,
+                        comment='Creation time [YYYY-MM-DDThh:mm:ss]')
+
+    iic_sequence = relation('iic_sequence', uselist=False, back_populates='sequence_group')
+
+    def __init__(self, group_id, group_name, created_at):
+        self.group_id = group_id
+        self.group_name = group_name
+        self.created_at = created_at
 
 
 class field_set(Base):
     __tablename__ = 'field_set'
-    visit_set_id = Column(Integer, ForeignKey('iic_sequence.visit_set_id'), primary_key=True)
+    iic_sequence_id = Column(Integer, ForeignKey('iic_sequence.iic_sequence_id'), primary_key=True)
     visit0 = Column(Integer, ForeignKey('pfs_config.visit0'))
 
     iic_sequence = relation('iic_sequence', uselist=False, back_populates='field_set')
     pfs_config = relation('pfs_config', uselist=False, back_populates='field_set')
 
-    def __init__(self, visit_set_id, visit0):
-        self.visit_set_id = visit_set_id
+    def __init__(self, iic_sequence_id, visit0):
+        self.iic_sequence_id = iic_sequence_id
         self.visit0 = visit0
 
 
@@ -2011,7 +2032,7 @@ class obslog_visit_set_note(Base):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('obslog_user.id'))
-    visit_set_id = Column(Integer, ForeignKey('iic_sequence.visit_set_id'))
+    iic_sequence_id = Column(Integer, ForeignKey('iic_sequence.iic_sequence_id'))
     body = Column(String, nullable=False)
 
     user = relation('obslog_user', back_populates='visit_set_notes')
@@ -2080,7 +2101,7 @@ class agc_exposure(Base):
     version_instdata = Column(String, comment='Version of the pfs_instdata')
     taken_at = Column(DateTime, comment='The time at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
 
-    pfs_visit = relation('pfs_visit', back_populates='agc_exposures')
+    pfs_visit = relation('pfs_visit', back_populates='agc_exposure')
     agc_guide_offset = relation('agc_guide_offset', uselist=False, back_populates='agc_exposure')
 
     def __init__(self, agc_exposure_id, pfs_visit_id, agc_exptime, altitude, azimuth, insrot, adc_pa,
