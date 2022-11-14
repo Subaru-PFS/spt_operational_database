@@ -443,6 +443,8 @@ class pfs_design(Base):
 
     pfs_design_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=False)
     design_name = Column(String, comment='Human-readable name for the design (designName)')
+    variant = Column(Integer, comment='Counter of which variant of `designId0` we are. Requires `designId0`')
+    design_id0 = Column(BigInteger, comment='pfsDesignId of the pfsDesign we are a variant of. Requires `variant`')
     tile_id = Column(Integer)
     ra_center_designed = Column(FLOAT)
     dec_center_designed = Column(FLOAT)
@@ -462,12 +464,15 @@ class pfs_design(Base):
     pfs_design_agcs = relation('pfs_design_agc', back_populates='pfs_design')
     pfs_design_fibers = relation('pfs_design_fiber', back_populates='pfs_design')
 
-    def __init__(self, pfs_design_id, design_name, tile_id, ra_center_designed, dec_center_designed, pa_designed,
+    def __init__(self, pfs_design_id, design_name, variant, design_id0, 
+                 tile_id, ra_center_designed, dec_center_designed, pa_designed,
                  num_sci_designed, num_cal_designed, num_sky_designed, num_guide_stars,
                  exptime_tot, exptime_min, ets_version, ets_assigner, designed_at, to_be_observed_at,
                  is_obsolete=False):
         self.pfs_design_id = pfs_design_id
         self.design_name = design_name
+        self.variant = variant
+        self.design_id0 = design_id0
         self.tile_id = tile_id
         self.ra_center_designed = ra_center_designed
         self.dec_center_designed = dec_center_designed
