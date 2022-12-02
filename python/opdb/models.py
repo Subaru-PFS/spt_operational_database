@@ -443,8 +443,8 @@ class pfs_design(Base):
 
     pfs_design_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=False)
     design_name = Column(String, comment='Human-readable name for the design (designName)')
-    variant = Column(Integer, comment='Counter of which variant of `designId0` we are. Requires `designId0`')
-    design_id0 = Column(BigInteger, comment='pfsDesignId of the pfsDesign we are a variant of. Requires `variant`')
+    variant = Column(Integer, comment='Counter of which variant of `designId0` we are. Requires `designId0`', nullable=False)
+    design_id0 = Column(BigInteger, comment='pfsDesignId of the pfsDesign we are a variant of. Requires `variant`', nullable=False)
     tile_id = Column(Integer)
     ra_center_designed = Column(FLOAT)
     dec_center_designed = Column(FLOAT)
@@ -1002,7 +1002,7 @@ class pfs_config_fiber(Base):
     is_on_source = Column(Boolean)
     comments = Column(String, comment='comments')
 
-    pfs_configs = relation(pfs_config, backref=backref('psf_config_fiber'))
+    pfs_configs = relation(pfs_config, backref=backref('pfs_config_fiber'))
 
     def __init__(self, pfs_design_id, visit0, fiber_id,
                  pfi_center_final_x_mm, pfi_center_final_y_mm,
