@@ -1051,6 +1051,23 @@ class pfs_config_agc(Base):
         self.comments = comments
 
 
+class pfs_config_sps(Base):
+    __tablename__ = 'pfs_config_sps'
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'visit0'),
+                      ForeignKeyConstraint(['pfs_visit_id'], ['pfs_visit.pfs_visit_id']),
+                      ForeignKeyConstraint(['visit0'], ['pfs_config.visit0']),
+                      {})
+    pfs_visit_id = Column(Integer, primary_key=True, autoincrement=False)
+    visit0 = Column(Integer, primary_key=True, autoincrement=False, comment='The first visit of the set')
+
+    pfs_visit = relation('pfs_visit', uselist=False, back_populates='pfs_config_sps')
+    pfs_config = relation('pfs_config', uselist=False, back_populates='pfs_config_sps')
+
+    def __init__(self, pfs_visit_id, visit0):
+        self.pfs_visit_id = pfs_visit_id
+        self.visit0 = visit0
+
+
 class cobra_motor_axis(Base):
     '''The axis or stage of a cobra motor.
     This can be one of:
