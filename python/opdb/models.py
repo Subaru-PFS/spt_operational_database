@@ -443,8 +443,8 @@ class pfs_design(Base):
 
     pfs_design_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=False)
     design_name = Column(String, comment='Human-readable name for the design (designName)')
-    variant = Column(Integer, comment='Counter of which variant of `designId0` we are. Requires `designId0`')
-    design_id0 = Column(BigInteger, comment='pfsDesignId of the pfsDesign we are a variant of. Requires `variant`')
+    variant = Column(Integer, comment='Counter of which variant of `designId0` we are. Requires `designId0`', nullable=False)
+    design_id0 = Column(BigInteger, comment='pfsDesignId of the pfsDesign we are a variant of. Requires `variant`', nullable=False)
     tile_id = Column(Integer)
     ra_center_designed = Column(FLOAT)
     dec_center_designed = Column(FLOAT)
@@ -1002,7 +1002,7 @@ class pfs_config_fiber(Base):
     is_on_source = Column(Boolean)
     comments = Column(String, comment='comments')
 
-    pfs_configs = relation(pfs_config, backref=backref('psf_config_fiber'))
+    pfs_configs = relation(pfs_config, backref=backref('pfs_config_fiber'))
 
     def __init__(self, pfs_design_id, visit0, fiber_id,
                  pfi_center_final_x_mm, pfi_center_final_y_mm,
@@ -1049,6 +1049,23 @@ class pfs_config_agc(Base):
         self.agc_final_x_pix = agc_final_x_pix
         self.agc_final_y_pix = agc_final_y_pix
         self.comments = comments
+
+
+class pfs_config_sps(Base):
+    __tablename__ = 'pfs_config_sps'
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'visit0'),
+                      ForeignKeyConstraint(['pfs_visit_id'], ['pfs_visit.pfs_visit_id']),
+                      ForeignKeyConstraint(['visit0'], ['pfs_config.visit0']),
+                      {})
+    pfs_visit_id = Column(Integer, primary_key=True, autoincrement=False)
+    visit0 = Column(Integer, primary_key=True, autoincrement=False, comment='The first visit of the set')
+
+    pfs_visit = relation('pfs_visit', uselist=False, back_populates='pfs_config_sps')
+    pfs_config = relation('pfs_config', uselist=False, back_populates='pfs_config_sps')
+
+    def __init__(self, pfs_visit_id, visit0):
+        self.pfs_visit_id = pfs_visit_id
+        self.visit0 = visit0
 
 
 class cobra_motor_axis(Base):
