@@ -608,6 +608,8 @@ class pfs_visit(Base):
     visit_set = relation('visit_set', back_populates='pfs_visit', uselist=False)
     obslog_notes = relation('obslog_visit_note')
     agc_exposure = relation('agc_exposure', back_populates='pfs_visit')
+    tel_status = relation('tel_status', back_populates='pfs_visit')
+    pfs_config_sps = relation('pfs_config_sps', back_populates='pfs_visit', uselist=False)
 
     def __init__(self, pfs_visit_id, pfs_visit_description, pfs_design_id, issued_at):
         self.pfs_visit_id = pfs_visit_id
@@ -641,6 +643,8 @@ class tel_status(Base):
     dome_light_status = Column(Integer, comment='Dome (room) light mask interger')
     created_at = Column(DateTime, index=True,
                         comment='Issued time [YYYY-MM-DDThh:mm:ss]')
+
+    pfs_visit = relation('pfs_visit', back_populates='tel_status')
 
     def __init__(self, pfs_visit_id, status_sequence_id,
                  altitude, azimuth, insrot, adc_pa, m2_pos3,
@@ -962,6 +966,7 @@ class pfs_config(Base):
 
     pfs_designs = relation(pfs_design, backref=backref('pfs_config'))
     field_set = relation('field_set', back_populates='pfs_config')
+    pfs_config_sps = relation('pfs_config_sps', back_populates='pfs_config')
 
     def __init__(self, pfs_design_id, visit0, ra_center_config, dec_center_config, pa_config,
                  num_sci_allocated, num_cal_allocated, num_sky_allocated, num_guide_stars_allocated,
