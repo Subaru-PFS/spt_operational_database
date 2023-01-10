@@ -95,3 +95,11 @@ python -m venv .venv
 ./.venv/bin/pytest
 ./.venv/bin/pylint --errors-only opdb.models
 ```
+
+## OBSLOG
+
+### Registration of FITS headers of existing files
+
+```bash
+find /data/raw/ -name PFS*.fits | xargs -r ./.venv/bin/python -m opdb.obslog -d postgresql://dbuser@dbhost/dbname --no-echo register --commit-each
+```
