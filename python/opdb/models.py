@@ -1000,10 +1000,12 @@ class pfs_config_fiber(Base):
     visit0 = Column(Integer, primary_key=True, autoincrement=False,
                     comment='The first visit of the set')
     fiber_id = Column(Integer, primary_key=True, autoincrement=False)
-    pfi_nominal_final_x_mm = Column(REAL)
-    pfi_nominal_final_y_mm = Column(REAL)
-    pfi_center_final_x_mm = Column(REAL)
-    pfi_center_final_y_mm = Column(REAL)
+    target_ra = Column(FLOAT, comment='R.A. of the target')
+    target_dec = Column(FLOAT, comment='Dec. of the target')
+    pfi_nominal_x_mm = Column(REAL, comment='Nominal x-position on the PFI')
+    pfi_nominal_y_mm = Column(REAL, comment='Nominal y-position on the PFI')
+    pfi_center_final_x_mm = Column(REAL, comment='Final measured x-position on the PFI')
+    pfi_center_final_y_mm = Column(REAL, comment='Final measured y-position on the PFI')
     motor_map_summary = Column(String)
     config_elapsed_time = Column(REAL)
     is_on_source = Column(Boolean)
@@ -1011,16 +1013,18 @@ class pfs_config_fiber(Base):
 
     pfs_configs = relation(pfs_config, backref=backref('pfs_config_fiber'))
 
-    def __init__(self, pfs_design_id, visit0, fiber_id,
-                 pfi_nominal_final_x_mm, pfi_nominal_final_y_mm,
+    def __init__(self, pfs_design_id, visit0, fiber_id, target_ra, target_dec,
+                 pfi_nominal_x_mm, pfi_nominal_y_mm,
                  pfi_center_final_x_mm, pfi_center_final_y_mm,
                  motor_map_summary, config_elapsed_time,
                  is_on_source, comments):
         self.pfs_design_id = pfs_design_id
         self.visit0 = visit0
         self.fiber_id = fiber_id
-        self.pfi_nominal_final_x_mm = pfi_nominal_final_x_mm
-        self.pfi_nominal_final_y_mm = pfi_nominal_final_y_mm
+        self.target_ra = target_ra
+        self.target_dec = target_dec
+        self.pfi_nominal_x_mm = pfi_nominal_x_mm
+        self.pfi_nominal_y_mm = pfi_nominal_y_mm
         self.pfi_center_final_x_mm = pfi_center_final_x_mm
         self.pfi_center_final_y_mm = pfi_center_final_y_mm
         self.motor_map_summary = motor_map_summary
