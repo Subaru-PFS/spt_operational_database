@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy import Column, BigInteger, Integer, String, FLOAT, ForeignKey, DateTime, Boolean, REAL, ARRAY
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relation, backref
+from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy import UniqueConstraint, ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql.schema import PrimaryKeyConstraint
@@ -37,7 +37,7 @@ class program(Base):
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
 
-    proposals = relation(proposal, backref=backref('program'))
+    proposals = relationship(proposal, backref=backref('program'))
 
     def __init__(self, program_id, program_name, program_description, proposal_id,
                  is_filler, created_at, updated_at):
@@ -165,22 +165,31 @@ class cobra(Base):
     field_on_pfi = Column(Integer, comment='Field (1..3).')
     cobra_in_field = Column(Integer, comment='Cobra-in-field (1..798). cf = 57*(mf-1)+cm.')
     cobra_module_id = Column(Integer, comment='Cobra module id (1..42)')
-    module_in_field = Column(Integer, comment='Module-in-field (1..14). The number of the module within the field, with 1 at the center of the PFI.')
+    module_in_field = Column(
+        Integer, comment='Module-in-field (1..14). The number of the module within the field, with 1 at the center of the PFI.')
     cobra_in_module = Column(
         Integer, comment='Cobra-in-module (1..57). 1 is the bottom-left cobra in a module when looked at with the wide (29-cobra) board down. Increasing as you move across the module.')
     cobra_in_board = Column(Integer, comment='Cobra-in-board (1..29). Each board has either 29 or 28 cobras.')
     cobra_board_id = Column(Integer, comment='Cobra board id (1..84). One Cobra module has two boards.')
-    mtp = Column(String(3), comment='Cobra module id associated with MTP ferrule. There are 84 of these, numbered 1 through 42 with A and B suffixes. (e.g.,13B)')
+    mtp = Column(String(
+        3), comment='Cobra module id associated with MTP ferrule. There are 84 of these, numbered 1 through 42 with A and B suffixes. (e.g.,13B)')
     sps_module_id = Column(Integer, comment='Spectrograph that the cobra feeds (1..4)')
-    sps_slit_hole = Column(Integer, comment='Fiber hole (1..651). This is the position in the spectrograph slit head.')
-    science_fiber_id = Column(Integer, comment=' Science fiber (1..2394). This is a unique identifier for each science fiber.')
+    sps_slit_hole = Column(
+        Integer, comment='Fiber hole (1..651). This is the position in the spectrograph slit head.')
+    science_fiber_id = Column(
+        Integer, comment=' Science fiber (1..2394). This is a unique identifier for each science fiber.')
     fiber_id = Column(
         Integer, comment='The fiber identifier (1..2604). This is a unique identifier for each fiber (both science and engineering). fiberId = 651*(sp-1)+fh.')
-    sunss_id = Column(String(4), comment='SuNSS fiber id. ID consists of fiber number and mode (i is imaging, and d is diffuse).')
-    mtp_a_id = Column(String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = A)')
-    mtp_c_id = Column(String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = C)')
-    mtp_ba_id = Column(String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = BA)')
-    mtp_bc_id = Column(String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = BC)')
+    sunss_id = Column(
+        String(4), comment='SuNSS fiber id. ID consists of fiber number and mode (i is imaging, and d is diffuse).')
+    mtp_a_id = Column(
+        String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = A)')
+    mtp_c_id = Column(
+        String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = C)')
+    mtp_ba_id = Column(
+        String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = BA)')
+    mtp_bc_id = Column(
+        String(), comment='Identifier of the USCONNEC connector hole at the Cable B-C interface. MTP = BC)')
     version = Column(String)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
@@ -292,8 +301,10 @@ class fiducial_fiber_geometry(Base):
     __table_args__ = (UniqueConstraint('fiducial_fiber_id', 'fiducial_fiber_calib_id'),
                       {})
 
-    fiducial_fiber_id = Column(Integer, ForeignKey('fiducial_fiber.fiducial_fiber_id'), primary_key=True, autoincrement=False)
-    fiducial_fiber_calib_id = Column(Integer, ForeignKey('fiducial_fiber_calib.fiducial_fiber_calib_id'), primary_key=True, autoincrement=False)
+    fiducial_fiber_id = Column(Integer, ForeignKey(
+        'fiducial_fiber.fiducial_fiber_id'), primary_key=True, autoincrement=False)
+    fiducial_fiber_calib_id = Column(Integer, ForeignKey(
+        'fiducial_fiber_calib.fiducial_fiber_calib_id'), primary_key=True, autoincrement=False)
     ff_center_on_pfi_x_mm = Column(REAL)
     ff_center_on_pfi_y_mm = Column(REAL)
     elevation = Column(REAL, comment='Elevation')
@@ -344,10 +355,10 @@ class target(Base):
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
 
-    programs = relation(program, backref=backref('target'))
-    target_types = relation(target_type, backref=backref('target'))
-    input_catalogs = relation(input_catalog, backref=backref('target'))
-    qa_types = relation(qa_type, backref=backref('target'))
+    programs = relationship(program, backref=backref('target'))
+    target_types = relationship(target_type, backref=backref('target'))
+    input_catalogs = relationship(input_catalog, backref=backref('target'))
+    qa_types = relationship(qa_type, backref=backref('target'))
 
     def __init__(self, program_id, obj_id, ra, decl, tract, patch, priority, target_type_id, cat_id,
                  cat_obj_id,
@@ -399,8 +410,8 @@ class guide_stars(Base):
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
 
-    input_catalogs = relation(input_catalog, backref=backref('guide_stars'))
-    obj_types = relation(obj_type, backref=backref('guide_stars'))
+    input_catalogs = relationship(input_catalog, backref=backref('guide_stars'))
+    obj_types = relationship(obj_type, backref=backref('guide_stars'))
 
     def __init__(self, guide_star_id, ra, decl, cat_id, obj_type_id,
                  mag_agc, flux_agc, flags, created_at, updated_at):
@@ -427,7 +438,7 @@ class tile(Base):
     pa = Column(REAL)
     is_finished = Column(Boolean)
 
-    programs = relation(program, backref=backref('tile'))
+    programs = relationship(program, backref=backref('tile'))
 
     def __init__(self, program_id, tile, ra_center, dec_center, pa, is_finished):
         self.program_id = program_id
@@ -443,8 +454,10 @@ class pfs_design(Base):
 
     pfs_design_id = Column(BigInteger, primary_key=True, unique=True, autoincrement=False)
     design_name = Column(String, comment='Human-readable name for the design (designName)')
-    variant = Column(Integer, comment='Counter of which variant of `designId0` we are. Requires `designId0`', nullable=False)
-    design_id0 = Column(BigInteger, comment='pfsDesignId of the pfsDesign we are a variant of. Requires `variant`', nullable=False)
+    variant = Column(
+        Integer, comment='Counter of which variant of `designId0` we are. Requires `designId0`', nullable=False)
+    design_id0 = Column(
+        BigInteger, comment='pfsDesignId of the pfsDesign we are a variant of. Requires `variant`', nullable=False)
     tile_id = Column(Integer)
     ra_center_designed = Column(FLOAT)
     dec_center_designed = Column(FLOAT)
@@ -461,10 +474,10 @@ class pfs_design(Base):
     to_be_observed_at = Column(DateTime)
     is_obsolete = Column(Boolean)
 
-    pfs_design_agcs = relation('pfs_design_agc', back_populates='pfs_design')
-    pfs_design_fibers = relation('pfs_design_fiber', back_populates='pfs_design')
+    pfs_design_agcs = relationship('pfs_design_agc', back_populates='pfs_design')
+    pfs_design_fibers = relationship('pfs_design_fiber', back_populates='pfs_design')
 
-    def __init__(self, pfs_design_id, design_name, variant, design_id0, 
+    def __init__(self, pfs_design_id, design_name, variant, design_id0,
                  tile_id, ra_center_designed, dec_center_designed, pa_designed,
                  num_sci_designed, num_cal_designed, num_sky_designed, num_guide_stars,
                  exptime_tot, exptime_min, ets_version, ets_assigner, designed_at, to_be_observed_at,
@@ -515,7 +528,7 @@ class pfs_design_fiber(Base):
     is_on_source = Column(Boolean)
     comments = Column(String, comment='comments')
 
-    pfs_design = relation('pfs_design', back_populates='pfs_design_fibers')
+    pfs_design = relationship('pfs_design', back_populates='pfs_design_fibers')
 
     def __init__(self, pfs_design_id, fiber_id,
                  target_cat_id, target_tract, target_patch, target_obj_id,
@@ -569,7 +582,7 @@ class pfs_design_agc(Base):
     agc_target_y_pix = Column(REAL, comment='Target y-position on the AGC [pix]')
     comments = Column(String, comment='comments')
 
-    pfs_design = relation('pfs_design', back_populates='pfs_design_agcs')
+    pfs_design = relationship('pfs_design', back_populates='pfs_design_agcs')
 
     def __init__(self, pfs_design_id, guide_star_id,
                  epoch, guide_star_ra, guide_star_dec, guide_star_pm_ra, guide_star_pm_dec,
@@ -603,13 +616,13 @@ class pfs_visit(Base):
     pfs_design_id = Column(BigInteger)
     issued_at = Column(DateTime, comment='Issued time [YYYY-MM-DDThh:mm:ss]')
 
-    sps_visit = relation('sps_visit', uselist=False, back_populates='pfs_visit')
-    mcs_exposure = relation('mcs_exposure', back_populates='pfs_visit')
-    visit_set = relation('visit_set', back_populates='pfs_visit', uselist=False)
-    obslog_notes = relation('obslog_visit_note')
-    agc_exposure = relation('agc_exposure', back_populates='pfs_visit')
-    tel_status = relation('tel_status', back_populates='pfs_visit')
-    pfs_config_sps = relation('pfs_config_sps', back_populates='pfs_visit', uselist=False)
+    sps_visit = relationship('sps_visit', uselist=False, back_populates='pfs_visit')
+    mcs_exposure = relationship('mcs_exposure', back_populates='pfs_visit')
+    visit_set = relationship('visit_set', back_populates='pfs_visit', uselist=False)
+    obslog_notes = relationship('obslog_visit_note')
+    agc_exposure = relationship('agc_exposure', back_populates='pfs_visit')
+    tel_status = relationship('tel_status', back_populates='pfs_visit')
+    pfs_config_sps = relationship('pfs_config_sps', back_populates='pfs_visit', uselist=False)
 
     def __init__(self, pfs_visit_id, pfs_visit_description, pfs_design_id, issued_at):
         self.pfs_visit_id = pfs_visit_id
@@ -644,7 +657,7 @@ class tel_status(Base):
     created_at = Column(DateTime, index=True,
                         comment='Issued time [YYYY-MM-DDThh:mm:ss]')
 
-    pfs_visit = relation('pfs_visit', back_populates='tel_status')
+    pfs_visit = relationship('pfs_visit', back_populates='tel_status')
 
     def __init__(self, pfs_visit_id, status_sequence_id,
                  altitude, azimuth, insrot, adc_pa, m2_pos3,
@@ -805,10 +818,11 @@ class mcs_exposure(Base):
     version_actor = Column(String, comment='Version of the actor')
     version_instdata = Column(String, comment='Version of the pfs_instdata')
     taken_at = Column(DateTime, comment='The time at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
-    taken_in_hst_at = Column(DateTime, comment='The time (in HST) at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
+    taken_in_hst_at = Column(
+        DateTime, comment='The time (in HST) at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
 
-    pfs_visit = relation('pfs_visit', back_populates='mcs_exposure')
-    obslog_notes = relation('obslog_mcs_exposure_note')
+    pfs_visit = relationship('pfs_visit', back_populates='mcs_exposure')
+    obslog_notes = relationship('obslog_mcs_exposure_note')
 
     def __init__(self, mcs_frame_id, pfs_visit_id, mcs_exptime, altitude, azimuth, insrot, adc_pa,
                  dome_temperature, dome_pressure, dome_humidity,
@@ -964,9 +978,9 @@ class pfs_config(Base):
     allocated_at = Column(DateTime, comment='Time at which config was allocated [YYYY-MM-DDhhmmss] (TBC)')
     was_observed = Column(Boolean, comment='True of configuration was observed (XXX relevant?)')
 
-    pfs_designs = relation(pfs_design, backref=backref('pfs_config'))
-    field_set = relation('field_set', back_populates='pfs_config')
-    pfs_config_sps = relation('pfs_config_sps', back_populates='pfs_config')
+    pfs_designs = relationship(pfs_design, backref=backref('pfs_config'))
+    field_set = relationship('field_set', back_populates='pfs_config')
+    pfs_config_sps = relationship('pfs_config_sps', back_populates='pfs_config')
 
     def __init__(self, pfs_design_id, visit0, ra_center_config, dec_center_config, pa_config,
                  num_sci_allocated, num_cal_allocated, num_sky_allocated, num_guide_stars_allocated,
@@ -1011,7 +1025,7 @@ class pfs_config_fiber(Base):
     is_on_source = Column(Boolean)
     comments = Column(String, comment='comments')
 
-    pfs_configs = relation(pfs_config, backref=backref('pfs_config_fiber'))
+    pfs_configs = relationship(pfs_config, backref=backref('pfs_config_fiber'))
 
     def __init__(self, pfs_design_id, visit0, fiber_id, target_ra, target_dec,
                  pfi_nominal_x_mm, pfi_nominal_y_mm,
@@ -1052,7 +1066,7 @@ class pfs_config_agc(Base):
     agc_final_y_pix = Column(REAL, comment='Final y-position on the AGC [pix]')
     comments = Column(String, comment='comments')
 
-    pfs_configs = relation(pfs_config, backref=backref('pfs_config_agc'))
+    pfs_configs = relationship(pfs_config, backref=backref('pfs_config_agc'))
 
     def __init__(self, pfs_design_id, visit0, guide_star_id,
                  agc_camera_id, agc_final_x_pix, agc_final_y_pix, comments):
@@ -1074,8 +1088,8 @@ class pfs_config_sps(Base):
     pfs_visit_id = Column(Integer, primary_key=True, autoincrement=False)
     visit0 = Column(Integer, primary_key=True, autoincrement=False, comment='The first visit of the set')
 
-    pfs_visit = relation('pfs_visit', uselist=False, back_populates='pfs_config_sps')
-    pfs_config = relation('pfs_config', uselist=False, back_populates='pfs_config_sps')
+    pfs_visit = relationship('pfs_visit', uselist=False, back_populates='pfs_config_sps')
+    pfs_config = relationship('pfs_config', uselist=False, back_populates='pfs_config_sps')
 
     def __init__(self, pfs_visit_id, visit0):
         self.pfs_visit_id = pfs_visit_id
@@ -1090,7 +1104,8 @@ class cobra_motor_axis(Base):
     '''
     __tablename__ = 'cobra_motor_axis'
 
-    cobra_motor_axis_id = Column(Integer, primary_key=True, autoincrement=False, comment='Motor axis stage number [1,2]')
+    cobra_motor_axis_id = Column(Integer, primary_key=True, autoincrement=False,
+                                 comment='Motor axis stage number [1,2]')
     cobra_motor_axis_name = Column(String, comment='Corresponding name for axis [Theta, Phi]')
 
     def __init__(self, cobra_motor_axis_id, cobra_motor_axis_name):
@@ -1106,8 +1121,10 @@ class cobra_motor_direction(Base):
     '''
     __tablename__ = 'cobra_motor_direction'
 
-    cobra_motor_direction_id = Column(Integer, primary_key=True, autoincrement=False, comment='Motor movement direction [0,1]')
-    cobra_motor_direction_name = Column(String, comment='Corresponding name for the movement [Forward, Reverse]')
+    cobra_motor_direction_id = Column(Integer, primary_key=True,
+                                      autoincrement=False, comment='Motor movement direction [0,1]')
+    cobra_motor_direction_name = Column(
+        String, comment='Corresponding name for the movement [Forward, Reverse]')
 
     def __init__(self, cobra_motor_direction_id, cobra_motor_direction_name):
         self.cobra_motor_direction_id = cobra_motor_direction_id
@@ -1155,7 +1172,8 @@ class cobra_motor_model(Base):
     cobra_motor_calib_id = Column(Integer, ForeignKey('cobra_motor_calib.cobra_motor_calib_id'), index=True)
     cobra_id = Column(Integer, comment='The cobra fiber identifier', index=True)
     cobra_motor_axis_id = Column(Integer, ForeignKey('cobra_motor_axis.cobra_motor_axis_id'), index=True)
-    cobra_motor_direction_id = Column(Integer, ForeignKey('cobra_motor_direction.cobra_motor_direction_id'), index=True)
+    cobra_motor_direction_id = Column(Integer, ForeignKey(
+        'cobra_motor_direction.cobra_motor_direction_id'), index=True)
     cobra_motor_on_time = Column(REAL, comment='The ontime level')
     cobra_motor_step_size = Column(REAL, comment='The step size resolution')
     cobra_motor_frequency = Column(REAL, comment='The motor frequency')
@@ -1180,8 +1198,10 @@ class cobra_motor_map(Base):
     __table_args__ = (UniqueConstraint('cobra_motor_model_id', 'cobra_motor_move_sequence'),
                       {})
 
-    cobra_motor_model_id = Column(Integer, ForeignKey('cobra_motor_model.cobra_motor_model_id'), primary_key=True, autoincrement=False)
-    cobra_motor_move_sequence = Column(Integer, primary_key=True, autoincrement=False, comment='The motor movement sequence')
+    cobra_motor_model_id = Column(Integer, ForeignKey(
+        'cobra_motor_model.cobra_motor_model_id'), primary_key=True, autoincrement=False)
+    cobra_motor_move_sequence = Column(Integer, primary_key=True,
+                                       autoincrement=False, comment='The motor movement sequence')
     cobra_motor_angle = Column(REAL, comment='The angle of the motor [deg]')
     cobra_motor_speed = Column(REAL, comment='The speed of the motor [deg/step] (TBC)')
 
@@ -1201,9 +1221,11 @@ class cobra_convergence_test(Base):
     __table_args__ = (UniqueConstraint('cobra_motor_model_id', 'iteration', 'cobra_motor_angle_target_id'),
                       {})
 
-    cobra_motor_model_id = Column(Integer, ForeignKey('cobra_motor_model.cobra_motor_model_id'), primary_key=True, autoincrement=False)
+    cobra_motor_model_id = Column(Integer, ForeignKey(
+        'cobra_motor_model.cobra_motor_model_id'), primary_key=True, autoincrement=False)
     iteration = Column(Integer, primary_key=True, autoincrement=False, comment='The iteration number')
-    cobra_motor_angle_target_id = Column(Integer, primary_key=True, autoincrement=False, comment='The ID for the target angle of the motor to test')
+    cobra_motor_angle_target_id = Column(
+        Integer, primary_key=True, autoincrement=False, comment='The ID for the target angle of the motor to test')
     cobra_motor_angle_target = Column(REAL, comment='The target angle of the motor to test')
     cobra_motor_angle_difference = Column(REAL, comment='The difference of the motor angle [deg.]')
     signal_to_noise_ratio = Column(REAL, comment='Signal-to-Noise ratio')
@@ -1381,8 +1403,8 @@ class sps_visit(Base):
     exp_type = Column(String,
                       comment='Type of exposure: BIAS, FLAT, DFLAT etc.')
 
-    pfs_visit = relation('pfs_visit', uselist=False, back_populates='sps_visit')
-    sps_exposure = relation('sps_exposure', back_populates='sps_visit')
+    pfs_visit = relationship('pfs_visit', uselist=False, back_populates='sps_visit')
+    sps_exposure = relationship('sps_exposure', back_populates='sps_visit')
 
     def __init__(self, pfs_visit_id, exp_type):
         self.pfs_visit_id = pfs_visit_id
@@ -1418,7 +1440,7 @@ class iic_sequence(Base):
     __tablename__ = 'iic_sequence'
 
     iic_sequence_id = Column(Integer, primary_key=True, autoincrement=False,
-                          comment='Sequence identifier')
+                             comment='Sequence identifier')
     sequence_type = Column(String,
                            comment='Sequence type')
     name = Column(String,
@@ -1431,11 +1453,11 @@ class iic_sequence(Base):
     created_at = Column(DateTime,
                         comment='Creation time [YYYY-MM-DDThh:mm:ss]')
 
-    visit_set = relation('visit_set', uselist=False, back_populates='iic_sequence')
-    iic_sequence_status = relation('iic_sequence_status', uselist=False, back_populates='iic_sequence')
-    field_set = relation('field_set', back_populates='iic_sequence')
-    obslog_notes = relation('obslog_visit_set_note')
-    sequence_group = relation('sequence_group', back_populates='iic_sequence')
+    visit_set = relationship('visit_set', uselist=False, back_populates='iic_sequence')
+    iic_sequence_status = relationship('iic_sequence_status', uselist=False, back_populates='iic_sequence')
+    field_set = relationship('field_set', back_populates='iic_sequence')
+    obslog_notes = relationship('obslog_visit_set_note')
+    sequence_group = relationship('sequence_group', back_populates='iic_sequence')
 
     def __init__(self, iic_sequence_id, sequence_type, name, comments, cmd_str, group_id, created_at):
         self.iic_sequence_id = iic_sequence_id
@@ -1451,16 +1473,16 @@ class iic_sequence_status(Base):
     __tablename__ = 'iic_sequence_status'
 
     iic_sequence_id = Column(Integer, ForeignKey('iic_sequence.iic_sequence_id'),
-                          primary_key=True, autoincrement=False,
-                          comment='Sequence identifier')
+                             primary_key=True, autoincrement=False,
+                             comment='Sequence identifier')
     status_flag = Column(Integer,
                          comment='Status flag of the sequence')
     cmd_output = Column(String,
                         comment='Status output')
 
-    iic_sequence = relation('iic_sequence', back_populates='iic_sequence_status')
+    iic_sequence = relationship('iic_sequence', back_populates='iic_sequence_status')
     finished_at = Column(DateTime,
-                        comment='End time [YYYY-MM-DDThh:mm:ss]')
+                         comment='End time [YYYY-MM-DDThh:mm:ss]')
 
     def __init__(self, iic_sequence_id, status_flag, cmd_output, finished_at):
         self.iic_sequence_id = iic_sequence_id
@@ -1472,11 +1494,12 @@ class iic_sequence_status(Base):
 class visit_set(Base):
     __tablename__ = 'visit_set'
 
-    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), primary_key=True, unique=True, autoincrement=False)
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
+                          primary_key=True, unique=True, autoincrement=False)
     iic_sequence_id = Column(Integer, ForeignKey('iic_sequence.iic_sequence_id'))
 
-    pfs_visit = relation('pfs_visit', uselist=False, back_populates='visit_set')
-    iic_sequence = relation('iic_sequence', uselist=False, back_populates='visit_set')
+    pfs_visit = relationship('pfs_visit', uselist=False, back_populates='visit_set')
+    iic_sequence = relationship('iic_sequence', uselist=False, back_populates='visit_set')
 
     def __init__(self, pfs_visit_id, iic_sequence_id):
         self.pfs_visit_id = pfs_visit_id
@@ -1491,7 +1514,7 @@ class sequence_group(Base):
     created_at = Column(DateTime,
                         comment='Creation time [YYYY-MM-DDThh:mm:ss]')
 
-    iic_sequence = relation('iic_sequence', uselist=False, back_populates='sequence_group')
+    iic_sequence = relationship('iic_sequence', uselist=False, back_populates='sequence_group')
 
     def __init__(self, group_id, group_name, created_at):
         self.group_id = group_id
@@ -1504,8 +1527,8 @@ class field_set(Base):
     iic_sequence_id = Column(Integer, ForeignKey('iic_sequence.iic_sequence_id'), primary_key=True)
     visit0 = Column(Integer, ForeignKey('pfs_config.visit0'))
 
-    iic_sequence = relation('iic_sequence', uselist=False, back_populates='field_set')
-    pfs_config = relation('pfs_config', uselist=False, back_populates='field_set')
+    iic_sequence = relationship('iic_sequence', uselist=False, back_populates='field_set')
+    pfs_config = relationship('pfs_config', uselist=False, back_populates='field_set')
 
     def __init__(self, iic_sequence_id, visit0):
         self.iic_sequence_id = iic_sequence_id
@@ -1529,9 +1552,9 @@ class sps_exposure(Base):
     beam_config_date = Column(FLOAT,
                               comment='MJD when the configuration changed')
 
-    sps_visit = relation('sps_visit', back_populates='sps_exposure')
+    sps_visit = relationship('sps_visit', back_populates='sps_exposure')
 
-    sps_annotation = relation('sps_annotation', back_populates='sps_exposure')
+    sps_annotation = relationship('sps_annotation', back_populates='sps_exposure')
 
     def __init__(self, pfs_visit_id, sps_camera_id,
                  exptime, time_exp_start, time_exp_end,
@@ -1604,7 +1627,7 @@ class sps_annotation(Base):
     created_at = Column(DateTime,
                         comment='Creation time [YYYY-MM-DDThh:mm:ss]')
 
-    sps_exposure = relation('sps_exposure', back_populates='sps_annotation')
+    sps_exposure = relationship('sps_exposure', back_populates='sps_annotation')
 
     def __init__(self, annotation_id, pfs_visit_id, sps_camera_id, data_flag, notes, created_at):
         self.annotation_id = annotation_id
@@ -1701,10 +1724,10 @@ class calib_set(Base):
     calib_dark_id = Column(Integer, ForeignKey('calib.calib_id'))
     calib_arcs_id = Column(Integer, ForeignKey('calib.calib_id'))
 
-    calib_flat = relation(calib, primaryjoin="calib_set.calib_flat_id==calib.calib_id")
-    calib_bias = relation(calib, primaryjoin="calib_set.calib_bias_id==calib.calib_id")
-    calib_dark = relation(calib, primaryjoin="calib_set.calib_dark_id==calib.calib_id")
-    calib_arcs = relation(calib, primaryjoin="calib_set.calib_arcs_id==calib.calib_id")
+    calib_flat = relationship(calib, primaryjoin="calib_set.calib_flat_id==calib.calib_id")
+    calib_bias = relationship(calib, primaryjoin="calib_set.calib_bias_id==calib.calib_id")
+    calib_dark = relationship(calib, primaryjoin="calib_set.calib_dark_id==calib.calib_id")
+    calib_arcs = relationship(calib, primaryjoin="calib_set.calib_arcs_id==calib.calib_id")
 
     def __init__(self, calib_set_id,
                  calib_flat_id, calib_bias_id, calib_dark_id, calib_arcs_id
@@ -1797,9 +1820,9 @@ class pfs_arm(Base):
     processed_at = Column(DateTime)
     drp2d_version = Column(String)
 
-    calib_sets = relation(calib_set, backref=backref('pfs_arm'))
-    sky_models = relation(sky_model, backref=backref('pfs_arm'))
-    psf_models = relation(psf_model, backref=backref('pfs_arm'))
+    calib_sets = relationship(calib_set, backref=backref('pfs_arm'))
+    sky_models = relationship(sky_model, backref=backref('pfs_arm'))
+    psf_models = relationship(psf_model, backref=backref('pfs_arm'))
 
     def __init__(self, pfs_visit_id,
                  calib_set_id, sky_model_id, psf_model_id, flags,
@@ -1824,7 +1847,7 @@ class pfs_arm_obj(Base):
     qa_type_id = Column(Integer, ForeignKey('qa_type.qa_type_id'))
     qa_value = Column(REAL)
 
-    qa_types = relation(qa_type, backref=backref('pfs_arm_obj'))
+    qa_types = relationship(qa_type, backref=backref('pfs_arm_obj'))
 
     def __init__(self, pfs_visit_id, cobra_id, flags, qa_type_id, qa_value):
         self.pfs_visit_id = pfs_visit_id
@@ -1864,10 +1887,10 @@ class pfs_object(Base):
     qa_type_id = Column(Integer, ForeignKey('qa_type.qa_type_id'))
     qa_value = Column(REAL)
 
-    targets = relation(target, backref=backref('pfs_object'))
-    flux_calibs = relation(flux_calib, backref=backref('pfs_object'))
-    qa_types = relation(qa_type, backref=backref('pfs_object'))
-    visit_hashs = relation(visit_hash, backref=backref('pfs_object'))
+    targets = relationship(target, backref=backref('pfs_object'))
+    flux_calibs = relationship(flux_calib, backref=backref('pfs_object'))
+    qa_types = relationship(qa_type, backref=backref('pfs_object'))
+    visit_hashs = relationship(visit_hash, backref=backref('pfs_object'))
 
     def __init__(self, pfs_object_id, target_id, tract, patch, cat_id, obj_id, n_visit, pfs_visit_hash,
                  cum_texp, processed_at, drp2d_version, flux_calib_id, flags, qa_type_id, qa_value):
@@ -1897,7 +1920,7 @@ class visits_to_combine(Base):
     pfs_visit_hash = Column(BigInteger, ForeignKey('visit_hash.pfs_visit_hash'), primary_key=True,
                             autoincrement=False)
 
-    visit_hashs = relation(visit_hash, backref=backref('visits_to_combine'))
+    visit_hashs = relationship(visit_hash, backref=backref('visits_to_combine'))
 
     def __init__(self, pfs_visit_id, pfs_visit_hash):
         self.pfs_visit_id = pfs_visit_id
@@ -2058,9 +2081,9 @@ class obslog_user(Base):
     id = Column(Integer, primary_key=True)
     account_name = Column(String, nullable=False, unique=True)
 
-    visit_notes = relation('obslog_visit_note')
-    visit_set_notes = relation('obslog_visit_set_note')
-    mcs_exposure_notes = relation('obslog_mcs_exposure_note')
+    visit_notes = relationship('obslog_visit_note')
+    visit_set_notes = relationship('obslog_visit_set_note')
+    mcs_exposure_notes = relationship('obslog_mcs_exposure_note')
 
 
 class obslog_visit_set_note(Base):
@@ -2071,8 +2094,8 @@ class obslog_visit_set_note(Base):
     iic_sequence_id = Column(Integer, ForeignKey('iic_sequence.iic_sequence_id'))
     body = Column(String, nullable=False)
 
-    user = relation('obslog_user', back_populates='visit_set_notes')
-    iic_sequence = relation('iic_sequence', back_populates='obslog_notes')
+    user = relationship('obslog_user', back_populates='visit_set_notes')
+    iic_sequence = relationship('iic_sequence', back_populates='obslog_notes')
 
 
 class obslog_visit_note(Base):
@@ -2083,8 +2106,8 @@ class obslog_visit_note(Base):
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
     body = Column(String, nullable=False)
 
-    user = relation('obslog_user', back_populates='visit_notes')
-    pfs_visit = relation('pfs_visit', back_populates='obslog_notes')
+    user = relationship('obslog_user', back_populates='visit_notes')
+    pfs_visit = relationship('pfs_visit', back_populates='obslog_notes')
 
 
 class obslog_mcs_exposure_note(Base):
@@ -2095,8 +2118,8 @@ class obslog_mcs_exposure_note(Base):
     mcs_exposure_frame_id = Column(Integer, ForeignKey('mcs_exposure.mcs_frame_id'))
     body = Column(String, nullable=False)
 
-    user = relation('obslog_user', back_populates='mcs_exposure_notes')
-    mcs_exposure = relation('mcs_exposure', back_populates='obslog_notes')
+    user = relationship('obslog_user', back_populates='mcs_exposure_notes')
+    mcs_exposure = relationship('mcs_exposure', back_populates='obslog_notes')
 
 
 class obslog_fits_header(Base):
@@ -2137,8 +2160,8 @@ class agc_exposure(Base):
     version_instdata = Column(String, comment='Version of the pfs_instdata')
     taken_at = Column(DateTime, comment='The time at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
 
-    pfs_visit = relation('pfs_visit', back_populates='agc_exposure')
-    agc_guide_offset = relation('agc_guide_offset', uselist=False, back_populates='agc_exposure')
+    pfs_visit = relationship('pfs_visit', back_populates='agc_exposure')
+    agc_guide_offset = relationship('agc_guide_offset', uselist=False, back_populates='agc_exposure')
 
     def __init__(self, agc_exposure_id, pfs_visit_id, agc_exptime, altitude, azimuth, insrot, adc_pa,
                  m2_pos3, outside_temperature, outside_pressure, outside_humidity,
@@ -2302,7 +2325,7 @@ class agc_guide_offset(Base):
     guide_delta_z6 = Column(REAL,
                             comment='The calculated focus offset for AGC6 [mm]')
 
-    agc_exposure = relation('agc_exposure', back_populates='agc_guide_offset')
+    agc_exposure = relationship('agc_exposure', back_populates='agc_guide_offset')
 
     def __init__(self, agc_exposure_id, guide_ra, guide_dec, guide_pa,
                  guide_delta_ra, guide_delta_dec, guide_delta_insrot,
