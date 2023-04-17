@@ -2212,13 +2212,14 @@ class agc_data(Base):
     peak_pixel_y_pix = Column(Integer, comment='The peak y pixel')
     peak_intensity = Column(REAL, comment='The peak intensity')
     background = Column(REAL, comment='The background value')
+    estimated_magnitude = Column(REAL, comment='The estimated magnitude of the object')
     flags = Column(Integer, comment='Flags')
 
     def __init__(self, agc_exposure_id, spot_id, agc_camera_id,
                  image_moment_00_pix, centroid_x_pix, centroid_y_pix,
                  central_image_moment_11_pix, central_image_moment_20_pix, central_image_moment_02_pix,
                  peak_pixel_x_pix, peak_pixel_y_pix, peak_intensity,
-                 background, flags):
+                 background, estimated_magnitude, flags):
         self.agc_exposure_id = agc_exposure_id
         self.spot_id = spot_id
         self.agc_camera_id = agc_camera_id
@@ -2232,6 +2233,7 @@ class agc_data(Base):
         self.peak_pixel_y_pix = peak_pixel_y_pix
         self.peak_intensity = peak_intensity
         self.background = background
+        self.estimated_magnitude = estimated_magnitude
         self.flags = flags
 
 
