@@ -372,7 +372,7 @@ class OpDB(object):
     # types. There are many many more. If we really cared there is
     # probably a complicated way to use the rest of the pg_type table
     # to construct numpy dtypes.
-    _pgTypes = {16: np.bool,
+    _pgTypes = {16: np.bool_,
                 20: np.int64,
                 23: np.int32,
                 700: np.float32,
