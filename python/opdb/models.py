@@ -973,6 +973,8 @@ class pfs_config(Base):
                               comment='Allocated total number of cobra iterations towards convergence')
     converg_elapsed_time = Column(REAL,
                                   comment='Allocated time for convergence [sec]')
+    converg_tolerance = Column(REAL,
+                                  comment='Tolerance for convergence [mm]')
     alloc_rms_scatter = Column(REAL,
                                comment='[TBW]')
     allocated_at = Column(DateTime, comment='Time at which config was allocated [YYYY-MM-DDhhmmss] (TBC)')
@@ -984,7 +986,7 @@ class pfs_config(Base):
 
     def __init__(self, pfs_design_id, visit0, ra_center_config, dec_center_config, pa_config,
                  num_sci_allocated, num_cal_allocated, num_sky_allocated, num_guide_stars_allocated,
-                 converg_num_iter, converg_elapsed_time, alloc_rms_scatter,
+                 converg_num_iter, converg_elapsed_time, converg_tolerance, alloc_rms_scatter,
                  allocated_at, was_observed=False):
 
         self.pfs_design_id = pfs_design_id
@@ -998,6 +1000,7 @@ class pfs_config(Base):
         self.num_guide_stars_allocated = num_guide_stars_allocated
         self.converg_num_iter = converg_num_iter
         self.converg_elapsed_time = converg_elapsed_time
+        self.converg_tolerance = converg_tolerance
         self.alloc_rms_scatter = alloc_rms_scatter
         self.allocated_at = allocated_at
         self.was_observed = was_observed
