@@ -159,7 +159,7 @@ class reduced_visits(Base):
                           unique=True,
                           autoincrement=False)
     is_ingested = Column(Boolean, comment='ingested?')
-    is_isred = Column(Boolean, comment='ISRed?')
+    is_detrended = Column(Boolean, comment='detrended?')
     is_reduced = Column(Boolean, comment='reduceExposure.py done?')
     is_merged = Column(Boolean, comment='pfsArm merged?')
     is_calibrated = Column(Boolean, comment='flux calibrated?')
@@ -170,7 +170,7 @@ class reduced_visits(Base):
     def __init__(self,
                  pfs_visit_id,
                  is_ingested,
-                 is_isred,
+                 is_detrended,
                  is_reduced,
                  is_merged,
                  is_calibrated,
@@ -179,7 +179,7 @@ class reduced_visits(Base):
                  ):
         self.pfs_visit_id = pfs_visit_id
         self.is_ingested = is_ingested
-        self.is_isred = is_isred
+        self.is_detrended = is_detrended
         self.is_reduced = is_reduced
         self.is_merged = is_merged
         self.is_calibrated = is_calibrated
