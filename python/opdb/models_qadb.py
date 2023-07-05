@@ -90,6 +90,35 @@ class e2e_processing(Base):
         self.run_datetime_end = run_datetime_end
 
 
+class e2e_drp_version(Base):
+    __tablename__ = 'e2e_drp_version'
+
+    run_id = Column(Integer,
+                    ForeignKey('e2e_processing.run_id'),
+                    primary_key=True,
+                    )
+    drp2d_version = Column(String,
+                           comment='DRP2D version'
+                           )
+    drp1d_amazed_version = Column(String,
+                                  comment='DRP1D (Amazed) version'
+                                  )
+    drp1d_client_version = Column(String,
+                                  comment='DRP1D (PFS client) version'
+                                  )
+
+    def __init__(self,
+                 run_id,
+                 drp2d_version,
+                 drp1d_amazed_version,
+                 drp1d_client_version,
+                 ):
+        self.run_id = run_id
+        self.drp2d_version = drp2d_version
+        self.drp1d_amazed_version = drp1d_amazed_version
+        self.drp1d_client_version = drp1d_client_version
+
+
 class e2e_qa_redshift(Base):
     __tablename__ = 'e2e_qa_redshift'
 
