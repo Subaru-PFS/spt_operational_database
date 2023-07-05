@@ -12,4 +12,6 @@ alembic/opdb_asrd/db.cfg
 alembic/opdb_asrd/alembic/__pycache__/
 alembic/qadb_ipmu/db.cfg
 alembic/qadb_ipmu/alembic/__pycache__/
+alembic/qadb_hilo/db.cfg
+alembic/qadb_hilo/alembic/__pycache__/
 /.venv
