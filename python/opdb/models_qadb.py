@@ -25,6 +25,37 @@ class test(Base):
         self.test_val4 = test_val4
 
 
+class e2e_sim_dataset(Base):
+    __tablename__ = 'e2e_sim_dataset'
+
+    dataset_id = Column(Integer,
+                        primary_key=True,
+                        unique=True,
+                        autoincrement=True,
+                        comment='sim dataset id'
+                        )
+    dataset_description = Column(String,
+                                 comment='sim dataset description'
+                                 )
+    sim2d_version = Column(String,
+                           comment='simulator version for the dataset'
+                           )
+    created_at = Column(DateTime,
+                        comment='datetime that the dataset was made'
+                        )
+
+    def __init__(self,
+                 dataset_id,
+                 dataset_description,
+                 sim2d_version,
+                 created_at
+                 ):
+        self.dataset_id = run_descrdataset_idiption
+        self.dataset_description = dataset_description
+        self.sim2d_version = sim2d_version
+        self.created_at = created_at
+
+
 class e2e_processing(Base):
     __tablename__ = 'e2e_processing'
 
@@ -36,6 +67,10 @@ class e2e_processing(Base):
                              comment='description of the processing run')
     run_sample = Column(String,
                         comment='sample of the processing run (weekly/extended)')
+    run_dataset = Column(Integer,
+                         ForeignKey('e2e_sim_dataset.dataset_id'),
+                         comment='sim dataset id'
+                         )
     run_status = Column(String,
                         comment='status of the processing run')
     run_datetime_start = Column(DateTime,
@@ -63,7 +98,7 @@ class e2e_qa_redshift(Base):
                     primary_key=True,
                     )
     num_targets = Column(Integer,
-                       comment='number of targets in this QA')
+                         comment='number of targets in this QA')
     diff_mean = Column(REAL,
                        comment='mean offset')
     diff_std = Column(REAL,
