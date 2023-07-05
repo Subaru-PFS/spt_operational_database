@@ -157,9 +157,13 @@ class reduced_visits(Base):
 
     pfs_visit_id = Column(Integer,
                           primary_key=True,
-                          unique=True,
+                          unique=False,
                           autoincrement=False)
-    arm = Column(String(1), comment='arm [brnm]')
+    arm = Column(String(1),
+                 primary_key=True,
+                 unique=False,
+                 autoincrement=False,
+                 comment='arm [brnm]')
     is_ingested = Column(Boolean, comment='ingested?')
     is_detrended = Column(Boolean, comment='detrended?')
     is_reduced = Column(Boolean, comment='reduceExposure.py done?')
