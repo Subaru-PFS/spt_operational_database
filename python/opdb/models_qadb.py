@@ -153,11 +153,13 @@ class e2e_qa_redshift(Base):
 
 class reduced_visits(Base):
     __tablename__ = 'reduced_visits'
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'arm'), {})
 
     pfs_visit_id = Column(Integer,
                           primary_key=True,
                           unique=True,
                           autoincrement=False)
+    arm = Column(String(1), comment='arm [brnm]')
     is_ingested = Column(Boolean, comment='ingested?')
     is_detrended = Column(Boolean, comment='detrended?')
     is_reduced = Column(Boolean, comment='reduceExposure.py done?')
@@ -169,6 +171,7 @@ class reduced_visits(Base):
 
     def __init__(self,
                  pfs_visit_id,
+                 arm,
                  is_ingested,
                  is_detrended,
                  is_reduced,
@@ -178,6 +181,7 @@ class reduced_visits(Base):
                  updated_at,
                  ):
         self.pfs_visit_id = pfs_visit_id
+        self.arm = arm
         self.is_ingested = is_ingested
         self.is_detrended = is_detrended
         self.is_reduced = is_reduced
@@ -194,37 +198,75 @@ class data_processing(Base):
                     primary_key=True,
                     unique=True,
                     autoincrement=True)
-    pfs_visit_id = Column(Integer,
-                          ForeignKey('reduced_visits.pfs_visit_id'),
-                          comment='PFS visit identifier')
+    obs_date = Column(String,
+                      comment='Observation date in UTC'
+                      )
     rerun = Column(String,
                    comment='rerun name'
                    )
     run_description = Column(String,
                              comment='description of the processing run')
-    run_status = Column(String,
-                        comment='status of the processing run')
     run_datetime_start = Column(DateTime,
                                 comment='datetime of the processing run start')
     run_datetime_end = Column(DateTime,
                               comment='datetime of the processing run end')
-
-    reduced_visits = relation(reduced_visits, backref=backref('data_processing'))
+    run_status = Column(Integer,
+                        comment='status of the processing run')
 
     def __init__(self,
-                 pfs_visit_id,
+                 obs_date,
                  rerun,
                  run_description,
-                 run_sample,
                  run_datetime_start,
                  run_datetime_end,
+                 run_status
                  ):
-        self.pfs_visit_id = pfs_visit_id
+        self.obs_date = obs_date
         self.rerun = rerun
         self.run_description = run_description
-        self.run_sample = run_sample
         self.run_datetime_start = run_datetime_start
         self.run_datetime_end = run_datetime_end
+        self.run_status = run_status
+
+
+class data_processing_results(Base):
+    __tablename__ = 'data_processing_results'
+    __table_args__ = (UniqueConstraint('run_id', 'pfs_visit_id', 'arm'), {})
+    __table_args__ = (UniqueConstraint('run_id', 'pfs_visit_id', 'arm'),
+                      ForeignKeyConstraint(['run_id'],
+                                           ['data_processing.run_id']),
+                      ForeignKeyConstraint(['pfs_visit_id', 'arm'],
+                                           ['reduced_visits.pfs_visit_id', 'reduced_visits.arm']),
+                      {})
+
+    run_id = Column(Integer,
+                    primary_key=True,
+                    unique=False,
+                    autoincrement=False
+                    )
+    pfs_visit_id = Column(Integer,
+                          primary_key=True,
+                          unique=False,
+                          autoincrement=False
+                          )
+    arm = Column(String(1),
+                 primary_key=True,
+                 unique=False,
+                 autoincrement=False
+                 )
+    status = Column(Integer,
+                    comment='status of the processing run')
+
+    def __init__(self,
+                 run_id,
+                 pfs_visit_id,
+                 arm,
+                 status,
+                 ):
+        self.run_id = run_id
+        self.pfs_visit_id = pfs_visit_id
+        self.arm = arm
+        self.status = status
 
 
 def make_database(dbinfo):
