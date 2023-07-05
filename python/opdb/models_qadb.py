@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy import Column, BigInteger, Integer, String, FLOAT, ForeignKey, DateTime, Boolean, REAL, ARRAY
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relation, backref
+from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy import UniqueConstraint, ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql.schema import PrimaryKeyConstraint
@@ -203,7 +203,7 @@ class e2e_qa_redshift(Base):
     frac_outlier = Column(REAL,
                           comment='fraction of outliers (abs(diff)>3sigma)')
 
-    e2e_processing = relation(e2e_processing, backref=backref('e2e_qa_redshift'))
+    e2e_processing = relationship(e2e_processing, backref=backref('e2e_qa_redshift'))
 
     def __init__(self,
                  run_id,
