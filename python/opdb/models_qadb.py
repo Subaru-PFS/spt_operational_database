@@ -277,14 +277,67 @@ class data_processing(Base):
                     primary_key=True,
                     unique=True,
                     autoincrement=True)
-    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
-                          primary_key=True, unique=True, autoincrement=False)
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
     drp_id = Column(Integer,
                     comment='DRPxD to process the data (x=1/2)')
     drp_version = Column(String,
                          comment='DRP version (e.g., w.2023.20 (DRP2D), 0.40.0 (DRP1D) )')
     process_type = Column(String,
                          comment='the type of DRP processing (e.g., reduceExposure, mergeArms, etc.)')
+    process_datetime_start = Column(DateTime,
+                                comment='datetime of the processing run start')
+    process_datetime_end = Column(DateTime,
+                              comment='datetime of the processing run end')
+
+    def __init__(self,
+                 pfs_visit_id,
+                 drp_id,
+                 drp_version,
+                 process_type,
+                 process_datetime_start,
+                 process_datetime_end,
+                 ):
+        self.pfs_visit_id = pfs_visit_id
+        self.drp_id = drp_id
+        self.drp_version = drp_version
+        self.process_type = process_type
+        self.process_datetime_start = process_datetime_start
+        self.process_datetime_end = process_datetime_end
+
+class data_processing_results(Base):
+    '''Information on the data processing results
+    '''
+    __tablename__ = 'data_processing_results'
+
+    run_id = Column(Integer, ForeignKey('data_processing.run_id'),
+                    primary_key=True,
+                    unique=False,
+                    autoincrement=False
+                    )
+    tbd = Column(REAL,
+                 comment='TBD')
+
+    def __init__(self,
+                 run_id,
+                 tbd,
+                 ):
+        self.run_id = run_id
+        self.tbd = tbd
+
+class data_qa(Base):
+    '''Information of the pipeline processing
+    '''
+    __tablename__ = 'data_qa'
+
+    run_id = Column(Integer,
+                    primary_key=True,
+                    unique=True,
+                    autoincrement=True)
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
+    qa_version = Column(String,
+                         comment='QA code version (e.g., xxxxx)')
+    qa_type = Column(String,
+                         comment='the type of QA processing (e.g., detectorMap, fluxCalibrate, etc.)')
     process_datetime_start = Column(DateTime,
                                 comment='datetime of the processing run start')
     process_datetime_end = Column(DateTime,
@@ -314,7 +367,7 @@ class detector_map(Base):
     __tablename__ = 'detector_map'
     __table_args__ = (UniqueConstraint('run_id', 'spectrograph', 'arm'), {})
 
-    run_id = Column(Integer, ForeignKey('data_processing.run_id'),
+    run_id = Column(Integer, ForeignKey('data_qa.run_id'),
                     primary_key=True,
                     unique=False,
                     autoincrement=False
@@ -368,7 +421,7 @@ class sky_subtraction(Base):
     __tablename__ = 'sky_subtraction'
     __table_args__ = (UniqueConstraint('run_id', 'spectrograph', 'arm'), {})
 
-    run_id = Column(Integer, ForeignKey('data_processing.run_id'),
+    run_id = Column(Integer, ForeignKey('data_qa.run_id'),
                     primary_key=True,
                     unique=False,
                     autoincrement=False
@@ -414,7 +467,7 @@ class flux_calibration(Base):
     __tablename__ = 'flux_calibration'
     __table_args__ = (UniqueConstraint('run_id', 'spectrograph', 'arm'), {})
 
-    run_id = Column(Integer, ForeignKey('data_processing.run_id'),
+    run_id = Column(Integer, ForeignKey('data_qa.run_id'),
                     primary_key=True,
                     unique=False,
                     autoincrement=False
@@ -452,7 +505,7 @@ class cosmic_rays(Base):
     __tablename__ = 'cosmic_rays'
     __table_args__ = (UniqueConstraint('run_id', 'spectrograph', 'arm'), {})
 
-    run_id = Column(Integer, ForeignKey('data_processing.run_id'),
+    run_id = Column(Integer, ForeignKey('data_qa.run_id'),
                     primary_key=True,
                     unique=False,
                     autoincrement=False
@@ -486,7 +539,7 @@ class mask(Base):
     __tablename__ = 'mask'
     __table_args__ = (UniqueConstraint('run_id', 'spectrograph', 'arm'), {})
 
-    run_id = Column(Integer, ForeignKey('data_processing.run_id'),
+    run_id = Column(Integer, ForeignKey('data_qa.run_id'),
                     primary_key=True,
                     unique=False,
                     autoincrement=False
@@ -519,7 +572,7 @@ class h4_persistence(Base):
     __tablename__ = 'h4_persistence'
     __table_args__ = (UniqueConstraint('run_id', 'spectrograph'), {})
 
-    run_id = Column(Integer, ForeignKey('data_processing.run_id'),
+    run_id = Column(Integer, ForeignKey('data_qa.run_id'),
                     primary_key=True,
                     unique=False,
                     autoincrement=False
@@ -548,7 +601,7 @@ class dichroic_continuity(Base):
     __tablename__ = 'dichroic_continuity'
     __table_args__ = (UniqueConstraint('run_id', 'spectrograph'), {})
 
-    run_id = Column(Integer, ForeignKey('data_processing.run_id'),
+    run_id = Column(Integer, ForeignKey('data_qa.run_id'),
                     primary_key=True,
                     unique=False,
                     autoincrement=False
@@ -583,7 +636,7 @@ class redshift_measurement(Base):
     '''
     __tablename__ = 'redshift_measurement'
 
-    run_id = Column(Integer, ForeignKey('data_processing.run_id'),
+    run_id = Column(Integer, ForeignKey('data_qa.run_id'),
                     primary_key=True,
                     unique=False,
                     autoincrement=False
