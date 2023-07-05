@@ -25,6 +25,74 @@ class test(Base):
         self.test_val4 = test_val4
 
 
+class pfs_visit(Base):
+    '''Tracks the Gen2 visit identifier.
+    This is the fundamental identifier for all instrument exposures (MCS, AGC, SPS)
+    <<<<< copied from opDB models.py >>>>>
+    '''
+    __tablename__ = 'pfs_visit'
+
+    pfs_visit_id = Column(Integer, primary_key=True, unique=True, autoincrement=False)
+    pfs_visit_description = Column(String)
+    pfs_design_id = Column(BigInteger)
+    issued_at = Column(DateTime, comment='Issued time [YYYY-MM-DDThh:mm:ss]')
+
+    def __init__(self, pfs_visit_id, pfs_visit_description, pfs_design_id, issued_at):
+        self.pfs_visit_id = pfs_visit_id
+        self.pfs_visit_description = pfs_visit_description
+        self.pfs_design_id = pfs_design_id
+        self.issued_at = issued_at
+
+
+class seeing(Base):
+    '''Statistics of seeing during a single exposure
+    '''
+    __tablename__ = 'seeing'
+
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
+                          primary_key=True, unique=True, autoincrement=False)
+    seeing_mean = Column(REAL, comment='seeing FWHM mean (arcsec.)')
+    seeing_median = Column(REAL, comment='seeing FWHM median (arcsec.)')
+    seeing_sigma = Column(REAL, comment='seeing FWHM sigma (arcsec.)')
+
+    def __init__(self,
+                 pfs_visit_id,
+                 seeing_mean,
+                 seeing_median,
+                 seeing_sigma,
+                 ):
+        self.pfs_visit_id = pfs_visit_id
+        self.seeing_mean = seeing_mean
+        self.seeing_median = seeing_median
+        self.seeing_sigma = seeing_sigma
+
+
+class transparency(Base):
+    '''Statistics of transparency during a single exposure
+    '''
+    __tablename__ = 'transparency'
+
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
+                          primary_key=True, unique=True, autoincrement=False)
+    transparency_mean = Column(REAL, comment='transparency mean')
+    transparency_median = Column(REAL, comment='transparency median')
+    transparency_sigma = Column(REAL, comment='transparency sigma')
+
+    def __init__(self,
+                 pfs_visit_id,
+                 transparency_mean,
+                 transparency_median,
+                 transparency_sigma,
+                 ):
+        self.pfs_visit_id = pfs_visit_id
+        self.transparency_mean = transparency_mean
+        self.transparency_median = transparency_median
+        self.transparency_sigma = transparency_sigma
+
+
+''' below are used for e2e test at IPMU '''
+
+
 class e2e_sim_dataset(Base):
     __tablename__ = 'e2e_sim_dataset'
 
