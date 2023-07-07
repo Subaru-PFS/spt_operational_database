@@ -1296,7 +1296,7 @@ class cobra_move(Base):
     __tablename__ = 'cobra_move'
     __table_args__ = (UniqueConstraint('pfs_visit_id', 'iteration', 'cobra_id'),
                       ForeignKeyConstraint(['pfs_visit_id', 'iteration', 'cobra_id'],
-                                           ['cobra_target.pfs_visit_id', 'cobra_target.iteration', 'cobra_target.cobra_id']),
+                                           ['cobra_match.pfs_visit_id', 'cobra_match.iteration', 'cobra_match.cobra_id']),
                       {})
 
     pfs_visit_id = Column(Integer,
@@ -1349,7 +1349,7 @@ class cobra_match(Base):
     __tablename__ = 'cobra_match'
     __table_args__ = (UniqueConstraint('pfs_visit_id', 'iteration', 'cobra_id'),
                       ForeignKeyConstraint(['pfs_visit_id', 'iteration', 'cobra_id'],
-                                           ['cobra_move.pfs_visit_id', 'cobra_move.iteration', 'cobra_move.cobra_id']),
+                                           ['cobra_target.pfs_visit_id', 'cobra_target.iteration', 'cobra_target.cobra_id']),
                       ForeignKeyConstraint(['mcs_frame_id', 'spot_id'],
                                            ['mcs_data.mcs_frame_id', 'mcs_data.spot_id']),
                       {})
