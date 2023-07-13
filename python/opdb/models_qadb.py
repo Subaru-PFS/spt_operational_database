@@ -111,6 +111,29 @@ class throughput(Base):
         self.throughput_sigma = throughput_sigma
 
 
+class noise(Base):
+    '''Background noise level for the visit
+    '''
+    __tablename__ = 'noise'
+
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
+                          primary_key=True, unique=True, autoincrement=False)
+    noise_mean = Column(REAL, comment='the background noise in electron/pix? (mean)')
+    noise_median = Column(REAL, comment='the background noise in electron/pix? (median)')
+    noise_sigma = Column(REAL, comment='the background noise in electron/pix? (sigma)')
+
+    def __init__(self,
+                 pfs_visit_id,
+                 noise_mean,
+                 noise_median,
+                 noise_sigma,
+                 ):
+        self.pfs_visit_id = pfs_visit_id
+        self.noise_mean = noise_mean
+        self.noise_median = noise_median
+        self.noise_sigma = noise_sigma
+
+
 class moon(Base):
     '''Information on the moon for the visit
     '''
