@@ -518,6 +518,10 @@ class pfs_design_fiber(Base):
     target_obj_id = Column(BigInteger, comment='objId of the target')
     target_ra = Column(FLOAT, comment='R.A. of the target')
     target_dec = Column(FLOAT, comment='Dec. of the target')
+    target_pm_ra = Column(REAL, comment='Proper motion of the target in R.A. [mas/yr]')
+    target_pm_dec = Column(REAL, comment='Proper motion of the target in Dec. [mas/yr]')
+    target_parallax = Column(REAL, comment='Parallax of the target [mas]')
+    epoch = Column(String, comment='epoch')
     target_type = Column(Integer, comment='targetType: enumerated e.g. SCIENCE,SKY,FLUXSTD')
     fiber_status = Column(Integer, comment='fiberStatus: enumerated e.g. GOOD,BROKENFIBER,BLOCKED,BLACKSPOT')
     pfi_nominal_x_mm = Column(REAL, comment='Nominal x-position on the PFI [mm]')
@@ -532,7 +536,9 @@ class pfs_design_fiber(Base):
 
     def __init__(self, pfs_design_id, fiber_id,
                  target_cat_id, target_tract, target_patch, target_obj_id,
-                 target_ra, target_dec, target_type, fiber_status,
+                 target_ra, target_dec,
+                 target_pm_ra, target_pm_dec, target_parallax, epoch,
+                 target_type, fiber_status,
                  pfi_nominal_x_mm, pfi_nominal_y_mm,
                  ets_priority, ets_cost_function, ets_cobra_motor_movement,
                  is_on_source, comments):
@@ -544,6 +550,10 @@ class pfs_design_fiber(Base):
         self.target_obj_id = target_obj_id
         self.target_ra = target_ra
         self.target_dec = target_dec
+        self.target_pm_ra = target_pm_ra
+        self.target_pm_dec = target_pm_dec
+        self.target_parallax = target_parallax
+        self.epoch = epoch
         self.target_type = target_type
         self.fiber_status = fiber_status
         self.pfi_nominal_x_mm = pfi_nominal_x_mm
