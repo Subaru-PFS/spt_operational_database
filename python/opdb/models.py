@@ -665,6 +665,7 @@ class tel_status(Base):
     dither_pa = Column(REAL, comment='Offset to the INST_PA [arcsec]')
     dome_shutter_status = Column(Integer, comment='Dome slit status (open/close/unknown)')
     dome_light_status = Column(Integer, comment='Dome (room) light mask interger')
+    caller = Column(String, comment='Which sub-system calls (e.g., mcs, agcc, etc.)')
     created_at = Column(DateTime, index=True,
                         comment='Issued time [YYYY-MM-DDThh:mm:ss]')
 
@@ -673,7 +674,7 @@ class tel_status(Base):
     def __init__(self, pfs_visit_id, status_sequence_id,
                  altitude, azimuth, insrot, inst_pa, adc_pa, m2_pos3,
                  tel_ra, tel_dec, dither_ra, dither_dec, dither_pa,
-                 dome_shutter_status, dome_light_status,
+                 dome_shutter_status, dome_light_status, caller,
                  created_at
                  ):
         self.pfs_visit_id = pfs_visit_id
@@ -691,6 +692,7 @@ class tel_status(Base):
         self.dither_pa = dither_pa
         self.dome_shutter_status = dome_shutter_status
         self.dome_light_status = dome_light_status
+        self.caller = caller
         self.created_at = created_at
 
 
