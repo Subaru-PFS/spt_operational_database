@@ -655,6 +655,7 @@ class tel_status(Base):
     altitude = Column(REAL, comment='The telescope altitude [deg]')
     azimuth = Column(REAL, comment='The telescope azimuth [deg]')
     insrot = Column(REAL, comment='The telescope instrument rotation angle [deg]')
+    inst_pa = Column(REAL, comment='The INST_PA at which the exposure started [deg]')
     adc_pa = Column(REAL, comment='ADC PA at which the exposure started [deg]')
     m2_pos3 = Column(REAL, comment='Hexapod position [mm]')
     tel_ra = Column(REAL, comment='The telescope target R.A. [deg]')
@@ -664,15 +665,16 @@ class tel_status(Base):
     dither_pa = Column(REAL, comment='Offset to the INST_PA [arcsec]')
     dome_shutter_status = Column(Integer, comment='Dome slit status (open/close/unknown)')
     dome_light_status = Column(Integer, comment='Dome (room) light mask interger')
+    caller = Column(String, comment='Which sub-system calls (e.g., mcs, agcc, etc.)')
     created_at = Column(DateTime, index=True,
                         comment='Issued time [YYYY-MM-DDThh:mm:ss]')
 
     pfs_visit = relationship('pfs_visit', back_populates='tel_status')
 
     def __init__(self, pfs_visit_id, status_sequence_id,
-                 altitude, azimuth, insrot, adc_pa, m2_pos3,
+                 altitude, azimuth, insrot, inst_pa, adc_pa, m2_pos3,
                  tel_ra, tel_dec, dither_ra, dither_dec, dither_pa,
-                 dome_shutter_status, dome_light_status,
+                 dome_shutter_status, dome_light_status, caller,
                  created_at
                  ):
         self.pfs_visit_id = pfs_visit_id
@@ -680,6 +682,7 @@ class tel_status(Base):
         self.altitude = altitude
         self.azimuth = azimuth
         self.insrot = insrot
+        self.inst_pa = inst_pa
         self.adc_pa = adc_pa
         self.m2_pos3 = m2_pos3
         self.tel_ra = tel_ra
@@ -689,6 +692,7 @@ class tel_status(Base):
         self.dither_pa = dither_pa
         self.dome_shutter_status = dome_shutter_status
         self.dome_light_status = dome_light_status
+        self.caller = caller
         self.created_at = created_at
 
 
