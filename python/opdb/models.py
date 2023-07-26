@@ -2194,7 +2194,6 @@ class agc_exposure(Base):
     altitude = Column(REAL, comment='The telescope altitude [deg]')
     azimuth = Column(REAL, comment='The telescope azimuth [deg]')
     insrot = Column(REAL, comment='The telescope instrument rotation angle [deg]')
-    inst_pa = Column(REAL, comment='The INST_PA at which the exposure started [deg]')
     adc_pa = Column(REAL, comment='ADC PA at which the exposure started [deg]')
     m2_pos3 = Column(REAL, comment='Hexapod position [mm]')
     outside_temperature = Column(REAL, comment='Outside temperature [K]')
@@ -2208,7 +2207,7 @@ class agc_exposure(Base):
     pfs_visit = relationship('pfs_visit', back_populates='agc_exposure')
     agc_guide_offset = relationship('agc_guide_offset', uselist=False, back_populates='agc_exposure')
 
-    def __init__(self, agc_exposure_id, pfs_visit_id, agc_exptime, altitude, azimuth, insrot, inst_pa, adc_pa,
+    def __init__(self, agc_exposure_id, pfs_visit_id, agc_exptime, altitude, azimuth, insrot, adc_pa,
                  m2_pos3, outside_temperature, outside_pressure, outside_humidity,
                  measurement_algorithm, version_actor, version_instdata, taken_at):
         self.agc_exposure_id = agc_exposure_id
@@ -2217,7 +2216,6 @@ class agc_exposure(Base):
         self.altitude = altitude
         self.azimuth = azimuth
         self.insrot = insrot
-        self.inst_pa = inst_pa
         self.adc_pa = adc_pa
         self.m2_pos3 = m2_pos3
         self.outside_temperature = outside_temperature
