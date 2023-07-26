@@ -2350,6 +2350,8 @@ class agc_guide_offset(Base):
                              comment='The calculated FoV Dec. offset [arcsec.]')
     guide_delta_insrot = Column(REAL,
                                 comment='The calculated InsRot offset [arcsec.]')
+    guide_delta_scale = Column(REAL,
+                               comment='The calculated scale offset [arcsec.]')
     guide_delta_az = Column(REAL,
                             comment='The calculated Az offset [arcsec.] (optional)')
     guide_delta_el = Column(REAL,
@@ -2368,13 +2370,16 @@ class agc_guide_offset(Base):
                             comment='The calculated focus offset for AGC5 [mm]')
     guide_delta_z6 = Column(REAL,
                             comment='The calculated focus offset for AGC6 [mm]')
+    mask = Column(Integer,
+                  comment='A mask of the active elements being fit')
 
     agc_exposure = relationship('agc_exposure', back_populates='agc_guide_offset')
 
     def __init__(self, agc_exposure_id, guide_ra, guide_dec, guide_pa,
-                 guide_delta_ra, guide_delta_dec, guide_delta_insrot,
+                 guide_delta_ra, guide_delta_dec, guide_delta_insrot, guide_delta_scale,
                  guide_delta_az, guide_delta_el, guide_delta_z,
-                 guide_delta_z1, guide_delta_z2, guide_delta_z3, guide_delta_z4, guide_delta_z5, guide_delta_z6):
+                 guide_delta_z1, guide_delta_z2, guide_delta_z3, guide_delta_z4, guide_delta_z5, guide_delta_z6,
+                 mask):
         self.agc_exposure_id = agc_exposure_id
         self.guide_ra = guide_ra
         self.guide_dec = guide_dec
@@ -2382,6 +2387,7 @@ class agc_guide_offset(Base):
         self.guide_delta_ra = guide_delta_ra
         self.guide_delta_dec = guide_delta_dec
         self.guide_delta_insrot = guide_delta_insrot
+        self.guide_delta_scale = guide_delta_scale
         self.guide_delta_az = guide_delta_az
         self.guide_delta_el = guide_delta_el
         self.guide_delta_z = guide_delta_z
@@ -2391,6 +2397,7 @@ class agc_guide_offset(Base):
         self.guide_delta_z4 = guide_delta_z4
         self.guide_delta_z5 = guide_delta_z5
         self.guide_delta_z6 = guide_delta_z6
+        self.mask = mask
 
 
 def make_database(dbinfo):
