@@ -1427,16 +1427,22 @@ class fiducial_fiber_match(Base):
     spot_id = Column(Integer,
                      primary_key=False, unique=False, autoincrement=False,
                      comment='Corresponding MCS image spot identifier ')
+    pfi_center_x_mm = Column(REAL,
+                             comment='Actual x-position on the PFI [mm]')
+    pfi_center_y_mm = Column(REAL,
+                             comment='Actual y-position on the PFI [mm]')
     flags = Column(Integer, comment='flags for movement etc.')
 
     def __init__(self, pfs_visit_id, iteration, fiducial_fiber_id,
-                 mcs_frame_id, spot_id, flags
+                 mcs_frame_id, spot_id, pfi_center_x_mm, pfi_center_y_mm, flags
                  ):
         self.pfs_visit_id = pfs_visit_id
         self.iteration = iteration
         self.fiducial_fiber_id = fiducial_fiber_id
         self.mcs_frame_id = mcs_frame_id
         self.spot_id = spot_id
+        self.pfi_center_x_mm = pfi_center_x_mm
+        self.pfi_center_y_mm = pfi_center_y_mm
         self.flags = flags
 
 
