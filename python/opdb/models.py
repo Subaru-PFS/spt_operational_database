@@ -522,6 +522,8 @@ class pfs_design_fiber(Base):
     target_pm_dec = Column(REAL, comment='Proper motion of the target in Dec. [mas/yr]')
     target_parallax = Column(REAL, comment='Parallax of the target [mas]')
     epoch = Column(String, comment='epoch')
+    proposal_id = Column(String, comment='Proposal ID')
+    ob_code = Column(String, comment='OB code')
     target_type = Column(Integer, comment='targetType: enumerated e.g. SCIENCE,SKY,FLUXSTD')
     fiber_status = Column(Integer, comment='fiberStatus: enumerated e.g. GOOD,BROKENFIBER,BLOCKED,BLACKSPOT')
     pfi_nominal_x_mm = Column(REAL, comment='Nominal x-position on the PFI [mm]')
@@ -538,6 +540,7 @@ class pfs_design_fiber(Base):
                  target_cat_id, target_tract, target_patch, target_obj_id,
                  target_ra, target_dec,
                  target_pm_ra, target_pm_dec, target_parallax, epoch,
+                 proposal_id, ob_code,
                  target_type, fiber_status,
                  pfi_nominal_x_mm, pfi_nominal_y_mm,
                  ets_priority, ets_cost_function, ets_cobra_motor_movement,
@@ -554,6 +557,8 @@ class pfs_design_fiber(Base):
         self.target_pm_dec = target_pm_dec
         self.target_parallax = target_parallax
         self.epoch = epoch
+        self.proposal_id = proposal_id
+        self.ob_code = ob_code
         self.target_type = target_type
         self.fiber_status = fiber_status
         self.pfi_nominal_x_mm = pfi_nominal_x_mm
