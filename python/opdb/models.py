@@ -832,6 +832,7 @@ class pfs_config_fiber(Base):
     fiber_id = Column(Integer, primary_key=True, autoincrement=False)
     target_ra = Column(FLOAT, comment='R.A. of the target')
     target_dec = Column(FLOAT, comment='Dec. of the target')
+    fiber_status = Column(Integer, comment='fiberStatus: enumerated e.g. GOOD,BROKENFIBER,BLOCKED,BLACKSPOT')
     pfi_nominal_x_mm = Column(REAL, comment='Nominal x-position on the PFI')
     pfi_nominal_y_mm = Column(REAL, comment='Nominal y-position on the PFI')
     pfi_center_final_x_mm = Column(REAL, comment='Final measured x-position on the PFI')
@@ -843,7 +844,7 @@ class pfs_config_fiber(Base):
 
     pfs_configs = relationship(pfs_config, backref=backref('pfs_config_fiber'))
 
-    def __init__(self, pfs_design_id, visit0, fiber_id, target_ra, target_dec,
+    def __init__(self, pfs_design_id, visit0, fiber_id, target_ra, target_dec, fiber_status,
                  pfi_nominal_x_mm, pfi_nominal_y_mm,
                  pfi_center_final_x_mm, pfi_center_final_y_mm,
                  motor_map_summary, config_elapsed_time,
@@ -853,6 +854,7 @@ class pfs_config_fiber(Base):
         self.fiber_id = fiber_id
         self.target_ra = target_ra
         self.target_dec = target_dec
+        self.fiber_status = fiber_status
         self.pfi_nominal_x_mm = pfi_nominal_x_mm
         self.pfi_nominal_y_mm = pfi_nominal_y_mm
         self.pfi_center_final_x_mm = pfi_center_final_x_mm
