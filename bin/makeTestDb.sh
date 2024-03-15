@@ -6,6 +6,7 @@
 #
 REAL_DBHOST=pfsa-db01-gb.subaru.nao.ac.jp
 REAL_DBPORT=5432
+REAL_DB=opdb
 FOREIGN_USER=public_user
 FOREIGN_PASS=public_user
 
@@ -25,21 +26,6 @@ ADMINDB=postgres
 # The normal user account which will use and configure the shadow database.
 TEST_DBUSER=pfs
 
-send_sql_command() {
-    if [ $VERBOSE -eq 1 ]; then
-        echo psql -h $TEST_DBHOST -p $TEST_DBPORT -U $DBUSER -d $TESTDB -c \""$@"\"
-    fi
-    if [ $NORUN -eq 0 ]; then
-        psql -h $TEST_DBHOST -p $TEST_DBPORT -U $DBUSER -d $TESTDB -c "$@"
-    fi
-
-    if [ $? -ne 0 ]; then
-        echo "Failed to execute SQL command: $sql_command" 1>&2
-        exit 1
-    fi
-}
-
-# Yes these two functions should be merged.
 send_admin_sql_command() {
     if [ $VERBOSE -eq 1 ]; then
         echo psql -h $TEST_DBHOST -p $TEST_DBPORT -U $DBADMIN -d $ADMINDB -c \""$@"\"
@@ -55,8 +41,10 @@ send_admin_sql_command() {
 }
 
 usage() {
-    echo "Usage: $(basename $0) [-D] [-v] [-n] databaseName" 1>&2
+    echo "Usage: $(basename $0) [-D] [-K] [-v] [-n] databaseName" 1>&2
     echo "  -D                  Drop the database if it already exists" 1>&2
+    echo "  -K                  Drop the foreign server if it already exists" 1>&2
+    echo "                        NOTE: this could affect other test db users" 1>&2
     echo "  -v                  Verbose mode" 1>&2
     echo "  -n                  Dry-run mode: print commands, but do not run them" 1>&2
     echo "  databaseName - the name of the database to create." 1>&2
@@ -66,9 +54,12 @@ usage() {
 VERBOSE=0
 NORUN=0
 DODROP=0   # Whether we should try to DROP the database.
+KILL_SERVER=0 
 while getopts ":Dvnh" opt; do
     case ${opt} in
         D ) DODROP=1
+            ;;
+        K ) KILL_SERVER=1
             ;;
         v ) VERBOSE=1
             ;;
@@ -105,18 +96,23 @@ if [ $DODROP -eq 1 ]; then
     send_admin_sql_command "DROP DATABASE IF EXISTS $TESTDB;"
 fi
 
+if [ $KILL_SERVER -eq 1 ]; then
+    echo "DROPPING foreign server $FOREIGN_SERVER_NAME"
+    send_admin_sql_command "DROP SERVER IF EXISTS $FOREIGN_SERVER_NAME CASCADE;"
+fi
+
 echo "Creating database $TESTDB"
 send_admin_sql_command "CREATE DATABASE $TESTDB WITH OWNER $TEST_DBUSER;"
 
 # Now switch to the new database and configure it.
 echo "Configuring database $TESTDB"
-DB=$TESTDB
+ADMINDB=$TESTDB
 
 send_admin_sql_command "CREATE EXTENSION IF NOT EXISTS $EXTENSION_NAME WITH SCHEMA public;"
 
 send_admin_sql_command "CREATE SERVER IF NOT EXISTS $FOREIGN_SERVER_NAME \
   FOREIGN DATA WRAPPER $EXTENSION_NAME \
-  OPTIONS(host '$REAL_DBHOST', dbname '$TESTDB', port '$REAL_DBPORT');"
+  OPTIONS(host '$REAL_DBHOST', dbname '$REAL_DB', port '$REAL_DBPORT');"
 
 send_admin_sql_command "CREATE USER MAPPING IF NOT EXISTS FOR $TEST_DBUSER \
   SERVER $FOREIGN_SERVER_NAME \
