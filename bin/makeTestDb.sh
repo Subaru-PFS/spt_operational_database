@@ -41,13 +41,18 @@ send_admin_sql_command() {
 }
 
 usage() {
-    echo "Usage: $(basename $0) [-D] [-K] [-v] [-n] databaseName" 1>&2
-    echo "  -D                  Drop the database if it already exists" 1>&2
-    echo "  -K                  Drop the foreign server if it already exists" 1>&2
-    echo "                        NOTE: this could affect other test db users" 1>&2
-    echo "  -v                  Verbose mode" 1>&2
-    echo "  -n                  Dry-run mode: print commands, but do not run them" 1>&2
-    echo "  databaseName - the name of the database to create." 1>&2
+    (
+        echo "Usage: $(basename $0) [-D] [-K] [-h dbhost] [-p dbport] [-v] [-n] databaseName"
+        echo "  -D                  Drop the database if it already exists"
+        echo "  -K                  Drop the foreign server if it already exists"
+        echo "                        NOTE: this could affect other test db users"
+        echo "  -h dbhost           The host of the database to configure. default: $TEST_DBHOST"
+        echo "  -p dbport           The port of the database to configure. default: $TEST_DBPORT"
+        echo "  -v                  Verbose mode"
+        echo "  -n                  Dry-run mode: print commands, but do not run them"
+        echo
+        echo "     databaseName - the name of the database to create."
+    )
     exit 1
 }
 
@@ -55,11 +60,15 @@ VERBOSE=0
 NORUN=0
 DODROP=0   # Whether we should try to DROP the database.
 KILL_SERVER=0 
-while getopts ":Dvnh" opt; do
+while getopts ":Dvnh:p:" opt; do
     case ${opt} in
         D ) DODROP=1
             ;;
         K ) KILL_SERVER=1
+            ;;
+        h ) TEST_DBHOST=$OPTARG
+            ;;
+        p ) TEST_DBPORT=$OPTARG
             ;;
         v ) VERBOSE=1
             ;;
@@ -67,28 +76,26 @@ while getopts ":Dvnh" opt; do
             ;;
         \? )
             echo "Invalid option: $OPTARG" 1>&2
+            usage
             ;;
         : )
             echo "Invalid option: $OPTARG requires an argument" 1>&2
-            ;;
-        h )
             usage
-            echo "Usage: makeTestDb.sh [-d <database name>]" 1>&2
             ;;
     esac
 done
 shift $((OPTIND -1))
 TESTDB=$1
 
-if [ $NORUN -eq 1 ]; then
-    echo "Running in dry-run mode"
-    VERBOSE=1
-fi
-
 if [ -z "$TESTDB" ]; then
     echo "No database name specified" 1>&2
     echo 1>&2
     usage
+fi
+
+if [ $NORUN -eq 1 ]; then
+    echo "Running in dry-run mode"
+    VERBOSE=1
 fi
 
 if [ $DODROP -eq 1 ]; then

@@ -26,42 +26,65 @@ send_sql_command() {
     fi
 }
 
+MCS_TABLES="mcs_data cobra_match fiducial_fiber_match mcs_pfi_transformation"
+AG_TABLES="...eventually....."
 usage() {
-    echo "Usage: $(basename $0) [-D] [-v] [-n] databaseName" 1>&2
-    echo "  -v                  Verbose mode" 1>&2
-    echo "  -n                  Dry-run mode: print commands, but do not run them" 1>&2
-    echo "  -t tables           Comma-separated list of tables to allow writes to" 1>&2
-    echo "  databaseName - the name of the database to configure." 1>&2
+    (
+        echo "Usage: $(basename $0) [-D] [-v] [-n] [-s NAME] [-h dbhost] [-p dbport] databaseName"
+        echo "  -v                  Verbose mode"
+        echo "  -n                  Dry-run mode: print commands, but do not run them"
+        echo "  -s NAME             The subsystem to setup writable tables for."
+        echo "  -t tables           Additional comma-separated list of tables to allow writes to"
+        echo "  -h dbhost           The host of the database to configure. default: $TEST_DBHOST"
+        echo "  -p dbport           The port of the database to configure. default: $TEST_DBPORT"
+        echo 
+        echo "     databaseName - the name of the database to configure."
+        echo 
+        echo "System names and their tables are:"
+        echo "    MCS: $MCS_TABLES"
+        echo "    AG: $AG_TABLES"
+
+    ) 1>&2
     exit 1
 }
 
 VERBOSE=0
 NORUN=0
-while getopts ":Dvnht:" opt; do
+TABLES=""
+while getopts ":Dvnht:s:h:p:" opt; do
     case ${opt} in
         v ) VERBOSE=1
             ;;
         n ) NORUN=1
             ;;
-        t ) TABLES=$OPTARG
+        t ) EXTRA_TABLES=$OPTARG
+            ;;
+        s ) case $OPTARG in
+                MCS ) TABLES=$MCS_TABLES
+                    ;;
+                AG ) TABLES=$AG_TABLES
+                    ;;
+                * ) echo "Unknown subsystem: $OPTARG" 1>&2
+                    usage
+                    ;;
+            esac
+            ;;
+        h ) TEST_DBHOST=$OPTARG
+            ;;
+        p ) TEST_DBPORT=$OPTARG
             ;;
         \? )
             echo "Invalid option: $OPTARG" 1>&2
+            usage
             ;;
         : )
             echo "Invalid option: $OPTARG requires an argument" 1>&2
-            ;;
-        h )
             usage
+            ;;
     esac
 done
 shift $((OPTIND -1))
 TESTDB=$1
-
-if [ $NORUN -eq 1 ]; then
-    echo "Running in dry-run mode"
-    VERBOSE=1
-fi
 
 if [ -z "$TESTDB" ]; then
     echo "No database name specified" 1>&2
@@ -69,10 +92,25 @@ if [ -z "$TESTDB" ]; then
     usage
 fi
 
-# The tables we want to write to
-TABLES=$(echo $TABLES | tr ',' ' ')
+if [ $NORUN -eq 1 ]; then
+    echo "Running in dry-run mode"
+    VERBOSE=1
+fi
 
-echo "Configuring database $TESTDB"
+# The tables we want to write to.
+# Start with any TABLES specified by the -s option, then add any specified by the -t option.
+EXTRA_TABLES=$(echo $EXTRA_TABLES | tr ',' ' ')
+if [ -n "$EXTRA_TABLES" ]; then
+    TABLES="$TABLES $EXTRA_TABLES"
+fi
+
+echo "Configuring database $TESTDB on $TEST_DBHOST:$TEST_DBPORT in 3s...."
+echo "  to allow writes only to the following tables: "
+echo "     $TABLES"
+echo "note that all changes are made in a single transaction: any anything fails, nothing will be changed."
+sleep 3
+echo
+
 DB=$TESTDB
 
 printAndOrPsql () {
@@ -85,8 +123,8 @@ printAndOrPsql () {
 }
 
 tf=$(mktemp)
-# Run all configuration as a single transaction. This might be dumb, but I worry
-# about one table rename failing.
+# Run all configuration as a single transaction. This might be dumb and incredibly confusing, 
+# but I worry about one table rename failing.
 ( echo "import foreign schema public from server foreign_opdb_srv into public;"
   for table in $TABLES; do
      echo "alter foreign table $table rename to opdb_$table;"
@@ -99,7 +137,7 @@ if [ $VERBOSE -eq 1 ]; then
 fi
 
 if [ $NORUN -eq 0 ]; then
-    psql -h $TEST_DBHOST -p $TEST_DBPORT -U $DBUSER -d $DB -f $tf
+    psql -h $TEST_DBHOST -p $TEST_DBPORT -U $DBUSER -d $DB -f $tf --single-transaction
 fi
 
 rm $tf
