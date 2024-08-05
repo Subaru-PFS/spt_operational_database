@@ -612,7 +612,7 @@ class mcs_exposure(Base):
 
     mcs_frame_id = Column(Integer, primary_key=True, unique=True, index=True, autoincrement=False,
                           comment='MCS frame identifier as generated from Gen2')
-    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), index=True)
     mcs_exptime = Column(REAL, comment='The exposure time for the frame [sec]')
     altitude = Column(REAL, comment='The telescope attitude [deg]')
     azimuth = Column(REAL, comment='The telescope azimuth [deg]')
@@ -1302,7 +1302,7 @@ class iic_sequence(Base):
                       comment='Comments for the sequence')
     cmd_str = Column(String,
                      comment='ICS command string that generates exposures for this set of visits')
-    group_id = Column(Integer, ForeignKey('sequence_group.group_id'), comment='Group identifier')
+    group_id = Column(Integer, ForeignKey('sequence_group.group_id'), comment='Group identifier', index=True)
     created_at = Column(DateTime,
                         comment='Creation time [YYYY-MM-DDThh:mm:ss]')
 
@@ -1349,7 +1349,7 @@ class visit_set(Base):
 
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
                           primary_key=True, unique=True, autoincrement=False)
-    iic_sequence_id = Column(Integer, ForeignKey('iic_sequence.iic_sequence_id'))
+    iic_sequence_id = Column(Integer, ForeignKey('iic_sequence.iic_sequence_id'), index=True)
 
     pfs_visit = relationship('pfs_visit', uselist=False, back_populates='visit_set')
     iic_sequence = relationship('iic_sequence', uselist=False, back_populates='visit_set')
@@ -1470,7 +1470,8 @@ class sps_annotation(Base):
     annotation_id = Column(Integer, primary_key=True, autoincrement=True,
                            comment='SpS annotation identifier (primary key)')
     pfs_visit_id = Column(Integer,
-                          comment='PFS visit identifier')
+                          comment='PFS visit identifier',
+                          index=True)
     sps_camera_id = Column(Integer,
                            comment='SpS camera identifier [1-16]')
     data_flag = Column(Integer,
@@ -1584,8 +1585,8 @@ class obslog_visit_set_note(Base):
     __tablename__ = 'obslog_visit_set_note'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('obslog_user.id'))
-    iic_sequence_id = Column(Integer, ForeignKey('iic_sequence.iic_sequence_id'))
+    user_id = Column(Integer, ForeignKey('obslog_user.id'), index=True)
+    iic_sequence_id = Column(Integer, ForeignKey('iic_sequence.iic_sequence_id'), index=True)
     body = Column(String, nullable=False)
 
     user = relationship('obslog_user', back_populates='visit_set_notes')
@@ -1596,8 +1597,8 @@ class obslog_visit_note(Base):
     __tablename__ = 'obslog_visit_note'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('obslog_user.id'))
-    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'))
+    user_id = Column(Integer, ForeignKey('obslog_user.id'), index=True)
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), index=True)
     body = Column(String, nullable=False)
 
     user = relationship('obslog_user', back_populates='visit_notes')
@@ -1608,8 +1609,8 @@ class obslog_mcs_exposure_note(Base):
     __tablename__ = 'obslog_mcs_exposure_note'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('obslog_user.id'))
-    mcs_exposure_frame_id = Column(Integer, ForeignKey('mcs_exposure.mcs_frame_id'))
+    user_id = Column(Integer, ForeignKey('obslog_user.id'), index=True)
+    mcs_exposure_frame_id = Column(Integer, ForeignKey('mcs_exposure.mcs_frame_id'), index=True)
     body = Column(String, nullable=False)
 
     user = relationship('obslog_user', back_populates='mcs_exposure_notes')
@@ -1639,7 +1640,7 @@ class agc_exposure(Base):
 
     agc_exposure_id = Column(Integer, primary_key=True, unique=True, autoincrement=False,
                              comment='AGC exposure number identifier')
-    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), comment='PFS visit identifier')
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), comment='PFS visit identifier', index=True)
     agc_exptime = Column(REAL, comment='The exposure time for the frame [sec]')
     altitude = Column(REAL, comment='The telescope altitude [deg]')
     azimuth = Column(REAL, comment='The telescope azimuth [deg]')
