@@ -690,10 +690,12 @@ class mcs_data(Base):
     bgvalue = Column(REAL, comment='The background level')
     peakvalue = Column(REAL, comment='The peak image value')
     flags = Column(Integer, comment='Flags about the fitted centroids parameters')
+    flux = Column(REAL, comment='The measured flux')
+    fluxerr = Column(REAL, comment='The measured flux error')
 
     def __init__(self, mcs_frame_id, spot_id, mcs_center_x_pix, mcs_center_y_pix,
                  mcs_second_moment_x_pix, mcs_second_moment_y_pix, mcs_second_moment_xy_pix,
-                 bgvalue, peakvalue, flags):
+                 bgvalue, peakvalue, flags, flux, fluxerr):
         self.mcs_frame_id = mcs_frame_id
         self.spot_id = spot_id
         self.mcs_center_x_pix = mcs_center_x_pix
@@ -704,6 +706,8 @@ class mcs_data(Base):
         self.bgvalue = bgvalue
         self.peakvalue = peakvalue
         self.flags = flags
+        self.flux = flux
+        self.fluxerr = fluxerr
 
 
 class mcs_pfi_transformation(Base):
