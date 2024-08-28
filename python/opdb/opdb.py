@@ -118,7 +118,7 @@ class OpDB(object):
 
         table = getattr(models, tablename).__table__
         insertStatement = insert(table).values(**kw)
-        with self.engine.connect() as conn:
+        with self.engine.begin() as conn:
             conn.execute(insertStatement)
 
         return insertStatement
@@ -309,7 +309,7 @@ class OpDB(object):
 
         pgdesc = []
         dtypes = {}
-        with self.engine.connect() as conn:
+        with self.engine.begin() as conn:
             with conn.connection.cursor() as cursor:
                 cursor.execute(f'select * from {tablename} where False')
                 pgdesc = cursor.description
@@ -363,7 +363,7 @@ class OpDB(object):
         self.logger.info(f'fetching sql: {sqlCmd}')
 
         buf = io.StringIO()
-        with self.engine.connect() as conn:
+        with self.engine.begin() as conn:
             with conn.connection.cursor() as cursor:
                 cursor.copy_expert(sqlCmd, buf)
         if buf.tell() == 0:
@@ -396,7 +396,7 @@ class OpDB(object):
 
         sqlCmd = f"COPY {tablename} FROM STDIN WITH (FORMAT csv)"
 
-        with self.engine.connect() as conn:
+        with self.engine.begin() as conn:
             with conn.connection.cursor() as cursor:
                 try:
                     cursor.copy_expert(sqlCmd, buf)
