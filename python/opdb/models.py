@@ -457,6 +457,7 @@ class tel_status(Base):
     inst_pa = Column(REAL, comment='The INST_PA at which the exposure started [deg]')
     adc_pa = Column(REAL, comment='ADC PA at which the exposure started [deg]')
     m2_pos3 = Column(REAL, comment='Hexapod position [mm]')
+    m2_off3 = Column(REAL, comment='Hexapod focus offset [mm]')
     tel_ra = Column(REAL, comment='The telescope target R.A. [deg]')
     tel_dec = Column(REAL, comment='The telescope target Dec. [deg]')
     dither_ra = Column(REAL, comment='Offset to the R.A. coordinate [arcsec]')
@@ -471,7 +472,7 @@ class tel_status(Base):
     pfs_visit = relationship('pfs_visit', back_populates='tel_status')
 
     def __init__(self, pfs_visit_id, status_sequence_id,
-                 altitude, azimuth, insrot, inst_pa, adc_pa, m2_pos3,
+                 altitude, azimuth, insrot, inst_pa, adc_pa, m2_pos3, m2_off3,
                  tel_ra, tel_dec, dither_ra, dither_dec, dither_pa,
                  dome_shutter_status, dome_light_status, caller,
                  created_at
@@ -484,6 +485,7 @@ class tel_status(Base):
         self.inst_pa = inst_pa
         self.adc_pa = adc_pa
         self.m2_pos3 = m2_pos3
+        self.m2_off3 = m2_off3
         self.tel_ra = tel_ra
         self.tel_dec = tel_dec
         self.dither_ra = dither_ra
