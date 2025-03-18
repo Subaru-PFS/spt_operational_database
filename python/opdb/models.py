@@ -265,7 +265,8 @@ class pfs_design(Base):
     ets_version = Column(String)
     ets_assigner = Column(String)
     designed_at = Column(DateTime)
-    to_be_observed_at = Column(DateTime)
+    to_be_observed_at = Column(DateTime, comment='Planned observation time creating the pfsDesign')
+    pfs_utils_version = Column(String, comment='pfs_utils version creating the pfsDesign')
     is_obsolete = Column(Boolean)
 
     pfs_design_agcs = relationship('pfs_design_agc', back_populates='pfs_design')
@@ -275,7 +276,7 @@ class pfs_design(Base):
                  tile_id, ra_center_designed, dec_center_designed, pa_designed,
                  num_sci_designed, num_cal_designed, num_sky_designed, num_guide_stars,
                  exptime_tot, exptime_min, ets_version, ets_assigner, designed_at, to_be_observed_at,
-                 is_obsolete=False):
+                 pfs_utils_version, is_obsolete=False):
         self.pfs_design_id = pfs_design_id
         self.design_name = design_name
         self.variant = variant
@@ -294,6 +295,7 @@ class pfs_design(Base):
         self.ets_assigner = ets_assigner
         self.designed_at = designed_at
         self.to_be_observed_at = to_be_observed_at
+        self.pfs_utils_version = pfs_utils_version
         self.is_obsolete = is_obsolete
 
 
@@ -797,6 +799,12 @@ class pfs_config(Base):
     alloc_rms_scatter = Column(REAL,
                                comment='[TBW]')
     allocated_at = Column(DateTime, comment='Time at which config was allocated [YYYY-MM-DDhhmmss] (TBC)')
+
+    to_be_observed_at = Column(DateTime, comment='Planned observation time creating the pfsConfig')
+    pfs_utils_version = Column(String, comment='pfs_utils version creating the pfsConfig')
+    to_be_observed_at_design = Column(DateTime, comment='Planned observation time creating the pfsDesign')
+    pfs_utils_version_design = Column(String, comment='pfs_utils version creating the pfsDesign')
+
     was_observed = Column(Boolean, comment='True of configuration was observed (XXX relevant?)')
 
     pfs_designs = relationship(pfs_design, backref=backref('pfs_config'))
@@ -806,7 +814,8 @@ class pfs_config(Base):
     def __init__(self, pfs_design_id, visit0, ra_center_config, dec_center_config, pa_config,
                  num_sci_allocated, num_cal_allocated, num_sky_allocated, num_guide_stars_allocated,
                  converg_num_iter, converg_elapsed_time, converg_tolerance, alloc_rms_scatter,
-                 allocated_at, was_observed=False):
+                 allocated_at, to_be_observed_at, pfs_utils_version, to_be_observed_at_design,
+                 pfs_utils_version_design, was_observed=False):
 
         self.pfs_design_id = pfs_design_id
         self.visit0 = visit0
@@ -822,6 +831,10 @@ class pfs_config(Base):
         self.converg_tolerance = converg_tolerance
         self.alloc_rms_scatter = alloc_rms_scatter
         self.allocated_at = allocated_at
+        self.to_be_observed_at = to_be_observed_at
+        self.pfs_utils_version = pfs_utils_version
+        self.to_be_observed_at_design = to_be_observed_at_design
+        self.pfs_utils_version_design = pfs_utils_version_design
         self.was_observed = was_observed
 
 
@@ -911,14 +924,17 @@ class pfs_config_sps(Base):
                       {})
     pfs_visit_id = Column(Integer, primary_key=True, autoincrement=False)
     visit0 = Column(Integer, primary_key=True, autoincrement=False, comment='The first visit of the set')
+    cam_mask = Column(Integer, comment='bitMask describing which cameras were use for this visit.')
+    inst_status_flag = Column(Integer, comment='Bitmask indicating instrument-related status flags for this visit.')
 
     pfs_visit = relationship('pfs_visit', uselist=False, back_populates='pfs_config_sps')
     pfs_config = relationship('pfs_config', uselist=False, back_populates='pfs_config_sps')
 
-    def __init__(self, pfs_visit_id, visit0):
+    def __init__(self, pfs_visit_id, visit0, cam_mask, inst_status_flag):
         self.pfs_visit_id = pfs_visit_id
         self.visit0 = visit0
-
+        self.cam_mask = cam_mask
+        self.inst_status_flag = inst_status_flag
 
 class cobra_motor_axis(Base):
     '''The axis or stage of a cobra motor.
