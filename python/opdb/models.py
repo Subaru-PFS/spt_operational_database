@@ -388,6 +388,7 @@ class pfs_design_agc(Base):
     guide_star_magnitude = Column(REAL, comment='GuideStar magnitude [mag]')
     passband = Column(String, comment='passband')
     guide_star_color = Column(REAL, comment='GuideStar color [mag]')
+    guide_star_flag = Column(Integer, comment='GuideStar catalog flag')
     agc_camera_id = Column(Integer, comment='AGC camera identifier')
     agc_target_x_pix = Column(REAL, comment='Target x-position on the AGC [pix]')
     agc_target_y_pix = Column(REAL, comment='Target y-position on the AGC [pix]')
@@ -397,7 +398,7 @@ class pfs_design_agc(Base):
 
     def __init__(self, pfs_design_id, guide_star_id,
                  epoch, guide_star_ra, guide_star_dec, guide_star_pm_ra, guide_star_pm_dec,
-                 guide_star_parallax, guide_star_magnitude, passband, guide_star_color,
+                 guide_star_parallax, guide_star_magnitude, passband, guide_star_color, guide_star_flag,
                  agc_camera_id, agc_target_x_pix, agc_target_y_pix, comments):
         self.pfs_design_id = pfs_design_id
         self.guide_star_id = guide_star_id
@@ -410,6 +411,7 @@ class pfs_design_agc(Base):
         self.guide_star_magnitude = guide_star_magnitude
         self.passband = passband
         self.guide_star_color = guide_star_color
+        self.guide_star_flag = guide_star_flag
         self.agc_camera_id = agc_camera_id
         self.agc_target_x_pix = agc_target_x_pix
         self.agc_target_y_pix = agc_target_y_pix
