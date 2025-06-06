@@ -1257,9 +1257,11 @@ class fiducial_fiber_match(Base):
     pfi_center_y_mm = Column(REAL,
                              comment='Actual y-position on the PFI [mm]')
     flags = Column(Integer, comment='flags for movement etc.')
+    match_mask = Column(Integer, comment='mask for FF match (1 for FFs used in outer ring, 2 for FFs used in first iteration of transformation, 4 for FFs used in final transformation.')
 
     def __init__(self, pfs_visit_id, iteration, fiducial_fiber_id,
-                 mcs_frame_id, spot_id, pfi_center_x_mm, pfi_center_y_mm, flags
+                 mcs_frame_id, spot_id, pfi_center_x_mm, pfi_center_y_mm, flags,
+                 match_mask,
                  ):
         self.pfs_visit_id = pfs_visit_id
         self.iteration = iteration
@@ -1269,6 +1271,7 @@ class fiducial_fiber_match(Base):
         self.pfi_center_x_mm = pfi_center_x_mm
         self.pfi_center_y_mm = pfi_center_y_mm
         self.flags = flags
+        self.match_mask = match_mask
 
 
 class sps_visit(Base):
