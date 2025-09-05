@@ -6,7 +6,7 @@
 # database, In this script we specify the tables which we need to *write* to: those will be the only ones we can write to. 
 # *Currently* they will also be empty
 
-TEST_DBHOST=pfsa-db01-gb.subaru.nao.ac.jp
+TEST_DBHOST=db-ics
 TEST_DBPORT=5434
 
 # The normal user account which will use and configure the shadow database.
@@ -51,7 +51,7 @@ usage() {
 VERBOSE=0
 NORUN=0
 TABLES=""
-while getopts ":Dvnht:s:h:p:" opt; do
+while getopts ":Dvnt:s:h:p:" opt; do
     case ${opt} in
         v ) VERBOSE=1
             ;;
@@ -122,6 +122,24 @@ printAndOrPsql () {
     fi
 }
 
+send_sql_command_file() {
+    tf=$1
+    if [ $VERBOSE -eq 1 ]; then
+        echo psql -h $TEST_DBHOST -p $TEST_DBPORT -U $DBUSER -d $DB -f $tf --single-transaction
+	echo $tf is:
+	cat $tf
+    fi
+    if [ $NORUN -eq 0 ]; then
+        psql -h $TEST_DBHOST -p $TEST_DBPORT -U $DBUSER -d $DB -f $tf --single-transaction
+    fi
+
+    if [ $? -ne 0 ]; then
+        echo "Failed to execute SQL file $tf" 1>&2
+        exit 1
+    fi
+}
+
+
 tf=$(mktemp)
 # Run all configuration as a single transaction. This might be dumb and incredibly confusing, 
 # but I worry about one table rename failing.
@@ -132,12 +150,6 @@ tf=$(mktemp)
   done
 ) > $tf
 
-if [ $VERBOSE -eq 1 ]; then
-    cat $tf
-fi
-
-if [ $NORUN -eq 0 ]; then
-    psql -h $TEST_DBHOST -p $TEST_DBPORT -U $DBUSER -d $DB -f $tf --single-transaction
-fi
-
+send_sql_command_file $tf
 rm $tf
+

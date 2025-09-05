@@ -1,26 +1,26 @@
 # This is the admin part of setting up a read-mostly database for testing. The intent is that we get read-only access to 
 # the real 'opdb', and write access to a handful of specified tables. That part is not done here, but in a user script.
 #
-# There is a real instance of 'opdb' on pfsa-db01-gb:5432: the 'pfs' user there can insert/update.
+# There is a real instance of 'opdb' on db-ics:5432: the 'pfs' user there can insert/update.
 # We are not *connecting* to this instance at all, but have configured it with a read-only user account, 'public_user'
 #
-REAL_DBHOST=pfsa-db01-gb.subaru.nao.ac.jp
+REAL_DBHOST=db-ics
 REAL_DBPORT=5432
 REAL_DB=opdb
 FOREIGN_USER=public_user
 FOREIGN_PASS=public_user
 
-# We are making a shadow database on pfsa-db01-gb:5434: the 'pfs' user here can only select from the tables on the real database.
+# We are making a shadow database on db-ics:5434: the 'pfs' user here can only select from the tables on the real database.
 # We are connecting to this instance and configuring it as a "FOREIGN SERVER" to the real database. Users will connect to the test 
 # database as the main 'pfs' user, but that gets translated internally to the read-only 'public_user' on the real database.
 #
-TEST_DBHOST=pfsa-db01-gb.subaru.nao.ac.jp
+TEST_DBHOST=db-ics
 TEST_DBPORT=5434
 FOREIGN_SERVER_NAME=foreign_opdb_srv
 EXTENSION_NAME=postgres_fdw
 
 # The admin user on the test instance. This is the user that will be used to create the test database, the foreign server and the user mapping.
-DBADMIN=admin2
+DBADMIN=admin
 ADMINDB=postgres
 
 # The normal user account which will use and configure the shadow database.
@@ -48,6 +48,8 @@ usage() {
         echo "                        NOTE: this could affect other test db users"
         echo "  -h dbhost           The host of the database to configure. default: $TEST_DBHOST"
         echo "  -p dbport           The port of the database to configure. default: $TEST_DBPORT"
+        echo "  -H dbhost           The host of the backend database to configure. default: $REAL_DBHOST"
+        echo "  -P dbport           The port of the backend database to configure. default: $REAL_DBPORT"
         echo "  -v                  Verbose mode"
         echo "  -n                  Dry-run mode: print commands, but do not run them"
         echo
@@ -60,7 +62,7 @@ VERBOSE=0
 NORUN=0
 DODROP=0   # Whether we should try to DROP the database.
 KILL_SERVER=0 
-while getopts ":Dvnh:p:" opt; do
+while getopts ":DKH:P:vnh:p:" opt; do
     case ${opt} in
         D ) DODROP=1
             ;;
@@ -68,7 +70,11 @@ while getopts ":Dvnh:p:" opt; do
             ;;
         h ) TEST_DBHOST=$OPTARG
             ;;
+        H ) REAL_DBHOST=$OPTARG
+            ;;
         p ) TEST_DBPORT=$OPTARG
+            ;;
+        P ) REAL_DBPORT=$OPTARG
             ;;
         v ) VERBOSE=1
             ;;
@@ -93,6 +99,12 @@ if [ -z "$TESTDB" ]; then
     usage
 fi
 
+if [ "$TESTDB" = "opdb" -o "$TESTDB" = "postgres" -o "$TESTDB" = "pfs" -o "$TESTDB" = "drp" -o "$TESTDB" = "archiver"  ]; then
+    echo "the test db name CANNOT be '$TESTDB', OMG panic are you out of your mind?!?" 1>&2
+    echo 1>&2
+    exit 2
+fi
+
 if [ $NORUN -eq 1 ]; then
     echo "Running in dry-run mode"
     VERBOSE=1
@@ -100,7 +112,7 @@ fi
 
 if [ $DODROP -eq 1 ]; then
     echo "DROPPING database $TESTDB"
-    send_admin_sql_command "DROP DATABASE IF EXISTS $TESTDB;"
+    send_admin_sql_command "DROP DATABASE IF EXISTS $TESTDB WITH (FORCE);"
 fi
 
 if [ $KILL_SERVER -eq 1 ]; then
