@@ -904,11 +904,13 @@ class pfs_config_agc(Base):
     agc_final_x_pix = Column(REAL, comment='Final x-position on the AGC [pix]')
     agc_final_y_pix = Column(REAL, comment='Final y-position on the AGC [pix]')
     comments = Column(String, comment='comments')
+    guide_star_ra = Column(FLOAT, comment='GuideStar R.A. [deg.]')
+    guide_star_dec = Column(FLOAT, comment='GuideStar Dec. [deg.]')
 
     pfs_configs = relationship(pfs_config, backref=backref('pfs_config_agc'))
 
     def __init__(self, pfs_design_id, visit0, guide_star_id,
-                 agc_camera_id, agc_final_x_pix, agc_final_y_pix, comments):
+                 agc_camera_id, agc_final_x_pix, agc_final_y_pix, comments, guide_star_ra, guide_star_dec):
         self.pfs_design_id = pfs_design_id
         self.visit0 = visit0
         self.guide_star_id = guide_star_id
@@ -916,6 +918,8 @@ class pfs_config_agc(Base):
         self.agc_final_x_pix = agc_final_x_pix
         self.agc_final_y_pix = agc_final_y_pix
         self.comments = comments
+        self.guide_star_ra = guide_star_ra
+        self.guide_star_dec = guide_star_dec
 
 
 class pfs_config_sps(Base):
