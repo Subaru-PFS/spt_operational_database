@@ -1,0 +1,68 @@
+[build-system]
+requires = [
+    "setuptools >= 77.0.3",
+    "lsst-versions",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "opdb"
+description = "Subaru PFS Operational Database client and model definitions"
+authors = [
+    { name = "Subaru PFS ICS Team" },
+    { name = "Kiyoto Yabe" }
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "sqlalchemy",
+    "psycopg2-binary",
+    "pandas",
+    "numpy",
+    "astropy",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "isort",
+    "pytest>=8.0",
+    "ruff",
+    "alembic",
+    "pylint"
+]
+
+[tool.setuptools.packages.find]
+where = ["python/"]
+include = ["opdb", "opdb.*"]
+
+[tool.black]
+line-length = 110
+target-version = ["py312"]
+
+[tool.isort]
+profile = "black"
+line_length = 110
+known_first_party = ["opdb"]
+
+[tool.lsst_versions]
+write_to = "python/opdb/version.py"
+
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib --ignore alembic"  # Recommended as best practice
+
+[tool.pydocstyle]
+convention = "numpy"
+
+# Ruff configuration to ignore naming capitalization/camelCase rules for functions, methods, and variables
+[tool.ruff]
+# For compatibility with older Ruff versions that use [tool.ruff] for lint options
+ignore = ["N802", "N803", "N806", "N815", "N816", "EM101", "TRY003"]
+
+[tool.ruff.lint]
+# Modern Ruff (>=0.1) lint configuration
+ignore = ["N802", "N803", "N806", "N815", "N816", "EM101", "TRY003"]
+
+[tool.hatch.metadata]
+allow-direct-references = true

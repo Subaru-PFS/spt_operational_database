@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import update, insert
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
-from . import models
+from opdb import models
 
 
 class OpDB(object):
