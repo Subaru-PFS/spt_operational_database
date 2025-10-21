@@ -6,7 +6,7 @@ import astropy.io.fits as pyfits
 from astropy.io.fits.hdu.hdulist import HDUList
 from sqlalchemy.orm import Session
 
-from .. import models
+from opdb import models
 
 
 def add_fits_headers_from_file(db: Session, filepath: Path):

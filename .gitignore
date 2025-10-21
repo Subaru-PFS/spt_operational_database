@@ -11,3 +11,5 @@ alembic/opdb_summit/alembic/__pycache__/
 alembic/opdb_asrd/db.cfg
 alembic/opdb_asrd/alembic/__pycache__/
 /.venv
+.idea
+python/opdb/version.py

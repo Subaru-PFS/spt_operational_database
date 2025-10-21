@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import MetaData
 
-from . import models
+from opdb import models
 
 
 def create_schema(dbinfo, drop_all=False):

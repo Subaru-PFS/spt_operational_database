@@ -3,7 +3,7 @@
 ## Introduction
 
 ## Requirements
-* Python 3
+* Python 3.12+
 * SQLAlchemy
 * alembic (optional)
 
@@ -35,6 +35,14 @@ $ ps2pdf schema.ps
 ```
 
 ## Schema management using *alembic* (FOR ONLY DEVELOPERS)
+
+### Installation
+
+Install the optional `dev` dependencies, which includes `alembic`:
+
+```sh
+pip install -e ".[dev]"
+```
 
 ### Preparation
 
