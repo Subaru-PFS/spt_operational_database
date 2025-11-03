@@ -1,11 +1,13 @@
-import logging
-import numpy as np
 import io
+import logging
+
+import numpy as np
+import pandas as pd
 import sqlalchemy
 from sqlalchemy import create_engine
-from sqlalchemy import update, insert
+from sqlalchemy import insert
 from sqlalchemy.orm import sessionmaker
-import pandas as pd
+
 from opdb import models
 
 
@@ -34,11 +36,11 @@ class OpDB(object):
         self.engine = create_engine(self.dbinfo, poolclass=sqlalchemy.pool.NullPool)
         SessionClass = sessionmaker(self.engine)
         self.session = SessionClass()
-        #print('connection to {0} started'.format(self.dbinfo))
+        # print('connection to {0} started'.format(self.dbinfo))
 
     def close(self):
         self.session.close()
-        #print('connection to {0} closed'.format(self.dbinfo))
+        # print('connection to {0} closed'.format(self.dbinfo))
 
     def rollback(self):
         self.session.rollback()
@@ -73,28 +75,53 @@ class OpDB(object):
             raise
 
     def insert(self, tablename, dataframe):
-        '''
-            Description
-            -----------
-                Insert information into a table
+        """
+        Insert DataFrame rows into a mapped table inside a managed transaction.
 
-            Parameters
-            ----------
-                tablename : `string`
-                dataframe : `pandas.DataFrame`
+        Behavior
+        --------
+        - Opens `with self.session.begin():` to wrap the bulk insert in a single transaction.
+          Commits on success, rolls back on exception.
+        - Use this when you want the helper to manage the transaction boundary.
 
-            Returns
-            -------
-                None
+        Requirements
+        ------------
+        - `tablename` is the name of a mapped model in `models`.
+        - `dataframe` columns must match the table columns; values must be coercible to DB types.
 
-            Note
-            ----
-                Column labels of `dataframe` should be exactly the same as those of the table
-        '''
-        #self.insert_mappings(tablename, dataframe.to_dict(orient="records"))
+        Notes
+        -----
+        - Uses `bulk_insert_mappings` under the hood for speed (bypasses ORM events/per-row validation).
+        """
+        with self.session.begin():
+            self.bulk_insert_mappings(tablename, dataframe)
+
+    def bulk_insert_mappings(self, tablename, dataframe):
+        """
+        Bulk-insert DataFrame rows using SQLAlchemy's `bulk_insert_mappings`.
+
+        Behavior
+        --------
+        - Reuses the current Session transaction; does not call `begin()`/`commit()`.
+          The caller controls commit/rollback.
+        - Fast path: minimal ORM overhead (no per-row flush events; DB-side defaults not round-tripped).
+
+        Parameters
+        ----------
+        tablename : str
+            Name of the mapped model in `models`.
+        dataframe : pandas.DataFrame
+            Data to insert; columns must match the table schema.
+
+        Example
+        -------
+        # Caller-managed transaction (reuse existing txn)
+        with self.session.begin():
+            self.bulk_insert_mappings('mcs_pfi_transformation', df)
+        """
         model = getattr(models, tablename)
-        with self.session.begin() as s:
-            s.session.bulk_insert_mappings(model, dataframe.to_dict(orient="records"))
+        mappings = dataframe.to_dict(orient="records")
+        self.session.bulk_insert_mappings(model, mappings)
 
     def insert_kw(self, tablename, **kw):
         '''
@@ -300,7 +327,7 @@ class OpDB(object):
                 23: np.int32,
                 700: np.float32,
                 701: np.float64,
-                1043: str,     # varchar, we want variable length string
+                1043: str,  # varchar, we want variable length string
                 1114: np.dtype('datetime64[us]'),  # nb: numpy does not do timezones
                 }
 
@@ -352,7 +379,7 @@ class OpDB(object):
         if tablename is not None:
             dtypes = self._getColTypes(tablename)
         else:
-            dtypes = None      # Let pandas auto-detect dtypes
+            dtypes = None  # Let pandas auto-detect dtypes
 
         if selectSql is None:
             sql = f'COPY {tablename}'
@@ -424,7 +451,8 @@ class OpDB(object):
         sps_visit = models.sps_visit
         sps_camera = models.sps_camera
         query = self.session \
-            .query(sps_exposure.pfs_visit_id, sps_visit.exp_type, sps_camera.sps_module_id, sps_camera.arm, sps_exposure.sps_camera_id) \
+            .query(sps_exposure.pfs_visit_id, sps_visit.exp_type, sps_camera.sps_module_id, sps_camera.arm,
+                   sps_exposure.sps_camera_id) \
             .join(sps_visit, sps_exposure.pfs_visit_id == sps_visit.pfs_visit_id) \
             .join(sps_camera, sps_exposure.sps_camera_id == sps_camera.sps_camera_id) \
             .filter(sps_exposure.pfs_visit_id == pfs_visit_id).statement
@@ -643,7 +671,11 @@ class OpDB(object):
                     `created_at` : `datetime`
                     `updated_at` : `datetime`
         '''
-        colnames = ('program_id', 'obj_id', 'ra', 'decl', 'tract', 'patch', 'priority', 'target_type_id', 'cat_id', 'cat_obj_id', 'fiber_mag_g', 'fiber_mag_r', 'fiber_mag_i', 'fiber_mag_z', 'fiber_mag_y', 'fiber_mag_j', 'fiducial_exptime', 'photz', 'is_medium_resolution', 'qa_type_id', 'qa_lambda_min', 'qa_lambda_max', 'qa_threshold', 'qa_line_flux', 'completeness', 'is_finished', 'created_at', 'updated_at')
+        colnames = (
+        'program_id', 'obj_id', 'ra', 'decl', 'tract', 'patch', 'priority', 'target_type_id', 'cat_id', 'cat_obj_id',
+        'fiber_mag_g', 'fiber_mag_r', 'fiber_mag_i', 'fiber_mag_z', 'fiber_mag_y', 'fiber_mag_j', 'fiducial_exptime',
+        'photz', 'is_medium_resolution', 'qa_type_id', 'qa_lambda_min', 'qa_lambda_max', 'qa_threshold', 'qa_line_flux',
+        'completeness', 'is_finished', 'created_at', 'updated_at')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, 'target', ',', columns=colnames)
@@ -652,15 +684,17 @@ class OpDB(object):
         conn.close()
 
     def update_target_is_finished(self, target_id):
-        #target = self.session.query(models.target).filter(models.target.target_id == int(target_id)).first()
-        #target.is_finished = True
-        self.session.query(models.target).filter(models.target.target_id == int(target_id)).update({models.target.is_finished: True})
+        # target = self.session.query(models.target).filter(models.target.target_id == int(target_id)).first()
+        # target.is_finished = True
+        self.session.query(models.target).filter(models.target.target_id == int(target_id)).update(
+            {models.target.is_finished: True})
         self.session.commit()
 
     def update_target_completeness(self, target_id, completeness):
-        #target = self.session.query(models.target).filter(models.target.target_id == int(target_id)).first()
-        #target.completeness = completeness
-        self.session.query(models.target).filter(models.target.target_id == int(target_id)).update({models.target.completeness: completeness})
+        # target = self.session.query(models.target).filter(models.target.target_id == int(target_id)).first()
+        # target.completeness = completeness
+        self.session.query(models.target).filter(models.target.target_id == int(target_id)).update(
+            {models.target.completeness: completeness})
         self.session.commit()
 
     def insert_beam_switch_mode(self, data):
@@ -809,7 +843,8 @@ class OpDB(object):
                     `ets_cobra_motor_movement` : `str`
                     `is_on_source` : `bool`
         '''
-        colnames = ('pfs_design_id', 'cobra_id', 'target_id', 'pfi_target_x_mm', 'pfi_target_y_mm', 'ets_priority', 'ets_cost_function', 'ets_cobra_motor_movement', 'is_on_source')
+        colnames = ('pfs_design_id', 'cobra_id', 'target_id', 'pfi_target_x_mm', 'pfi_target_y_mm', 'ets_priority',
+                    'ets_cost_function', 'ets_cobra_motor_movement', 'is_on_source')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, 'pfs_design_fiber', ',', columns=colnames)
@@ -908,7 +943,9 @@ class OpDB(object):
                     `config_elapsed_time` : `float`
                     `is_on_source` : `bool`
         '''
-        colnames = ('pfs_config_id', 'cobra_id', 'target_id', 'pfi_center_final_x_mm', 'pfi_center_final_y_mm', 'motor_map_summary', 'config_elapsed_time', 'is_on_source')
+        colnames = (
+        'pfs_config_id', 'cobra_id', 'target_id', 'pfi_center_final_x_mm', 'pfi_center_final_y_mm', 'motor_map_summary',
+        'config_elapsed_time', 'is_on_source')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, 'pfs_config_fiber', ',', columns=colnames)
@@ -1078,7 +1115,8 @@ class OpDB(object):
                     `cobra_id_lna` : `str`
                     `version` : `str`
         '''
-        colnames = ('cobra_id', 'field_on_pfi', 'cobra_in_field', 'module_in_field', 'cobra_in_module', 'module_name', 'sps_camera_id', 'slit_hole_sps', 'cobra_id_sps', 'cobra_id_lna', 'version')
+        colnames = ('cobra_id', 'field_on_pfi', 'cobra_in_field', 'module_in_field', 'cobra_in_module', 'module_name',
+                    'sps_camera_id', 'slit_hole_sps', 'cobra_id_sps', 'cobra_id_lna', 'version')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, 'cobra', ',', columns=colnames)
@@ -1130,7 +1168,8 @@ class OpDB(object):
                     `pfs_visit_description` : `str`
         '''
         for d in data:
-            pfs_visit = self.session.query(models.pfs_visit).filter(models.pfs_visit.pfs_visit_id == int(d['pfs_visit_id'])).first()
+            pfs_visit = self.session.query(models.pfs_visit).filter(
+                models.pfs_visit.pfs_visit_id == int(d['pfs_visit_id'])).first()
             pfs_visit.pfs_visit_description = d['pfs_visit_description']
             self.session.commit()
             # query = self.session.query(models.pfs_visit)
@@ -1461,7 +1500,8 @@ class OpDB(object):
                     `bgvalue` : `float`
                     `peakvalue` : `float`
         '''
-        colnames = ('mcs_frame_id', 'spot_id', 'mcs_center_x_pix', 'mcs_center_y_pix', 'mcs_second_moment_x_pix', 'mcs_second_moment_y_pix', 'mcs_second_moment_xy_pix', 'bgvalue', 'peakvalue')
+        colnames = ('mcs_frame_id', 'spot_id', 'mcs_center_x_pix', 'mcs_center_y_pix', 'mcs_second_moment_x_pix',
+                    'mcs_second_moment_y_pix', 'mcs_second_moment_xy_pix', 'bgvalue', 'peakvalue')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, 'mcs_data', ',', columns=colnames)
@@ -1605,7 +1645,9 @@ class OpDB(object):
                     `cobra_motor_step_size` : `float`
                     `cobra_motor_frequency` : `float`
         '''
-        colnames = ('cobra_motor_calib_id', 'cobra_id', 'cobra_motor_axis_id', 'cobra_motor_direction_id', 'cobra_motor_on_time', 'cobra_motor_step_size', 'cobra_motor_frequency')
+        colnames = (
+        'cobra_motor_calib_id', 'cobra_id', 'cobra_motor_axis_id', 'cobra_motor_direction_id', 'cobra_motor_on_time',
+        'cobra_motor_step_size', 'cobra_motor_frequency')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, 'cobra_motor_model', ',', columns=colnames)
@@ -1676,7 +1718,8 @@ class OpDB(object):
                     `cobra_motor_angle_difference` : `float`
                     `signal_to_noise_ratio` : `float`
         '''
-        colnames = ('cobra_motor_model_id', 'iteration', 'cobra_motor_angle_target_id', 'cobra_motor_angle_target', 'cobra_motor_angle_difference', 'signal_to_noise_ratio')
+        colnames = ('cobra_motor_model_id', 'iteration', 'cobra_motor_angle_target_id', 'cobra_motor_angle_target',
+                    'cobra_motor_angle_difference', 'signal_to_noise_ratio')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, 'cobra_convergence_test', ',', columns=colnames)
@@ -1781,7 +1824,10 @@ class OpDB(object):
                     `cobra_motor_phi_length` : `float`
                     `cobra_status` : `str`
         '''
-        colnames = ('cobra_motor_calib_id', 'cobra_id', 'cobra_center_on_pfi_x_mm', 'cobra_center_on_pfi_y_mm', 'cobra_distance_from_center_mm', 'cobra_motor_theta_limit0', 'cobra_motor_theta_limit1', 'cobra_motor_theta_length', 'cobra_motor_phi_limit_in', 'cobra_motor_phi_limit_out', 'cobra_motor_phi_length', 'cobra_status')
+        colnames = ('cobra_motor_calib_id', 'cobra_id', 'cobra_center_on_pfi_x_mm', 'cobra_center_on_pfi_y_mm',
+                    'cobra_distance_from_center_mm', 'cobra_motor_theta_limit0', 'cobra_motor_theta_limit1',
+                    'cobra_motor_theta_length', 'cobra_motor_phi_limit_in', 'cobra_motor_phi_limit_out',
+                    'cobra_motor_phi_length', 'cobra_status')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, 'cobra_geometry', ',', columns=colnames)
@@ -1818,7 +1864,9 @@ class OpDB(object):
                     `pfi_center_x_mm` : `float`
                     `pfi_center_y_mm` : `float`
         '''
-        colnames = ('mcs_frame_id', 'cobra_id', 'spot_id', 'pfs_config_id', 'iteration', 'pfi_target_x_mm', 'pfi_target_y_mm', 'pfi_center_x_mm', 'pfi_center_y_mm')
+        colnames = (
+        'mcs_frame_id', 'cobra_id', 'spot_id', 'pfs_config_id', 'iteration', 'pfi_target_x_mm', 'pfi_target_y_mm',
+        'pfi_center_x_mm', 'pfi_center_y_mm')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, 'cobra_status', ',', columns=colnames)
@@ -1853,7 +1901,8 @@ class OpDB(object):
                     `motor_num_step_phi` : `int`
                     `motor_on_time_phi` : `float`
         '''
-        colnames = ('mcs_frame_id', 'cobra_id', 'cobra_motor_calib_id', 'motor_num_step_theta', 'motor_on_time_theta', 'motor_num_step_phi', 'motor_on_time_phi')
+        colnames = ('mcs_frame_id', 'cobra_id', 'cobra_motor_calib_id', 'motor_num_step_theta', 'motor_on_time_theta',
+                    'motor_num_step_phi', 'motor_on_time_phi')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, 'cobra_movement', ',', columns=colnames)
@@ -2139,7 +2188,9 @@ class OpDB(object):
                     `qa_type_id` : `int`
                     `qa_value` : `float`
         '''
-        colnames = ('target_id', 'tract', 'patch', 'cat_id', 'obj_id', 'n_visit', 'pfs_visit_hash', 'cum_texp', 'processed_at', 'drp2d_version', 'flux_calib_id', 'flags', 'qa_type_id', 'qa_value')
+        colnames = (
+        'target_id', 'tract', 'patch', 'cat_id', 'obj_id', 'n_visit', 'pfs_visit_hash', 'cum_texp', 'processed_at',
+        'drp2d_version', 'flux_calib_id', 'flags', 'qa_type_id', 'qa_value')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, 'pfs_object', ',', columns=colnames)
@@ -2283,7 +2334,8 @@ class OpDB(object):
         ).all()
         return query
 
-    def get_unfinished_target_in_region(self, program_id, priority_lower, priority_upper, mag_upper, mag_lower, ra_min, ra_max, decl_min, decl_max):
+    def get_unfinished_target_in_region(self, program_id, priority_lower, priority_upper, mag_upper, mag_lower, ra_min,
+                                        ra_max, decl_min, decl_max):
         query = self.session.query(models.target.target_id,
                                    models.target.ra,
                                    models.target.decl,
