@@ -288,6 +288,41 @@ class OpDB(object):
         with self.engine.connect() as conn:
             return pd.read_sql(text(query), conn)
 
+    def fetch_column_names(self, table_name: str):
+        """
+        Return column names for a table by running a no-op SELECT.
+
+        Behavior
+        --------
+        - Executes `SELECT * FROM <table_name> WHERE FALSE` on a short-lived
+          `Engine.connect()`; no Session involvement and no lingering transaction.
+        - Uses the DBAPI cursor metadata to derive column names.
+
+        Parameters
+        ----------
+        table_name : str
+            The fully qualified table identifier as it should appear in SQL.
+            If it requires quoting (mixed case, reserved words, schema-qualified),
+            pass it already quoted, e.g. `"schema"."MyTable"`.
+
+        Returns
+        -------
+        tuple[str, ...]
+            Column names in table order.
+
+        Notes
+        -----
+        - This is string-formatted SQL. Ensure `table_name` is trusted or pre-quoted
+          to avoid SQL injection and identifier casing issues.
+        - For untrusted input, build the identifier safely (e.g., pre-quote with
+          double quotes for each part or use a safer helper) before calling.
+        """
+        with self.engine.connect() as conn:
+            result = conn.exec_driver_sql(f'SELECT * FROM {table_name} WHERE FALSE')
+            cols = tuple(result.keys())
+
+        return cols
+
     # These are the pg_type oids for all the known and used PFS data
     # types. There are many many more. If we really cared there is
     # probably a complicated way to use the rest of the pg_type table
