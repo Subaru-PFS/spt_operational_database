@@ -318,7 +318,7 @@ class OpDB(object):
           double quotes for each part or use a safer helper) before calling.
         """
         with self.engine.connect() as conn:
-            result = conn.exec_driver_sql(f'SELECT * FROM {table_name} WHERE FALSE')
+            result = conn.exec_driver_sql(f'SELECT * FROM "{table_name}" WHERE FALSE')
             cols = tuple(result.keys())
 
         return cols
