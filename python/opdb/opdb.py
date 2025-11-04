@@ -1,11 +1,13 @@
 import io
 import logging
+from typing import Any
 
 import numpy as np
 import pandas as pd
 import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy import insert
+from sqlalchemy import select, text
 from sqlalchemy.orm import sessionmaker
 
 from opdb import models
@@ -210,113 +212,81 @@ class OpDB(object):
         ##################################################
     '''
 
-    def fetch_all(self, tablename):
-        '''
-            Description
-            -----------
-                Get all records from a table
+    def fetch_all(self, tablename: str) -> pd.DataFrame:
+        """
+        Return all rows from a mapped table as a DataFrame (SQLAlchemy 2.x style).
 
-            Parameters
-            ----------
-                tablename : `string`
+        Behavior
+        --------
+        - Builds a `select(model)` statement using the ORM model named `tablename`.
+        - Executes on a transient `Engine.connect()` (NOT the Session), so it does
+          not interact with or depend on any active Session transaction.
+        - Connection is closed when the context exits; no state is left behind.
 
-            Returns
-            -------
-                df : `pandas.DataFrame`
+        Parameters
+        ----------
+        tablename : str
+            Name of the mapped ORM class inside `opdb.models`.
 
-            Note
-            ----
-        '''
+        Returns
+        -------
+        pandas.DataFrame
+            All rows/columns of the table.
+        """
         model = getattr(models, tablename)
-        try:
-            df = pd.read_sql(self.session.query(model).statement, self.session.bind)
-        except:
-            self.session.rollback()
-            raise
+        stmt = select(model)  # 2.0-style
+        with self.engine.connect() as conn:
+            return pd.read_sql(stmt, conn)
 
-        return df
+    def fetch_by_id(self, tablename: str, **kwargs: Any) -> pd.DataFrame:
+        """
+        Return rows filtered by exact-match column predicates (SQLAlchemy 2.x style).
 
-    def fetch_by_id(self, tablename, **kwargs):
-        '''
-            Description
-            -----------
-                Get records from a table where the keyword identifier is matched
+        Behavior
+        --------
+        - Builds a `select(model).where(...)` using `kwargs` as equality filters.
+        - Executes on a short-lived `Engine.connect()` (no Session involvement).
+        - Leaves no transaction/connection state behind.
 
-            Parameters
-            ----------
-                tablename : `string`
-                **kwargs  :          (e.g., pfs_visit_id=12345)
+        Parameters
+        ----------
+        tablename : str
+            Name of the mapped ORM class in `opdb.models`.
+        **kwargs : Any
+            Column=value pairs (e.g., pfs_visit_id=12345).
 
-            Returns
-            -------
-                df : `pandas.DataFrame`
-
-            Note
-            ----
-        '''
+        Returns
+        -------
+        pandas.DataFrame
+            Matching rows.
+        """
         model = getattr(models, tablename)
-        query = self.session.query(model)
-        for k, v in kwargs.items():
-            query = query.filter(getattr(model, k) == v)
-        try:
-            df = pd.read_sql(query.statement, self.session.bind)
-        except:
-            self.session.rollback()
-            raise
+        conds = [getattr(model, k) == v for k, v in kwargs.items()]
+        stmt = select(model).where(*conds) if conds else select(model)
+        with self.engine.connect() as conn:
+            return pd.read_sql(stmt, conn)
 
-        return df
+    def fetch_query(self, query: str) -> pd.DataFrame:
+        """
+        Run an arbitrary SELECT (string SQL) without touching the Session.
 
-    def fetch_query(self, query):
-        '''
-            Description
-            -----------
-                Get all records from SQL query
+        Behavior
+        --------
+        - Uses `sqlalchemy.text(query)` and executes on `Engine.connect()`.
+        - Suitable for pure SELECTs; connection is closed on exit.
 
-            Parameters
-            ----------
-                query : `string`
+        Parameters
+        ----------
+        query : str
+            SQL text (should be a SELECT).
 
-            Returns
-            -------
-                df : `pandas.DataFrame`
-
-            Note
-            ----
-        '''
-        try:
-            df = pd.read_sql(query, self.session.bind)
-        except:
-            self.session.rollback()
-            raise
-
-        return df
-
-    def fetch_by_copy(self, tablename, colnames):
-        '''
-            Description
-            -----------
-                Get selected records from a table by using COPY TO method
-
-            Parameters
-            ----------
-                tablename : `string`
-                colnames  : `list` of `string`
-
-            Returns
-            -------
-                data      : `io.StringIO` (comma-separated)
-
-            Note
-            ----
-        '''
-        data = io.StringIO()
-        conn = self.engine.raw_connection()
-        cur = conn.cursor()
-        cur.copy_to(data, tablename, sep=',', null='\\N', columns=colnames)
-        cur.close()
-        conn.close()
-        data.seek(0)
-        return data
+        Returns
+        -------
+        pandas.DataFrame
+            Result of the query.
+        """
+        with self.engine.connect() as conn:
+            return pd.read_sql(text(query), conn)
 
     # These are the pg_type oids for all the known and used PFS data
     # types. There are many many more. If we really cared there is
@@ -672,10 +642,13 @@ class OpDB(object):
                     `updated_at` : `datetime`
         '''
         colnames = (
-        'program_id', 'obj_id', 'ra', 'decl', 'tract', 'patch', 'priority', 'target_type_id', 'cat_id', 'cat_obj_id',
-        'fiber_mag_g', 'fiber_mag_r', 'fiber_mag_i', 'fiber_mag_z', 'fiber_mag_y', 'fiber_mag_j', 'fiducial_exptime',
-        'photz', 'is_medium_resolution', 'qa_type_id', 'qa_lambda_min', 'qa_lambda_max', 'qa_threshold', 'qa_line_flux',
-        'completeness', 'is_finished', 'created_at', 'updated_at')
+            'program_id', 'obj_id', 'ra', 'decl', 'tract', 'patch', 'priority', 'target_type_id', 'cat_id',
+            'cat_obj_id',
+            'fiber_mag_g', 'fiber_mag_r', 'fiber_mag_i', 'fiber_mag_z', 'fiber_mag_y', 'fiber_mag_j',
+            'fiducial_exptime',
+            'photz', 'is_medium_resolution', 'qa_type_id', 'qa_lambda_min', 'qa_lambda_max', 'qa_threshold',
+            'qa_line_flux',
+            'completeness', 'is_finished', 'created_at', 'updated_at')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, 'target', ',', columns=colnames)
@@ -944,8 +917,9 @@ class OpDB(object):
                     `is_on_source` : `bool`
         '''
         colnames = (
-        'pfs_config_id', 'cobra_id', 'target_id', 'pfi_center_final_x_mm', 'pfi_center_final_y_mm', 'motor_map_summary',
-        'config_elapsed_time', 'is_on_source')
+            'pfs_config_id', 'cobra_id', 'target_id', 'pfi_center_final_x_mm', 'pfi_center_final_y_mm',
+            'motor_map_summary',
+            'config_elapsed_time', 'is_on_source')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, 'pfs_config_fiber', ',', columns=colnames)
@@ -1646,8 +1620,9 @@ class OpDB(object):
                     `cobra_motor_frequency` : `float`
         '''
         colnames = (
-        'cobra_motor_calib_id', 'cobra_id', 'cobra_motor_axis_id', 'cobra_motor_direction_id', 'cobra_motor_on_time',
-        'cobra_motor_step_size', 'cobra_motor_frequency')
+            'cobra_motor_calib_id', 'cobra_id', 'cobra_motor_axis_id', 'cobra_motor_direction_id',
+            'cobra_motor_on_time',
+            'cobra_motor_step_size', 'cobra_motor_frequency')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, 'cobra_motor_model', ',', columns=colnames)
@@ -1865,8 +1840,8 @@ class OpDB(object):
                     `pfi_center_y_mm` : `float`
         '''
         colnames = (
-        'mcs_frame_id', 'cobra_id', 'spot_id', 'pfs_config_id', 'iteration', 'pfi_target_x_mm', 'pfi_target_y_mm',
-        'pfi_center_x_mm', 'pfi_center_y_mm')
+            'mcs_frame_id', 'cobra_id', 'spot_id', 'pfs_config_id', 'iteration', 'pfi_target_x_mm', 'pfi_target_y_mm',
+            'pfi_center_x_mm', 'pfi_center_y_mm')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, 'cobra_status', ',', columns=colnames)
@@ -2189,8 +2164,8 @@ class OpDB(object):
                     `qa_value` : `float`
         '''
         colnames = (
-        'target_id', 'tract', 'patch', 'cat_id', 'obj_id', 'n_visit', 'pfs_visit_hash', 'cum_texp', 'processed_at',
-        'drp2d_version', 'flux_calib_id', 'flags', 'qa_type_id', 'qa_value')
+            'target_id', 'tract', 'patch', 'cat_id', 'obj_id', 'n_visit', 'pfs_visit_hash', 'cum_texp', 'processed_at',
+            'drp2d_version', 'flux_calib_id', 'flags', 'qa_type_id', 'qa_value')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, 'pfs_object', ',', columns=colnames)
