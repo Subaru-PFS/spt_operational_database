@@ -265,7 +265,7 @@ class pfs_design(Base):
     ets_version = Column(String)
     ets_assigner = Column(String)
     designed_at = Column(DateTime)
-    to_be_observed_at = Column(DateTime, comment='Planned observation time creating the pfsDesign')
+    to_be_observed_at = Column(DateTime(timezone=True), comment='Planned observation time creating the pfsDesign')
     pfs_utils_version = Column(String, comment='pfs_utils version creating the pfsDesign')
     is_obsolete = Column(Boolean)
 
@@ -802,9 +802,9 @@ class pfs_config(Base):
                                comment='[TBW]')
     allocated_at = Column(DateTime, comment='Time at which config was allocated [YYYY-MM-DDhhmmss] (TBC)')
 
-    to_be_observed_at = Column(DateTime, comment='Planned observation time creating the pfsConfig')
+    to_be_observed_at = Column(DateTime(timezone=True), comment='Planned observation time creating the pfsConfig')
     pfs_utils_version = Column(String, comment='pfs_utils version creating the pfsConfig')
-    to_be_observed_at_design = Column(DateTime, comment='Planned observation time creating the pfsDesign')
+    to_be_observed_at_design = Column(DateTime(timezone=True), comment='Planned observation time creating the pfsDesign')
     pfs_utils_version_design = Column(String, comment='pfs_utils version creating the pfsDesign')
 
     was_observed = Column(Boolean, comment='True of configuration was observed (XXX relevant?)')
