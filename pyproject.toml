@@ -25,26 +25,14 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = [
-    "black",
-    "isort",
     "pytest>=8.0",
     "ruff",
     "alembic",
-    "pylint"
 ]
 
 [tool.setuptools.packages.find]
 where = ["python/"]
 include = ["opdb", "opdb.*"]
-
-[tool.black]
-line-length = 110
-target-version = ["py312"]
-
-[tool.isort]
-profile = "black"
-line_length = 110
-known_first_party = ["opdb"]
 
 [tool.lsst_versions]
 write_to = "python/opdb/version.py"
@@ -52,17 +40,16 @@ write_to = "python/opdb/version.py"
 [tool.pytest.ini_options]
 addopts = "--import-mode=importlib --ignore alembic"  # Recommended as best practice
 
-[tool.pydocstyle]
-convention = "numpy"
+[tool.ruff]
+line-length = 110
 
 # Ruff configuration to ignore naming capitalization/camelCase rules for functions, methods, and variables
-[tool.ruff]
-# For compatibility with older Ruff versions that use [tool.ruff] for lint options
+[tool.ruff.lint]
+select = ["E", "F", "I"]
 ignore = ["N802", "N803", "N806", "N815", "N816", "EM101", "TRY003"]
 
-[tool.ruff.lint]
-# Modern Ruff (>=0.1) lint configuration
-ignore = ["N802", "N803", "N806", "N815", "N816", "EM101", "TRY003"]
+[tool.pydocstyle]
+convention = "numpy"
 
 [tool.hatch.metadata]
 allow-direct-references = true

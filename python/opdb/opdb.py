@@ -203,11 +203,9 @@ class OpDB(object):
             self.session.rollback()
             raise
 
-    '''
-        ##################################################
-        functionality to get information from the database
-        ##################################################
-    '''
+##################################################
+# functionality to get information from the database
+##################################################
 
     def fetch_all(self, tablename):
         """
