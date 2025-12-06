@@ -1,4 +1,5 @@
 import pandas as pd
+
 from opdb import opdb
 
 '''
@@ -9,7 +10,7 @@ from opdb import opdb
 
 
 def insert_row(url, tablename, **kwargs):
-    '''
+    """
         Description
         -----------
             Insert information into a table
@@ -27,7 +28,7 @@ def insert_row(url, tablename, **kwargs):
         Note
         ----
             Column labels of `dataframe` should be exactly the same as those of the table
-    '''
+    """
     db = opdb.OpDB()
     db.dbinfo = url
     try:
@@ -39,7 +40,7 @@ def insert_row(url, tablename, **kwargs):
 
 
 def insert(url, tablename, dataframe):
-    '''
+    """
         Description
         -----------
             Insert information into a table
@@ -57,7 +58,7 @@ def insert(url, tablename, dataframe):
         Note
         ----
             Column labels of `dataframe` should be exactly the same as those of the table
-    '''
+    """
     db = opdb.OpDB()
     db.dbinfo = url
     try:
@@ -69,7 +70,7 @@ def insert(url, tablename, dataframe):
 
 
 def insert_by_copy(url, tablename, data, colnames):
-    '''
+    """
         Description
         -----------
             Insert information into a table
@@ -88,7 +89,7 @@ def insert_by_copy(url, tablename, data, colnames):
         Note
         ----
             Column labels of `dataframe` should be exactly the same as those of the table
-    '''
+    """
     db = opdb.OpDB()
     db.dbinfo = url
     try:
@@ -100,7 +101,7 @@ def insert_by_copy(url, tablename, data, colnames):
 
 
 def update(url, tablename, dataframe):
-    '''
+    """
         Description
         -----------
             Update information of a table
@@ -118,7 +119,7 @@ def update(url, tablename, dataframe):
         Note
         ----
             Column labels of `dataframe` should be exactly the same as those of the table
-    '''
+    """
     db = opdb.OpDB()
     db.dbinfo = url
     try:
@@ -130,7 +131,7 @@ def update(url, tablename, dataframe):
 
 
 def insert_pfs_design(url, pfsDesign, tile_id):
-    '''
+    """
         Description
         -----------
             Extract information from pfsDesign object and insert into `pfs_design` & `pfs_design_fiber`
@@ -147,7 +148,7 @@ def insert_pfs_design(url, pfsDesign, tile_id):
 
         Note
         ----
-    '''
+    """
     db = opdb.OpDB()
     db.dbinfo = url
     ''' insert `pfs_design` '''
@@ -184,7 +185,7 @@ def insert_pfs_design(url, pfsDesign, tile_id):
 
 
 def fetch_all(url, tablename):
-    '''
+    """
         Description
         -----------
             Get all records from a table
@@ -200,7 +201,7 @@ def fetch_all(url, tablename):
 
         Note
         ----
-    '''
+    """
     db = opdb.OpDB()
     db.dbinfo = url
     try:
@@ -212,7 +213,7 @@ def fetch_all(url, tablename):
 
 
 def fetch_query(url, query):
-    '''
+    """
         Description
         -----------
             Get all records from SQL query
@@ -228,7 +229,7 @@ def fetch_query(url, query):
 
         Note
         ----
-    '''
+    """
     db = opdb.OpDB()
     db.dbinfo = url
     try:
@@ -240,7 +241,7 @@ def fetch_query(url, query):
 
 
 def fetch_by_id(url, tablename, **kwargs):
-    '''
+    """
         Description
         -----------
             Get records from a table where the keyword identifier is matched
@@ -257,7 +258,7 @@ def fetch_by_id(url, tablename, **kwargs):
 
         Note
         ----
-    '''
+    """
     db = opdb.OpDB()
     db.dbinfo = url
     try:
@@ -269,7 +270,7 @@ def fetch_by_id(url, tablename, **kwargs):
 
 
 def fetch_by_copy(url, tablename, colnames):
-    '''
+    """
         Description
         -----------
             Insert information into a table
@@ -287,7 +288,7 @@ def fetch_by_copy(url, tablename, colnames):
         Note
         ----
             Column labels of `dataframe` should be exactly the same as those of the table
-    '''
+    """
     db = opdb.OpDB()
     db.dbinfo = url
     res = None
@@ -300,7 +301,7 @@ def fetch_by_copy(url, tablename, colnames):
 
 
 def fetch_sps_exposures(url, pfs_visit_id):
-    '''
+    """
         Description
         -----------
             Get SpS exposure information for a given `pfs_visit_id`
@@ -316,7 +317,7 @@ def fetch_sps_exposures(url, pfs_visit_id):
 
         Note
         ----
-    '''
+    """
     db = opdb.OpDB()
     db.dbinfo = url
     try:

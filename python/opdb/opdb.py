@@ -4,22 +4,21 @@ import logging
 import numpy as np
 import pandas as pd
 import sqlalchemy
-from sqlalchemy import create_engine
-from sqlalchemy import insert
+from sqlalchemy import create_engine, insert
 from sqlalchemy.orm import sessionmaker
 
 from opdb import models
 
 
 class OpDB(object):
-    ''' 
+    """
         === CAUTION! ===
 
-        We remove `password` argument at some point. 
+        We remove `password` argument at some point.
         Password should be written in .pgpass
 
         ================
-    '''
+    """
 
     url = 'postgresql://pfs@db-ics:5432/opdb'
 
@@ -52,7 +51,7 @@ class OpDB(object):
     '''
 
     def insert_mappings(self, tablename, mappings):
-        '''
+        """
             Description
             -----------
                 Insert information into a table
@@ -65,7 +64,7 @@ class OpDB(object):
             Returns
             -------
                 None
-        '''
+        """
         model = getattr(models, tablename)
         try:
             self.session.bulk_insert_mappings(model, mappings)
@@ -124,7 +123,7 @@ class OpDB(object):
         self.session.bulk_insert_mappings(model, mappings)
 
     def insert_kw(self, tablename, **kw):
-        '''
+        """
             Description
             -----------
                 Insert information into a table
@@ -141,7 +140,7 @@ class OpDB(object):
             Note
             ----
                 Column labels of `kw` should be exactly the same as those of the table
-        '''
+        """
 
         table = getattr(models, tablename).__table__
         insertStatement = insert(table).values(**kw)
@@ -151,7 +150,7 @@ class OpDB(object):
         return insertStatement
 
     def insert_by_copy(self, tablename, data, colnames):
-        '''
+        """
             Description
             -----------
                 Insert information into a table using COPY FROM method
@@ -169,7 +168,7 @@ class OpDB(object):
 
             Note
             ----
-        '''
+        """
         conn = self.engine.raw_connection()
         cur = conn.cursor()
         cur.copy_from(data, tablename, ',', columns=colnames)
@@ -178,7 +177,7 @@ class OpDB(object):
         conn.close()
 
     def update(self, tablename, dataframe):
-        '''
+        """
             Description
             -----------
                 Update information of a table
@@ -195,7 +194,7 @@ class OpDB(object):
             Note
             ----
                 Column labels of `dataframe` should be exactly the same as those of the table
-        '''
+        """
         model = getattr(models, tablename)
         try:
             self.session.bulk_update_mappings(model, dataframe.to_dict(orient="records"))
@@ -211,7 +210,7 @@ class OpDB(object):
     '''
 
     def fetch_all(self, tablename):
-        '''
+        """
             Description
             -----------
                 Get all records from a table
@@ -226,7 +225,7 @@ class OpDB(object):
 
             Note
             ----
-        '''
+        """
         model = getattr(models, tablename)
         try:
             df = pd.read_sql(self.session.query(model).statement, self.session.bind)
@@ -237,7 +236,7 @@ class OpDB(object):
         return df
 
     def fetch_by_id(self, tablename, **kwargs):
-        '''
+        """
             Description
             -----------
                 Get records from a table where the keyword identifier is matched
@@ -253,7 +252,7 @@ class OpDB(object):
 
             Note
             ----
-        '''
+        """
         model = getattr(models, tablename)
         query = self.session.query(model)
         for k, v in kwargs.items():
@@ -267,7 +266,7 @@ class OpDB(object):
         return df
 
     def fetch_query(self, query):
-        '''
+        """
             Description
             -----------
                 Get all records from SQL query
@@ -282,7 +281,7 @@ class OpDB(object):
 
             Note
             ----
-        '''
+        """
         try:
             df = pd.read_sql(query, self.session.bind)
         except:
@@ -292,7 +291,7 @@ class OpDB(object):
         return df
 
     def fetch_by_copy(self, tablename, colnames):
-        '''
+        """
             Description
             -----------
                 Get selected records from a table by using COPY TO method
@@ -308,7 +307,7 @@ class OpDB(object):
 
             Note
             ----
-        '''
+        """
         data = io.StringIO()
         conn = self.engine.raw_connection()
         cur = conn.cursor()
@@ -349,7 +348,7 @@ class OpDB(object):
         return dtypes
 
     def bulkSelect(self, tablename, selectSql=None):
-        '''Efficiently retrieve selected records from a table.
+        """Efficiently retrieve selected records from a table.
 
         Returns a pandas dataframe of all the columns, trying to get
         the numpy types appropriate for the SQL types.
@@ -374,7 +373,7 @@ class OpDB(object):
         -------
         data      : `pandas.DataFrame`
            Always contains all columns.
-        '''
+        """
 
         if tablename is not None:
             dtypes = self._getColTypes(tablename)
@@ -402,7 +401,7 @@ class OpDB(object):
         return df
 
     def bulkInsert(self, tablename, data):
-        '''Efficiently insert DataFrame rows into a table.
+        """Efficiently insert DataFrame rows into a table.
 
         UNTESTED as of 2021-07-22
 
@@ -415,7 +414,7 @@ class OpDB(object):
             The tablename to insert into.
         data : `pandas.DataFrame`
             The data to insert.
-        '''
+        """
 
         buf = io.StringIO()
         data.to_csv(buf, header=False, index=False)
@@ -431,7 +430,7 @@ class OpDB(object):
                     print(e)
 
     def fetch_sps_exposures(self, pfs_visit_id):
-        '''
+        """
             Description
             -----------
                 Get SpS exposure information for a given `pfs_visit_id`
@@ -446,7 +445,7 @@ class OpDB(object):
 
             Note
             ----
-        '''
+        """
         sps_exposure = models.sps_exposure
         sps_visit = models.sps_visit
         sps_camera = models.sps_camera
@@ -466,7 +465,7 @@ class OpDB(object):
     '''
 
     def insert_proposal(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `proposal`
@@ -485,12 +484,12 @@ class OpDB(object):
                     `proposal_id` : `str`
                     `created_at` : `datetime`
                     `updated_at` : `datetime`
-        '''
+        """
         self.session.execute(models.proposal.__table__.insert(), data)
         self.session.commit()
 
     def insert_program(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `program`
@@ -513,12 +512,12 @@ class OpDB(object):
                     `is_filler` : `bool`
                     `created_at` : `datetime`
                     `updated_at` : `datetime`
-        '''
+        """
         self.session.execute(models.program.__table__.insert(), data)
         self.session.commit()
 
     def insert_tile(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `tile`
@@ -541,12 +540,12 @@ class OpDB(object):
                     `dec_center` : `float`
                     `pa` : `float`
                     `is_finished` : `bool`
-        '''
+        """
         self.session.execute(models.tile.__table__.insert(), data)
         self.session.commit()
 
     def insert_target_type(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `target_type`
@@ -567,12 +566,12 @@ class OpDB(object):
                     `target_type_description` : `str`
                     `created_at` : `datetime`
                     `updated_at` : `datetime`
-        '''
+        """
         self.session.execute(models.target_type.__table__.insert(), data)
         self.session.commit()
 
     def insert_input_catalog(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `input_catalog`
@@ -593,12 +592,12 @@ class OpDB(object):
                     `input_catalog_description` : `str`
                     `created_at` : `datetime`
                     `updated_at` : `datetime`
-        '''
+        """
         self.session.execute(models.input_catalog.__table__.insert(), data)
         self.session.commit()
 
     def insert_qa_type(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `qa_type`
@@ -619,12 +618,12 @@ class OpDB(object):
                     `qa_type_description` : `str`
                     `created_at` : `datetime`
                     `updated_at` : `datetime`
-        '''
+        """
         self.session.execute(models.qa_type.__table__.insert(), data)
         self.session.commit()
 
     def insert_target_from_buffer(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `target`
@@ -670,7 +669,7 @@ class OpDB(object):
                     `is_finished` : `bool`
                     `created_at` : `datetime`
                     `updated_at` : `datetime`
-        '''
+        """
         colnames = (
         'program_id', 'obj_id', 'ra', 'decl', 'tract', 'patch', 'priority', 'target_type_id', 'cat_id', 'cat_obj_id',
         'fiber_mag_g', 'fiber_mag_r', 'fiber_mag_i', 'fiber_mag_z', 'fiber_mag_y', 'fiber_mag_j', 'fiducial_exptime',
@@ -698,7 +697,7 @@ class OpDB(object):
         self.session.commit()
 
     def insert_beam_switch_mode(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `beam_switch_mode`
@@ -717,12 +716,12 @@ class OpDB(object):
                     `beam_switch_mode_id` : `int`
                     `beam_switch_mode_name` : `str`
                     `beam_switch_mode_description` : `str`
-        '''
+        """
         self.session.execute(models.beam_switch_mode.__table__.insert(), data)
         self.session.commit()
 
     def insert_cloud_condition(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `cloud_condition`
@@ -743,12 +742,12 @@ class OpDB(object):
                     `cloud_condition_description` : `str`
                     `created_at` : `datetime`
                     `updated_at` : `datetime`
-        '''
+        """
         self.session.execute(models.cloud_condition.__table__.insert(), data)
         self.session.commit()
 
     def insert_pfs_design(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `pfs_design`
@@ -780,12 +779,12 @@ class OpDB(object):
                     `designed_at` : `datetime`
                     `to_be_observed_at` : `datetime`
                     `is_obsolete` : `bool`
-        '''
+        """
         self.session.execute(models.pfs_design.__table__.insert(), data)
         self.session.commit()
 
     def insert_pfs_design_fiber(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `pfs_design_fiber`
@@ -810,12 +809,12 @@ class OpDB(object):
                     `ets_cost_function` : `float`
                     `ets_cobra_motor_movement` : `str`
                     `is_on_source` : `bool`
-        '''
+        """
         self.session.execute(models.pfs_design_fiber.__table__.insert(), data)
         self.session.commit()
 
     def insert_pfs_design_fiber_from_buffer(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `pfs_design_fiber`
@@ -842,7 +841,7 @@ class OpDB(object):
                     `ets_cost_function` : `float`
                     `ets_cobra_motor_movement` : `str`
                     `is_on_source` : `bool`
-        '''
+        """
         colnames = ('pfs_design_id', 'cobra_id', 'target_id', 'pfi_target_x_mm', 'pfi_target_y_mm', 'ets_priority',
                     'ets_cost_function', 'ets_cobra_motor_movement', 'is_on_source')
         conn = self.engine.raw_connection()
@@ -853,7 +852,7 @@ class OpDB(object):
         conn.close()
 
     def insert_pfs_config(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `pfs_config`
@@ -879,7 +878,7 @@ class OpDB(object):
                     `alloc_rms_scatter` : `float`
                     `allocated_at` : `datetime`
                     `was_observed` : `bool`
-        '''
+        """
         res = self.session.execute(models.pfs_config.__table__.insert(), data)
         self.session.commit()
         # get primary_keys
@@ -887,7 +886,7 @@ class OpDB(object):
         return primary_keys
 
     def insert_pfs_config_fiber(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `pfs_config_fiber`
@@ -911,12 +910,12 @@ class OpDB(object):
                     `motor_map_summary` : `str`
                     `config_elapsed_time` : `float`
                     `is_on_source` : `bool`
-        '''
+        """
         self.session.execute(models.pfs_config_fiber.__table__.insert(), data)
         self.session.commit()
 
     def insert_pfs_config_fiber_from_buffer(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `pfs_config_fiber`
@@ -942,7 +941,7 @@ class OpDB(object):
                     `motor_map_summary` : `str`
                     `config_elapsed_time` : `float`
                     `is_on_source` : `bool`
-        '''
+        """
         colnames = (
         'pfs_config_id', 'cobra_id', 'target_id', 'pfi_center_final_x_mm', 'pfi_center_final_y_mm', 'motor_map_summary',
         'config_elapsed_time', 'is_on_source')
@@ -954,7 +953,7 @@ class OpDB(object):
         conn.close()
 
     def insert_sps_module(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `sps_module`
@@ -972,12 +971,12 @@ class OpDB(object):
                 `data` list should include `dict` with the following keys:
                     `sps_module_id` : `int`
                     `description` : `str`
-        '''
+        """
         self.session.execute(models.sps_module.__table__.insert(), data)
         self.session.commit()
 
     def insert_sps_camera(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `sps_camera`
@@ -997,12 +996,12 @@ class OpDB(object):
                     `sps_module_id` : `int`
                     `arm` : `str`
                     `arm_num` : `int`
-        '''
+        """
         self.session.execute(models.sps_camera.__table__.insert(), data)
         self.session.commit()
 
     def insert_fiducial_fiber(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `fiducial_fiber`
@@ -1024,12 +1023,12 @@ class OpDB(object):
                     `ff_type` : `str`
                     `ff_id_in_type` : `int`
                     `version` : `str`
-        '''
+        """
         self.session.execute(models.fiducial_fiber.__table__.insert(), data)
         self.session.commit()
 
     def insert_fiducial_fiber_geometry(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `fiducial_fiber_geometry`
@@ -1048,12 +1047,12 @@ class OpDB(object):
                     `fiducial_fiber_id` : `int`
                     `ff_center_on_pfi_x_mm` : `float`
                     `ff_center_on_pfi_y_mm` : `float`
-        '''
+        """
         self.session.execute(models.fiducial_fiber_geometry.__table__.insert(), data)
         self.session.commit()
 
     def insert_cobra(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `cobra`
@@ -1080,12 +1079,12 @@ class OpDB(object):
                     `cobra_id_sps` : `int`
                     `cobra_id_lna` : `str`
                     `version` : `str`
-        '''
+        """
         self.session.execute(models.cobra.__table__.insert(), data)
         self.session.commit()
 
     def insert_cobra_from_buffer(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `cobra`
@@ -1114,7 +1113,7 @@ class OpDB(object):
                     `cobra_id_sps` : `int`
                     `cobra_id_lna` : `str`
                     `version` : `str`
-        '''
+        """
         colnames = ('cobra_id', 'field_on_pfi', 'cobra_in_field', 'module_in_field', 'cobra_in_module', 'module_name',
                     'sps_camera_id', 'slit_hole_sps', 'cobra_id_sps', 'cobra_id_lna', 'version')
         conn = self.engine.raw_connection()
@@ -1125,7 +1124,7 @@ class OpDB(object):
         conn.close()
 
     def insert_pfs_visit(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `pfs_visit`
@@ -1143,12 +1142,12 @@ class OpDB(object):
                 `data` list should include `dict` with the following keys:
                     `pfs_visit_id` : `int`
                     `pfs_visit_description` : `str`
-        '''
+        """
         self.session.execute(models.pfs_visit.__table__.insert(), data)
         self.session.commit()
 
     def update_pfs_visit(self, data):
-        '''
+        """
             Description
             -----------
                 Update information in `pfs_visit`
@@ -1166,7 +1165,7 @@ class OpDB(object):
                 `data` list should include `dict` with the following keys:
                     `pfs_visit_id` : `int`
                     `pfs_visit_description` : `str`
-        '''
+        """
         for d in data:
             pfs_visit = self.session.query(models.pfs_visit).filter(
                 models.pfs_visit.pfs_visit_id == int(d['pfs_visit_id'])).first()
@@ -1176,7 +1175,7 @@ class OpDB(object):
             # query = query.filter(models.pfs_visit.pfs_visit_id == d['pfs_visit_id']).query.update({pfs_visit.pfs_visit_description: d['pfs_visit_description']})
 
     def insert_sps_visit(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `sps_visit`
@@ -1194,12 +1193,12 @@ class OpDB(object):
                 `data` list should include `dict` with the following keys:
                     `pfs_visit_id` : `int`
                     `exp_type` : `str`
-        '''
+        """
         self.session.execute(models.sps_visit.__table__.insert(), data)
         self.session.commit()
 
     def update_sps_visit(self, data):
-        '''
+        """
             Description
             -----------
                 Update information in `sps_visit`
@@ -1217,14 +1216,14 @@ class OpDB(object):
                 `data` list should include `dict` with the following keys:
                     `pfs_visit_id` : `int`
                     `exp_type` : `str`
-        '''
+        """
         for d in data:
             sps_visit = self.session.query(models.sps_visit).filter(models.sps_visit.pfs_visit_id == d['pfs_visit_id'])
             sps_visit.exp_type = d['exp_type']
             self.session.commit()
 
     def insert_tel_visit(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `tel_visit`
@@ -1247,12 +1246,12 @@ class OpDB(object):
                     `beam_switch_mode_id` : `int`
                     `beam_switch_offset_ra` : `float`
                     `beam_switch_offset_dec` : `float`
-        '''
+        """
         self.session.execute(models.tel_visit.__table__.insert(), data)
         self.session.commit()
 
     def update_tel_visit(self, data):
-        '''
+        """
             Description
             -----------
                 Update information in `tel_visit`
@@ -1275,7 +1274,7 @@ class OpDB(object):
                     `beam_switch_mode_id` : `int`
                     `beam_switch_offset_ra` : `float`
                     `beam_switch_offset_dec` : `float`
-        '''
+        """
         for d in data:
             tel_visit = self.session.query(models.tel_visit).filter(models.tel_visit.tel_visit_id == d['tel_visit_id'])
             tel_visit.pfs_config_id = d['pfs_config_id']
@@ -1287,7 +1286,7 @@ class OpDB(object):
             self.session.commit()
 
     def insert_sky_model(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `sky_model`
@@ -1307,12 +1306,12 @@ class OpDB(object):
                     `pfs_visit_id` : `int`
                     `tel_visit_id` : `int`
                     `sps_camera_id` : `int`
-        '''
+        """
         self.session.execute(models.sky_model.__table__.insert(), data)
         self.session.commit()
 
     def insert_psf_model(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `psf_model`
@@ -1332,12 +1331,12 @@ class OpDB(object):
                     `pfs_visit_id` : `int`
                     `tel_visit_id` : `int`
                     `sps_camera_id` : `int`
-        '''
+        """
         self.session.execute(models.psf_model.__table__.insert(), data)
         self.session.commit()
 
     def insert_pfs_arm(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `pfs_arm`
@@ -1360,12 +1359,12 @@ class OpDB(object):
                     `flags` : `int`
                     `processed_at` : `datetime`
                     `drp2d_version` : `str`
-        '''
+        """
         self.session.execute(models.pfs_arm.__table__.insert(), data)
         self.session.commit()
 
     def insert_mcs_exposure(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `mcs_exposure`
@@ -1398,12 +1397,12 @@ class OpDB(object):
                     `mcs_m1_temperature` : `float`
                     `taken_at` : `datetime`
                     `taken_in_hst_at : `datetime`
-        '''
+        """
         self.session.execute(models.mcs_exposure.__table__.insert(), data)
         self.session.commit()
 
     def insert_mcs_data(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `mcs_data`
@@ -1428,12 +1427,12 @@ class OpDB(object):
                     `mcs_second_moment_xy_pix` : `float`
                     `bgvalue` : `float`
                     `peakvalue` : `float`
-        '''
+        """
         self.session.execute(models.mcs_data.__table__.insert(), data)
         self.session.commit()
 
     def insert_mcs_data_orm(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `mcs_data`
@@ -1458,7 +1457,7 @@ class OpDB(object):
                     `mcs_second_moment_xy_pix` : `float`
                     `bgvalue` : `float`
                     `peakvalue` : `float`
-        '''
+        """
         self.session.bulk_save_objects([models.mcs_data(mcs_frame_id=d[0],
                                                         spot_id=d[1],
                                                         mcs_center_x_pix=d[2],
@@ -1472,7 +1471,7 @@ class OpDB(object):
         self.session.commit()
 
     def insert_mcs_data_from_buffer(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `mcs_data`
@@ -1499,7 +1498,7 @@ class OpDB(object):
                     `mcs_second_moment_xy_pix` : `float`
                     `bgvalue` : `float`
                     `peakvalue` : `float`
-        '''
+        """
         colnames = ('mcs_frame_id', 'spot_id', 'mcs_center_x_pix', 'mcs_center_y_pix', 'mcs_second_moment_x_pix',
                     'mcs_second_moment_y_pix', 'mcs_second_moment_xy_pix', 'bgvalue', 'peakvalue')
         conn = self.engine.raw_connection()
@@ -1510,7 +1509,7 @@ class OpDB(object):
         conn.close()
 
     def insert_cobra_motor_axis(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `cobra_motor_axis`
@@ -1528,12 +1527,12 @@ class OpDB(object):
                 `data` list should include `dict` with the following keys:
                     `cobra_motor_axis_id` : `int'    (1, 2)
                     `cobra_motor_axis_name` : `str`  (theta, phi)
-        '''
+        """
         self.session.execute(models.cobra_motor_axis.__table__.insert(), data)
         self.session.commit()
 
     def insert_cobra_motor_direction(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `cobra_motor_direction`
@@ -1551,12 +1550,12 @@ class OpDB(object):
                 `data` list should include `dict` with the following keys:
                     `cobra_motor_direction_id` : `int'    (0, 1)
                     `cobra_motor_direction_name` : `str`  (forward, reverse)
-        '''
+        """
         self.session.execute(models.cobra_motor_direction.__table__.insert(), data)
         self.session.commit()
 
     def insert_cobra_motor_calib(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `cobra_motor_calib`
@@ -1574,7 +1573,7 @@ class OpDB(object):
                 `data` list should include `dict` with the following keys:
                     `calibrated_at` : `datetime'
                     `comments` : `str`
-        '''
+        """
         res = self.session.execute(models.cobra_motor_calib.__table__.insert(), data)
         self.session.commit()
         # get primary_keys
@@ -1582,7 +1581,7 @@ class OpDB(object):
         return primary_keys
 
     def insert_cobra_motor_model(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `cobra_motor_model`
@@ -1605,8 +1604,8 @@ class OpDB(object):
                     `cobra_motor_on_time` : `float`
                     `cobra_motor_step_size` : `float`
                     `cobra_motor_frequency` : `float`
-        '''
-        res = self.session.execute(models.cobra_motor_model.__table__.insert(), data)
+        """
+        self.session.execute(models.cobra_motor_model.__table__.insert(), data)
         self.session.commit()
         # get primary_keys
         query = self.session.query(models.cobra_motor_model.cobra_motor_model_id,
@@ -1619,7 +1618,7 @@ class OpDB(object):
         return query
 
     def insert_cobra_motor_model_from_buffer(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `cobra_motor_model`
@@ -1644,7 +1643,7 @@ class OpDB(object):
                     `cobra_motor_on_time` : `float`
                     `cobra_motor_step_size` : `float`
                     `cobra_motor_frequency` : `float`
-        '''
+        """
         colnames = (
         'cobra_motor_calib_id', 'cobra_id', 'cobra_motor_axis_id', 'cobra_motor_direction_id', 'cobra_motor_on_time',
         'cobra_motor_step_size', 'cobra_motor_frequency')
@@ -1666,7 +1665,7 @@ class OpDB(object):
         return query
 
     def insert_cobra_convergence_test(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `cobra_convergence_test`
@@ -1688,12 +1687,12 @@ class OpDB(object):
                     `cobra_motor_angle_target` : `float`
                     `cobra_motor_angle_difference` : `float`
                     `signal_to_noise_ratio` : `float`
-        '''
-        res = self.session.execute(models.cobra_convergence_test.__table__.insert(), data)
+        """
+        self.session.execute(models.cobra_convergence_test.__table__.insert(), data)
         self.session.commit()
 
     def insert_cobra_convergence_test_from_buffer(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `cobra_convergence_test`
@@ -1717,7 +1716,7 @@ class OpDB(object):
                     `cobra_motor_angle_target` : `float`
                     `cobra_motor_angle_difference` : `float`
                     `signal_to_noise_ratio` : `float`
-        '''
+        """
         colnames = ('cobra_motor_model_id', 'iteration', 'cobra_motor_angle_target_id', 'cobra_motor_angle_target',
                     'cobra_motor_angle_difference', 'signal_to_noise_ratio')
         conn = self.engine.raw_connection()
@@ -1728,7 +1727,7 @@ class OpDB(object):
         conn.close()
 
     def insert_cobra_motor_map_from_buffer(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `cobra_motor_map`
@@ -1750,7 +1749,7 @@ class OpDB(object):
                     `cobra_motor_move_sequence` : `int`
                     `cobra_motor_angle` : `float`
                     `cobra_motor_speed` : `float`
-        '''
+        """
         colnames = ('cobra_motor_model_id', 'cobra_motor_move_sequence', 'cobra_motor_angle', 'cobra_motor_speed')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
@@ -1760,7 +1759,7 @@ class OpDB(object):
         conn.close()
 
     def insert_cobra_geometry(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `cobra_geometry`
@@ -1788,12 +1787,12 @@ class OpDB(object):
                     `cobra_motor_phi_limit_out` : `float`
                     `cobra_motor_phi_length` : `float`
                     `cobra_status` : `str`
-        '''
+        """
         self.session.execute(models.cobra_geometry.__table__.insert(), data)
         self.session.commit()
 
     def insert_cobra_geometry_from_buffer(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `cobra_geometry`
@@ -1823,7 +1822,7 @@ class OpDB(object):
                     `cobra_motor_phi_limit_out` : `float`
                     `cobra_motor_phi_length` : `float`
                     `cobra_status` : `str`
-        '''
+        """
         colnames = ('cobra_motor_calib_id', 'cobra_id', 'cobra_center_on_pfi_x_mm', 'cobra_center_on_pfi_y_mm',
                     'cobra_distance_from_center_mm', 'cobra_motor_theta_limit0', 'cobra_motor_theta_limit1',
                     'cobra_motor_theta_length', 'cobra_motor_phi_limit_in', 'cobra_motor_phi_limit_out',
@@ -1836,7 +1835,7 @@ class OpDB(object):
         conn.close()
 
     def insert_cobra_status_from_buffer(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `cobra_status`
@@ -1863,7 +1862,7 @@ class OpDB(object):
                     `pfi_target_y_mm` : `float`
                     `pfi_center_x_mm` : `float`
                     `pfi_center_y_mm` : `float`
-        '''
+        """
         colnames = (
         'mcs_frame_id', 'cobra_id', 'spot_id', 'pfs_config_id', 'iteration', 'pfi_target_x_mm', 'pfi_target_y_mm',
         'pfi_center_x_mm', 'pfi_center_y_mm')
@@ -1875,7 +1874,7 @@ class OpDB(object):
         conn.close()
 
     def insert_cobra_movement_from_buffer(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `cobra_movement`
@@ -1900,7 +1899,7 @@ class OpDB(object):
                     `motor_on_time_theta` : `float`
                     `motor_num_step_phi` : `int`
                     `motor_on_time_phi` : `float`
-        '''
+        """
         colnames = ('mcs_frame_id', 'cobra_id', 'cobra_motor_calib_id', 'motor_num_step_theta', 'motor_on_time_theta',
                     'motor_num_step_phi', 'motor_on_time_phi')
         conn = self.engine.raw_connection()
@@ -1910,33 +1909,9 @@ class OpDB(object):
         cur.close()
         conn.close()
 
-    def insert_sps_camera(self, data):
-        '''
-            Description
-            -----------
-                Insert information into `sps_camera`
-
-            Parameters
-            ----------
-                data : `list` of `dict`
-
-            Returns
-            -------
-                None
-
-            Note
-            ----
-                `data` list should include `dict` with the following keys:
-                    `sps_camera_id` : `int`
-                    `sps_module_id` : `int`
-                    `arm` : `str`
-                    `arm_num` : `int`
-        '''
-        self.session.execute(models.sps_camera.__table__.insert(), data)
-        self.session.commit()
 
     def insert_sps_exposure(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `sps_exposure`
@@ -1957,12 +1932,12 @@ class OpDB(object):
                     `exptime` : `float`
                     `time_exp_start` : `datetime`
                     `time_exp_end` : `datetime`
-        '''
+        """
         self.session.execute(models.sps_exposure.__table__.insert(), data)
         self.session.commit()
 
     def insert_calib(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `calib`
@@ -1983,12 +1958,12 @@ class OpDB(object):
                     `sps_frames_to_use` : `str`
                     `pfs_config_id` : `bigint`
                     `calib_date` : `datetime`
-        '''
+        """
         self.session.execute(models.calib.__table__.insert(), data)
         self.session.commit()
 
     def insert_calib_set(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `calib_set`
@@ -2008,14 +1983,14 @@ class OpDB(object):
                     `calib_bias_id` : `int`
                     `calib_dark_id` : `int`
                     `calib_arcs_id` : `int`
-        '''
+        """
         res = self.session.execute(models.calib_set.__table__.insert(), data)
         self.session.commit()
         primary_keys = res.inserted_primary_key
         return primary_keys[0]
 
     def insert_obs_fiber_from_buffer(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `obs_fiber`
@@ -2039,7 +2014,7 @@ class OpDB(object):
                     `exptime` : `float`
                     `cum_nexp` : `int'
                     `cum_texp` : `float`
-        '''
+        """
         colnames = ('pfs_visit_id', 'cobra_id', 'target_id', 'exptime', 'cum_nexp', 'cum_texp')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
@@ -2049,7 +2024,7 @@ class OpDB(object):
         conn.close()
 
     def insert_pfs_arm_obj_from_buffer(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `pfs_arm_obj`
@@ -2072,7 +2047,7 @@ class OpDB(object):
                     `flags` : `int'
                     `qa_type_id` : `int`
                     `qa_value` : `float'
-        '''
+        """
         colnames = ('pfs_visit_id', 'cobra_id', 'flags', 'qa_type_id', 'qa_value')
         conn = self.engine.raw_connection()
         cur = conn.cursor()
@@ -2082,7 +2057,7 @@ class OpDB(object):
         conn.close()
 
     def insert_visit_hash(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `visit_hash`
@@ -2100,12 +2075,12 @@ class OpDB(object):
                 `data` list should include `dict` with the following keys:
                     `pfs_visit_hash` : `bigint`
                     `n_visit` : `int`
-        '''
-        res = self.session.execute(models.visit_hash.__table__.insert(), data)
+        """
+        self.session.execute(models.visit_hash.__table__.insert(), data)
         self.session.commit()
 
     def insert_visits_to_combine(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `visits_to_combine`
@@ -2123,12 +2098,12 @@ class OpDB(object):
                 `data` list should include `dict` with the following keys:
                     `pfs_visit_id` : `int`
                     `pfs_visit_hash` : `bigint`
-        '''
-        res = self.session.execute(models.visits_to_combine.__table__.insert(), data)
+        """
+        self.session.execute(models.visits_to_combine.__table__.insert(), data)
         self.session.commit()
 
     def insert_flux_calib(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `flux_calib`
@@ -2150,12 +2125,12 @@ class OpDB(object):
                     `flux_calib_star_teff` : `float`
                     `flux_calib_star_logg` : `float`
                     `flux_calib_star_z` : `float`
-        '''
-        res = self.session.execute(models.flux_calib.__table__.insert(), data)
+        """
+        self.session.execute(models.flux_calib.__table__.insert(), data)
         self.session.commit()
 
     def insert_pfs_object_from_buffer(self, data):
-        '''
+        """
             Description
             -----------
                 Insert information into `pfs_object`
@@ -2187,7 +2162,7 @@ class OpDB(object):
                     `flags` : `int`
                     `qa_type_id` : `int`
                     `qa_value` : `float`
-        '''
+        """
         colnames = (
         'target_id', 'tract', 'patch', 'cat_id', 'obj_id', 'n_visit', 'pfs_visit_hash', 'cum_texp', 'processed_at',
         'drp2d_version', 'flux_calib_id', 'flags', 'qa_type_id', 'qa_value')
@@ -2205,7 +2180,7 @@ class OpDB(object):
     '''
 
     def get_target_type(self):
-        '''
+        """
             Description
             -----------
                 Fetch `target_type` information
@@ -2222,7 +2197,7 @@ class OpDB(object):
 
             Note
             ----
-        '''
+        """
         # get primary_keys
         query = self.session.query(models.target_type.target_type_id,
                                    models.target_type.target_type_name,
@@ -2297,7 +2272,7 @@ class OpDB(object):
             models.target.fiber_mag_g >= mag_lower,
             models.target.fiber_mag_g <= mag_upper,
             models.target.target_type_id > 1,
-            models.target.is_finished == True
+            models.target.is_finished is True
         ).all()
         return query
 
@@ -2330,7 +2305,7 @@ class OpDB(object):
             models.target.fiber_mag_g >= mag_lower,
             models.target.fiber_mag_g <= mag_upper,
             models.target.target_type_id > 1,
-            models.target.is_finished == False
+            models.target.is_finished is False
         ).all()
         return query
 
@@ -2368,7 +2343,7 @@ class OpDB(object):
             models.target.ra <= ra_max,
             models.target.decl >= decl_min,
             models.target.decl <= decl_max,
-            models.target.is_finished == False
+            models.target.is_finished is False
         ).all()
         return query
 

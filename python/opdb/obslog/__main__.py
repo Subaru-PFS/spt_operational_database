@@ -3,11 +3,11 @@ from pathlib import Path
 from typing import List
 
 import sqlalchemy
-from astropy.io.fits.util import ignore_sigint
-from opdb import models
-from opdb.obslog import add_fits_headers_from_file
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm.session import Session
+
+from opdb import models
+from opdb.obslog import add_fits_headers_from_file
 
 logger = logging.getLogger(__name__)
 
