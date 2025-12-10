@@ -4,7 +4,7 @@ import logging
 import numpy as np
 import pandas as pd
 import sqlalchemy
-from sqlalchemy import create_engine, insert
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from opdb import models
@@ -35,43 +35,16 @@ class OpDB(object):
         self.engine = create_engine(self.dbinfo, poolclass=sqlalchemy.pool.NullPool)
         SessionClass = sessionmaker(self.engine)
         self.session = SessionClass()
-        # print('connection to {0} started'.format(self.dbinfo))
 
     def close(self):
         self.session.close()
-        # print('connection to {0} closed'.format(self.dbinfo))
 
     def rollback(self):
         self.session.rollback()
 
-    '''
-        ############################################################
-        functionality to insert/update information into the database
-        ############################################################
-    '''
-
-    def insert_mappings(self, tablename, mappings):
-        """
-            Description
-            -----------
-                Insert information into a table
-
-            Parameters
-            ----------
-                tablename : `string`
-                mappings : `dictionnary list`
-
-            Returns
-            -------
-                None
-        """
-        model = getattr(models, tablename)
-        try:
-            self.session.bulk_insert_mappings(model, mappings)
-            self.session.commit()
-        except:
-            self.session.rollback()
-            raise
+############################################################
+# functionality to insert/update information into the database
+############################################################
 
     def insert(self, tablename, dataframe):
         """
@@ -122,146 +95,9 @@ class OpDB(object):
         mappings = dataframe.to_dict(orient="records")
         self.session.bulk_insert_mappings(model, mappings)
 
-    def insert_kw(self, tablename, **kw):
-        """
-            Description
-            -----------
-                Insert information into a table
-
-            Parameters
-            ----------
-                tablename : `string`
-                **kw : column values
-
-            Returns
-            -------
-                None
-
-            Note
-            ----
-                Column labels of `kw` should be exactly the same as those of the table
-        """
-
-        table = getattr(models, tablename).__table__
-        insertStatement = insert(table).values(**kw)
-        with self.engine.begin() as conn:
-            conn.execute(insertStatement)
-
-        return insertStatement
-
-    def insert_by_copy(self, tablename, data, colnames):
-        """
-            Description
-            -----------
-                Insert information into a table using COPY FROM method
-
-            Parameters
-            ----------
-                tablename : `string`
-                data : `a text stream`
-                colnames: `list` of `string`
-
-
-            Returns
-            -------
-                None
-
-            Note
-            ----
-        """
-        conn = self.engine.raw_connection()
-        cur = conn.cursor()
-        cur.copy_from(data, tablename, ',', columns=colnames)
-        conn.commit()
-        cur.close()
-        conn.close()
-
-    def update(self, tablename, dataframe):
-        """
-            Description
-            -----------
-                Update information of a table
-
-            Parameters
-            ----------
-                tablename : `string`
-                dataframe : `pandas.DataFrame`
-
-            Returns
-            -------
-                None
-
-            Note
-            ----
-                Column labels of `dataframe` should be exactly the same as those of the table
-        """
-        model = getattr(models, tablename)
-        try:
-            self.session.bulk_update_mappings(model, dataframe.to_dict(orient="records"))
-            self.session.commit()
-        except:
-            self.session.rollback()
-            raise
-
 ##################################################
 # functionality to get information from the database
 ##################################################
-
-    def fetch_all(self, tablename):
-        """
-            Description
-            -----------
-                Get all records from a table
-
-            Parameters
-            ----------
-                tablename : `string`
-
-            Returns
-            -------
-                df : `pandas.DataFrame`
-
-            Note
-            ----
-        """
-        model = getattr(models, tablename)
-        try:
-            df = pd.read_sql(self.session.query(model).statement, self.session.bind)
-        except:
-            self.session.rollback()
-            raise
-
-        return df
-
-    def fetch_by_id(self, tablename, **kwargs):
-        """
-            Description
-            -----------
-                Get records from a table where the keyword identifier is matched
-
-            Parameters
-            ----------
-                tablename : `string`
-                **kwargs  :          (e.g., pfs_visit_id=12345)
-
-            Returns
-            -------
-                df : `pandas.DataFrame`
-
-            Note
-            ----
-        """
-        model = getattr(models, tablename)
-        query = self.session.query(model)
-        for k, v in kwargs.items():
-            query = query.filter(getattr(model, k) == v)
-        try:
-            df = pd.read_sql(query.statement, self.session.bind)
-        except:
-            self.session.rollback()
-            raise
-
-        return df
 
     def fetch_query(self, query):
         """
@@ -288,32 +124,6 @@ class OpDB(object):
 
         return df
 
-    def fetch_by_copy(self, tablename, colnames):
-        """
-            Description
-            -----------
-                Get selected records from a table by using COPY TO method
-
-            Parameters
-            ----------
-                tablename : `string`
-                colnames  : `list` of `string`
-
-            Returns
-            -------
-                data      : `io.StringIO` (comma-separated)
-
-            Note
-            ----
-        """
-        data = io.StringIO()
-        conn = self.engine.raw_connection()
-        cur = conn.cursor()
-        cur.copy_to(data, tablename, sep=',', null='\\N', columns=colnames)
-        cur.close()
-        conn.close()
-        data.seek(0)
-        return data
 
     # These are the pg_type oids for all the known and used PFS data
     # types. There are many many more. If we really cared there is
