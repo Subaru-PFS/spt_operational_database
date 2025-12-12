@@ -1,5 +1,6 @@
 import io
 import logging
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -7,12 +8,27 @@ import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy import insert
 from sqlalchemy.orm import sessionmaker
+from typing_extensions import deprecated
 
 from opdb import models
 
+# Emit a deprecation warning on import so callers are notified even if they don't
+# instantiate the class immediately.
+warnings.warn(
+    "Importing OpDB (module opdb.opdb) is deprecated and will be removed in a future release. "
+    "Please use `pfs.utils.database.opdb` instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
+@deprecated("OpDB is deprecated and will be removed in a future release. Please use the database tools in `pfs_utils` instead.")
 class OpDB(object):
     ''' 
+        DEPRECATED
+        -----------
+        The `OpDB` class is deprecated and will be removed in a future release.
+        Please migrate to the database utilities in `pfs.utils.database`.
+
         === CAUTION! ===
 
         We remove `password` argument at some point. 
@@ -24,6 +40,12 @@ class OpDB(object):
     url = 'postgresql://pfs@db-ics:5432/opdb'
 
     def __init__(self, hostname='localhost', port='5432', dbname='test', username='test', dialect='postgresql'):
+        warnings.warn(
+            "OpDB is deprecated and will be removed in a future release. "
+            "Please use the database tools in `pfs.utils.database` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self.dbinfo = "{0}://{1}@{2}:{3}/{4}".format(dialect,
                                                      username,
                                                      hostname,
