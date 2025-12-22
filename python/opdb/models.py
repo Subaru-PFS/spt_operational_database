@@ -677,7 +677,6 @@ class mcs_data(Base):
     '''
 
     __tablename__ = 'mcs_data'
-    __table_args__ = (UniqueConstraint('mcs_frame_id', 'spot_id'), {})
 
     mcs_frame_id = Column(Integer, ForeignKey('mcs_exposure.mcs_frame_id'), primary_key=True, index=True,
                           autoincrement=False)
@@ -1091,8 +1090,6 @@ class cobra_target(Base):
     ''' The actual movement of the cobra motor, in terms of individual MCS frames.
     '''
     __tablename__ = 'cobra_target'
-    __table_args__ = (UniqueConstraint('pfs_visit_id', 'iteration', 'cobra_id'),
-                      {})
 
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
                           primary_key=True, unique=False, autoincrement=False,
@@ -1137,8 +1134,7 @@ class cobra_move(Base):
     ''' The actual movement of the cobra motor, in terms of individual MCS frames.
     '''
     __tablename__ = 'cobra_move'
-    __table_args__ = (UniqueConstraint('pfs_visit_id', 'iteration', 'cobra_id'),
-                      ForeignKeyConstraint(['pfs_visit_id', 'iteration', 'cobra_id'],
+    __table_args__ = (ForeignKeyConstraint(['pfs_visit_id', 'iteration', 'cobra_id'],
                                            ['cobra_match.pfs_visit_id', 'cobra_match.iteration', 'cobra_match.cobra_id']),
                       {})
 
@@ -1190,8 +1186,7 @@ class cobra_match(Base):
     '''Defines the status of each cobra at each step during convergence.
     '''
     __tablename__ = 'cobra_match'
-    __table_args__ = (UniqueConstraint('pfs_visit_id', 'iteration', 'cobra_id'),
-                      ForeignKeyConstraint(['pfs_visit_id', 'iteration', 'cobra_id'],
+    __table_args__ = (ForeignKeyConstraint(['pfs_visit_id', 'iteration', 'cobra_id'],
                                            ['cobra_target.pfs_visit_id', 'cobra_target.iteration', 'cobra_target.cobra_id']),
                       ForeignKeyConstraint(['mcs_frame_id', 'spot_id'],
                                            ['mcs_data.mcs_frame_id', 'mcs_data.spot_id']),
@@ -1720,8 +1715,6 @@ class agc_data(Base):
     '''
 
     __tablename__ = 'agc_data'
-    __table_args__ = (UniqueConstraint('agc_exposure_id', 'agc_camera_id', 'spot_id'),
-                      {})
 
     agc_exposure_id = Column(Integer, ForeignKey('agc_exposure.agc_exposure_id'),
                              primary_key=True, autoincrement=False,
@@ -1773,8 +1766,7 @@ class agc_match(Base):
     '''
 
     __tablename__ = 'agc_match'
-    __table_args__ = (UniqueConstraint('agc_exposure_id', 'agc_camera_id', 'spot_id'),
-                      ForeignKeyConstraint(['agc_exposure_id', 'agc_camera_id', 'spot_id'],
+    __table_args__ = (ForeignKeyConstraint(['agc_exposure_id', 'agc_camera_id', 'spot_id'],
                                            ['agc_data.agc_exposure_id', 'agc_data.agc_camera_id', 'agc_data.spot_id']),
                       {})
 
