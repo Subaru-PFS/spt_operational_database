@@ -27,6 +27,7 @@ send_sql_command() {
 }
 
 MCS_TABLES="mcs_data cobra_match fiducial_fiber_match mcs_pfi_transformation"
+FPS_TABLES="cobra_target cobra_move mcs_boresight pfs_config pfs_config_fiber pfs_config_agc"
 AG_TABLES="...eventually....."
 usage() {
     (
@@ -37,11 +38,15 @@ usage() {
         echo "  -t tables           Additional comma-separated list of tables to allow writes to"
         echo "  -h dbhost           The host of the database to configure. default: $TEST_DBHOST"
         echo "  -p dbport           The port of the database to configure. default: $TEST_DBPORT"
+	echo "  -T                  TRUNCATE all tables"
+	echo "  -R                  Reconfigure: assume foreign schema and tables already configured"
         echo 
         echo "     databaseName - the name of the database to configure."
         echo 
         echo "System names and their tables are:"
         echo "    MCS: $MCS_TABLES"
+        echo "    FPS: $FPS_TABLES"
+        echo "    FPS+MCS: $FPS_TABLES $MCS_TABLES"
         echo "    AG: $AG_TABLES"
 
     ) 1>&2
@@ -51,16 +56,26 @@ usage() {
 VERBOSE=0
 NORUN=0
 TABLES=""
-while getopts ":Dvnt:s:h:p:" opt; do
+TRUNCATE=0
+RECONFIGURE=0
+while getopts ":DTRvnt:s:h:p:" opt; do
     case ${opt} in
         v ) VERBOSE=1
             ;;
         n ) NORUN=1
             ;;
+        T ) TRUNCATE=1
+            ;;
+        R ) RECONFIGURE=1
+            ;;
         t ) EXTRA_TABLES=$OPTARG
             ;;
         s ) case $OPTARG in
                 MCS ) TABLES=$MCS_TABLES
+                    ;;
+                FPS ) TABLES=$FPS_TABLES
+                    ;;
+                FPS+MCS ) TABLES="$FPS_TABLES $MCS_TABLES"
                     ;;
                 AG ) TABLES=$AG_TABLES
                     ;;
@@ -143,10 +158,17 @@ send_sql_command_file() {
 tf=$(mktemp)
 # Run all configuration as a single transaction. This might be dumb and incredibly confusing, 
 # but I worry about one table rename failing.
-( echo "import foreign schema public from server foreign_opdb_srv into public;"
+( if [ $RECONFIGURE -eq 0 ]; then
+      echo "import foreign schema public from server foreign_opdb_srv into public;"
+  fi
   for table in $TABLES; do
-     echo "alter foreign table $table rename to opdb_$table;"
-     echo "create table $table (like opdb_$table);"
+     if [ $RECONFIGURE -eq 0 ]; then
+	 echo "alter foreign table if exists $table rename to opdb_$table;"
+     fi
+     echo "create table if not exists $table (like opdb_$table);"
+     if [ $TRUNCATE -eq 1 ]; then
+	 echo "truncate table $table;"
+     fi
   done
 ) > $tf
 
