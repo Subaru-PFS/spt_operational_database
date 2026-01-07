@@ -56,7 +56,7 @@ __Note that contact opDB manager if you make a new directory__
 
 * make `db.cfg` in the directory where `alembic.ini` exists. This file contains the following string:
 ```sh
-postgres://username:password@hostname:port/dbname
+postgresql://username:password@hostname:port/dbname
 ```
 
 __Note that DO NOT commit `db.cfg` on the repository__
