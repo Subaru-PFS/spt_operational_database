@@ -1905,6 +1905,27 @@ def make_database(dbinfo):
     Session()
 
 
+class dot_roach_flux(Base):
+    '''Flux measurements per cobra per visit during dot-roaching.'''
+    __tablename__ = 'dot_roach_flux'
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'cobra_id'), {})
+
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
+                          primary_key=True, autoincrement=False,
+                          comment='PFS visit identifier')
+    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'),
+                      primary_key=True, autoincrement=False,
+                      comment='Cobra identifier (1..2394)')
+    flux = Column(REAL, comment='Raw extracted flux [ADU]')
+    flux_norm = Column(REAL, comment='Flux normalized by lamp response')
+
+    def __init__(self, pfs_visit_id, cobra_id, flux, flux_norm):
+        self.pfs_visit_id = pfs_visit_id
+        self.cobra_id = cobra_id
+        self.flux = flux
+        self.flux_norm = flux_norm
+
+
 if __name__ == '__main__':
     import sys
     dbinfo = sys.argv[1]
