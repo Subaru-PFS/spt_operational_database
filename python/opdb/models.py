@@ -1853,6 +1853,7 @@ class agc_guide_offset(Base):
                             comment='The calculated focus offset for AGC6 [mm]')
     mask = Column(Integer,
                   comment='A mask of the active elements being fit')
+    taken_at = Column(DateTime, comment='The time at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
 
     agc_exposure = relationship('agc_exposure', back_populates='agc_guide_offset')
 
@@ -1860,7 +1861,7 @@ class agc_guide_offset(Base):
                  guide_delta_ra, guide_delta_dec, guide_delta_insrot, guide_delta_scale,
                  guide_delta_az, guide_delta_el, guide_delta_z,
                  guide_delta_z1, guide_delta_z2, guide_delta_z3, guide_delta_z4, guide_delta_z5, guide_delta_z6,
-                 mask):
+                 mask, taken_at):
         self.agc_exposure_id = agc_exposure_id
         self.guide_ra = guide_ra
         self.guide_dec = guide_dec
@@ -1879,6 +1880,7 @@ class agc_guide_offset(Base):
         self.guide_delta_z5 = guide_delta_z5
         self.guide_delta_z6 = guide_delta_z6
         self.mask = mask
+        self.taken_at = taken_at
 
 
 def make_database(dbinfo):
