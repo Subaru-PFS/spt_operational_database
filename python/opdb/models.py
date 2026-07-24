@@ -1910,14 +1910,16 @@ class dot_roach_flux(Base):
     cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'),
                       primary_key=True, autoincrement=False,
                       comment='Cobra identifier (1..2394)')
-    flux = Column(REAL, comment='Raw extracted flux [ADU]')
-    flux_norm = Column(REAL, comment='Flux normalized by lamp response')
+    flux_abs = Column(REAL, comment='Raw extracted flux [ADU]')
+    flux_ratio = Column(REAL, comment='Extracted flux divided by the extracted reference spectra')
+    flux_ratio_norm =  Column(REAL, comment='Flux ratio normalized by lamp response')
 
-    def __init__(self, pfs_visit_id, cobra_id, flux, flux_norm):
+    def __init__(self, pfs_visit_id, cobra_id, flux_abs, flux_ratio, flux_ratio_norm):
         self.pfs_visit_id = pfs_visit_id
         self.cobra_id = cobra_id
-        self.flux = flux
-        self.flux_norm = flux_norm
+        self.flux_abs = flux_abs
+        self.flux_ratio = flux_ratio
+        self.flux_ratio_norm = flux_ratio_norm
 
 
 if __name__ == '__main__':
