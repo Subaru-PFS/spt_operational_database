@@ -1922,6 +1922,85 @@ class dot_roach_flux(Base):
         self.flux_ratio_norm = flux_ratio_norm
 
 
+class cobra_dot_cmd(Base):
+    '''Where each cobra was COMMANDED to sit at each flat of a dot scan.
+
+    dot_roach_flux supplies the y axis of the obscuration curve; this supplies the x
+    axis.  The fraction used to be implicit -- a global start plus a fixed increment --
+    which only works while every cobra shares one fraction.  Once the blind move sends
+    each cobra to its own target, x becomes a value per (cobra, visit) and cannot be
+    reconstructed from the scan parameters.
+
+    Written by fps, which knows where it sent the cobras; joined to dot_roach_flux,
+    written by drp, on (pfs_visit_id, cobra_id).
+    '''
+    __tablename__ = 'cobra_dot_cmd'
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'cobra_id'), {})
+
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
+                          primary_key=True, autoincrement=False,
+                          comment='Visit of the flat this commanded position corresponds to')
+    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'),
+                      primary_key=True, autoincrement=False,
+                      comment='Cobra identifier (1..2394)')
+    cmd_fraction = Column(REAL,
+                          comment='Dot fraction the cobra was COMMANDED to at that flat -- not a '
+                                  'measurement: 0 = entry edge, 0.5 = dot centre, 1 = exit edge')
+
+    def __init__(self, pfs_visit_id, cobra_id, cmd_fraction):
+        self.pfs_visit_id = pfs_visit_id
+        self.cobra_id = cobra_id
+        self.cmd_fraction = cmd_fraction
+
+
+class cobra_dot_target(Base):
+    '''Per-cobra optimal black-dot fraction, fitted from an across-dot flux scan.
+
+    The dot ramp places each cobra using the geometric dot model, but the depth at
+    which a cobra actually hides best differs from that model per cobra.  This table
+    holds the fitted optimum so the ramp can target it individually, falling back to a
+    global constant for cobras with no entry.
+
+    Derived from a join of dot_roach_flux (flux) and cobra_dot_cmd (commanded
+    fraction), so no scan parameters are assumed anywhere.
+
+    Keyed on (pfs_visit_id, cobra_id) so successive calibrations accumulate rather than
+    overwrite: readers take the most recent visit, and drift is measurable by comparing
+    entries.
+    '''
+    __tablename__ = 'cobra_dot_target'
+    __table_args__ = (UniqueConstraint('pfs_visit_id', 'cobra_id'), {})
+
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
+                          primary_key=True, autoincrement=False,
+                          comment='First flat visit of the scan this target was fitted from, as '
+                                  'recorded in dot_roach_flux')
+    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'),
+                      primary_key=True, autoincrement=False,
+                      comment='Cobra identifier (1..2394)')
+    dot_target = Column(REAL,
+                        comment='Fitted commanded dot fraction of minimum flux: the vertex of a '
+                                'parabola in log10(flux), so it falls between scan points')
+    dot_target_err = Column(REAL, comment='Uncertainty on dot_target from the fit, in dot fraction')
+    min_flux = Column(REAL, comment='Residual flux ratio at dot_target')
+    n_points = Column(Integer, comment='Number of scan points used in the fit')
+    scan_min = Column(REAL,
+                      comment='Shallowest commanded fraction in the scan, so a target sitting at the '
+                              'edge of the sampled range is recognisable')
+    scan_max = Column(REAL, comment='Deepest commanded fraction in the scan')
+
+    def __init__(self, pfs_visit_id, cobra_id, dot_target, dot_target_err, min_flux, n_points,
+                 scan_min, scan_max):
+        self.pfs_visit_id = pfs_visit_id
+        self.cobra_id = cobra_id
+        self.dot_target = dot_target
+        self.dot_target_err = dot_target_err
+        self.min_flux = min_flux
+        self.n_points = n_points
+        self.scan_min = scan_min
+        self.scan_max = scan_max
+
+
 if __name__ == '__main__':
     import sys
     dbinfo = sys.argv[1]
