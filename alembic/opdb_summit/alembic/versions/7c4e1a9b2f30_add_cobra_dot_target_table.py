@@ -56,24 +56,39 @@ def upgrade():
 
     op.create_table('cobra_dot_target',
                     sa.Column('pfs_visit_id', sa.Integer(), autoincrement=False, nullable=False,
-                              comment='First flat visit of the scan this target was fitted from, as '
-                                      'recorded in dot_roach_flux'),
+                              comment='First flat visit of the scan this calibration was fitted '
+                                      'from, as recorded in dot_roach_flux'),
                     sa.Column('cobra_id', sa.Integer(), autoincrement=False, nullable=False,
                               comment='Cobra identifier (1..2394)'),
+                    sa.Column('visit0', sa.Integer(), nullable=True,
+                              comment='moveToPfsDesign convergence visit of the same calibration '
+                                      'run -- where dot_edge is measured, while dot_target comes '
+                                      'from the flats that follow it'),
                     sa.Column('dot_target', sa.REAL(), nullable=True,
-                              comment='Fitted commanded dot fraction of minimum flux: the vertex of a '
-                                      'parabola in log10(flux), so it falls between scan points'),
+                              comment='Commanded dot fraction of maximum obscuration: the centre '
+                                      'of the flux plateau, not the noisy argmin. Measured by the '
+                                      'spectrograph'),
                     sa.Column('dot_target_err', sa.REAL(), nullable=True,
                               comment='Uncertainty on dot_target from the fit, in dot fraction'),
                     sa.Column('min_flux', sa.REAL(), nullable=True,
                               comment='Residual flux ratio at dot_target'),
-                    sa.Column('n_points', sa.Integer(), nullable=True,
-                              comment='Number of scan points used in the fit'),
-                    sa.Column('scan_min', sa.REAL(), nullable=True,
-                              comment='Shallowest commanded fraction in the scan, so a target sitting '
-                                      'at the edge of the sampled range is recognisable'),
-                    sa.Column('scan_max', sa.REAL(), nullable=True,
-                              comment='Deepest commanded fraction in the scan'),
+                    sa.Column('dot_edge', sa.REAL(), nullable=True,
+                              comment='Commanded dot fraction at which the MCS loses this cobra on '
+                                      'its own approach arc; 0 means the modelled entry edge. '
+                                      'Measured by the MCS -- a different boundary from dot_target, '
+                                      'since observability ends before obscuration is complete, so '
+                                      'neither column can stand in for the other'),
+                    sa.Column('dot_edge_err', sa.REAL(), nullable=True,
+                              comment='Uncertainty on dot_edge, in dot fraction'),
+                    sa.Column('is_valid', sa.Boolean(), nullable=True,
+                              comment='False where the fit did not meet its acceptance criterion; '
+                                      'consumers must fall back to the defaults rather than use a '
+                                      'fitted-but-rejected number'),
+                    sa.Column('dot_catalog', sa.String(), nullable=True,
+                              comment='Black-dot catalogue this calibration was fitted against '
+                                      '(e.g. black_dots_mm.csv). Both columns are fractions of a '
+                                      'theoretical dot, so replacing the catalogue invalidates '
+                                      'them'),
                     sa.ForeignKeyConstraint(['cobra_id'], ['cobra.cobra_id']),
                     sa.ForeignKeyConstraint(['pfs_visit_id'], ['pfs_visit.pfs_visit_id']),
                     sa.PrimaryKeyConstraint('pfs_visit_id', 'cobra_id'),

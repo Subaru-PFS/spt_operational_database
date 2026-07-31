@@ -1954,15 +1954,21 @@ class cobra_dot_cmd(Base):
 
 
 class cobra_dot_target(Base):
-    '''Per-cobra optimal black-dot fraction, fitted from an across-dot flux scan.
+    '''Per-cobra black-dot calibration: where the edge is, and where to aim.
 
-    The dot ramp places each cobra using the geometric dot model, but the depth at
-    which a cobra actually hides best differs from that model per cobra.  This table
-    holds the fitted optimum so the ramp can target it individually, falling back to a
-    global constant for cobras with no entry.
+    Two quantities, measured by two different instruments in one calibration run,
+    both expressed as fractions of the *theoretical* dot from the black-dot catalogue
+    (0 = entry edge, 0.5 = centre, 1 = exit edge):
 
-    Derived from a join of dot_roach_flux (flux) and cobra_dot_cmd (commanded
-    fraction), so no scan parameters are assumed anywhere.
+      dot_edge    where the MCS actually loses this cobra on its own approach arc.
+                  Measured during the convergence recorded in visit0.
+      dot_target  where it hides best.  Measured from the flats that follow, joining
+                  dot_roach_flux (flux) against cobra_dot_cmd (commanded fraction),
+                  so no scan parameters are assumed anywhere.
+
+    They are different boundaries -- observability ends well before obscuration is
+    complete -- so neither column substitutes for the other, and a row may carry one
+    without the other.  Consumers must fall back per column, not per row.
 
     Keyed on (pfs_visit_id, cobra_id) so successive calibrations accumulate rather than
     overwrite: readers take the most recent visit, and drift is measurable by comparing
@@ -1973,32 +1979,45 @@ class cobra_dot_target(Base):
 
     pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
                           primary_key=True, autoincrement=False,
-                          comment='First flat visit of the scan this target was fitted from, as '
-                                  'recorded in dot_roach_flux')
+                          comment='First flat visit of the scan this calibration was fitted from, '
+                                  'as recorded in dot_roach_flux')
     cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'),
                       primary_key=True, autoincrement=False,
                       comment='Cobra identifier (1..2394)')
+    visit0 = Column(Integer,
+                    comment='moveToPfsDesign convergence visit of the same calibration run -- '
+                            'where dot_edge is measured, while dot_target comes from the flats '
+                            'that follow it')
     dot_target = Column(REAL,
-                        comment='Fitted commanded dot fraction of minimum flux: the vertex of a '
-                                'parabola in log10(flux), so it falls between scan points')
+                        comment='Commanded dot fraction of maximum obscuration: the centre of the '
+                                'flux plateau, not the noisy argmin. Measured by the spectrograph')
     dot_target_err = Column(REAL, comment='Uncertainty on dot_target from the fit, in dot fraction')
     min_flux = Column(REAL, comment='Residual flux ratio at dot_target')
-    n_points = Column(Integer, comment='Number of scan points used in the fit')
-    scan_min = Column(REAL,
-                      comment='Shallowest commanded fraction in the scan, so a target sitting at the '
-                              'edge of the sampled range is recognisable')
-    scan_max = Column(REAL, comment='Deepest commanded fraction in the scan')
+    dot_edge = Column(REAL,
+                      comment='Commanded dot fraction at which the MCS loses this cobra on its own '
+                              'approach arc; 0 means the modelled entry edge. Measured by the MCS')
+    dot_edge_err = Column(REAL, comment='Uncertainty on dot_edge, in dot fraction')
+    is_valid = Column(Boolean,
+                      comment='False where the fit did not meet its acceptance criterion; '
+                              'consumers must fall back to the defaults rather than use a '
+                              'fitted-but-rejected number')
+    dot_catalog = Column(String,
+                         comment='Black-dot catalogue this calibration was fitted against (e.g. '
+                                 'black_dots_mm.csv). Both columns are fractions of a theoretical '
+                                 'dot, so replacing the catalogue invalidates them')
 
-    def __init__(self, pfs_visit_id, cobra_id, dot_target, dot_target_err, min_flux, n_points,
-                 scan_min, scan_max):
+    def __init__(self, pfs_visit_id, cobra_id, visit0=None, dot_target=None, dot_target_err=None,
+                 min_flux=None, dot_edge=None, dot_edge_err=None, is_valid=None, dot_catalog=None):
         self.pfs_visit_id = pfs_visit_id
         self.cobra_id = cobra_id
+        self.visit0 = visit0
         self.dot_target = dot_target
         self.dot_target_err = dot_target_err
         self.min_flux = min_flux
-        self.n_points = n_points
-        self.scan_min = scan_min
-        self.scan_max = scan_max
+        self.dot_edge = dot_edge
+        self.dot_edge_err = dot_edge_err
+        self.is_valid = is_valid
+        self.dot_catalog = dot_catalog
 
 
 if __name__ == '__main__':
