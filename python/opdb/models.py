@@ -862,7 +862,11 @@ class pfs_config_fiber(Base):
     target_dec = Column(FLOAT, comment='Dec. of the target')
     fiber_status = Column(Integer, comment='Outcome this visit: GOOD, NOTCONVERGED, BLACKSPOT, UNKNOWN')
     target_validation_mask = Column(Integer,
-                                    comment='TargetValidation bits: why fps refused this target, 0 if it did not')
+                                    comment='TargetValidation bits: why fps refused this target, 0 if it did not. '
+                                            'Set only for science target types; see cobra_command for what fps did')
+    cobra_command = Column(Integer,
+                           comment='CobraCommand: what fps did with this cobra. '
+                                   '0=NOT_COMMANDED, 1=CONVERGE, 2=HOME, 3=BLACK_DOT, 4=NOT_SET')
     pfi_nominal_x_mm = Column(REAL, comment='Nominal x-position on the PFI')
     pfi_nominal_y_mm = Column(REAL, comment='Nominal y-position on the PFI')
     pfi_center_final_x_mm = Column(REAL, comment='Final measured x-position on the PFI')
