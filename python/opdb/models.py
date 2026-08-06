@@ -321,7 +321,7 @@ class pfs_design_fiber(Base):
     proposal_id = Column(String, comment='Proposal ID')
     ob_code = Column(String, comment='OB code')
     target_type = Column(Integer, comment='targetType: enumerated e.g. SCIENCE,SKY,FLUXSTD')
-    fiber_status = Column(Integer, comment='fiberStatus: enumerated e.g. GOOD,BROKENFIBER,BLOCKED,BLACKSPOT')
+    fiber_status = Column(Integer, comment='Fiber health: GOOD, BROKENFIBER, BLOCKED, BROKENCOBRA')
     pfi_nominal_x_mm = Column(REAL, comment='Nominal x-position on the PFI [mm]')
     pfi_nominal_y_mm = Column(REAL, comment='Nominal y-position on the PFI [mm]')
     ets_priority = Column(Integer)
@@ -807,6 +807,14 @@ class pfs_config(Base):
     pfs_utils_version_design = Column(String, comment='pfs_utils version creating the pfsDesign')
 
     was_observed = Column(Boolean, comment='True of configuration was observed (XXX relevant?)')
+    converg_distance_threshold = Column(REAL,
+                                        comment='Distance within which a science fiber counts as converged [mm]; '
+                                                'decides fiber_status, unlike converg_tolerance')
+    target_fallback_invalid = Column(String, comment='Where a cobra with an invalid target was sent')
+    target_fallback_unassigned = Column(String, comment='Where a cobra with no assigned target was sent')
+    fiducial_check_skipped = Column(Boolean,
+                                    comment='True if the fiducial interference check was disabled')
+    inst_status_flag = Column(Integer, comment='InstrumentStatusFlag bitmask, e.g. CONVERGENCE_FAILED')
 
     pfs_designs = relationship(pfs_design, backref=backref('pfs_config'))
     field_set = relationship('field_set', back_populates='pfs_config')
@@ -852,7 +860,13 @@ class pfs_config_fiber(Base):
     fiber_id = Column(Integer, primary_key=True, autoincrement=False)
     target_ra = Column(FLOAT, comment='R.A. of the target')
     target_dec = Column(FLOAT, comment='Dec. of the target')
-    fiber_status = Column(Integer, comment='fiberStatus: enumerated e.g. GOOD,BROKENFIBER,BLOCKED,BLACKSPOT')
+    fiber_status = Column(Integer, comment='Outcome this visit: GOOD, NOTCONVERGED, BLACKSPOT, UNKNOWN')
+    target_validation_mask = Column(Integer,
+                                    comment='TargetValidation bits: why fps refused this target, 0 if it did not. '
+                                            'Set only for science target types; see cobra_command for what fps did')
+    cobra_command = Column(Integer,
+                           comment='CobraCommand: what fps did with this cobra. '
+                                   '0=NOT_COMMANDED, 1=CONVERGE, 2=HOME, 3=BLACK_DOT, 4=NOT_SET')
     pfi_nominal_x_mm = Column(REAL, comment='Nominal x-position on the PFI')
     pfi_nominal_y_mm = Column(REAL, comment='Nominal y-position on the PFI')
     pfi_center_final_x_mm = Column(REAL, comment='Final measured x-position on the PFI')
