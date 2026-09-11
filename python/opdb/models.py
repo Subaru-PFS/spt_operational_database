@@ -716,7 +716,11 @@ class mcs_data(Base):
 
 
 class mcs_pfi_transformation(Base):
-    ''' The MCS-PFI coordinate transformation including coefficients
+    ''' The MCS-PFI coordinate transformation that ran for one frame.
+
+    The optimised parameters and the boresight they were applied about.  The boresight is
+    recomputed for every frame from its altitude, so the parameters alone do not describe
+    the transform that ran.  NULL for frames taken before INSTRM-3017.
     '''
     __tablename__ = 'mcs_pfi_transformation'
 
@@ -737,10 +741,15 @@ class mcs_pfi_transformation(Base):
                        comment='coefficient for the dtheta^2 term in the penalty function')
     camera_name = Column(String,
                          comment='camera name for transformation function')
+    mcs_boresight_x_pix = Column(REAL,
+                                 comment='Boresight x the transform was applied about [pixel]')
+    mcs_boresight_y_pix = Column(REAL,
+                                 comment='Boresight y the transform was applied about [pixel]')
 
     def __init__(self, mcs_frame_id,
                  x0, y0, dscale, scale2,
-                 theta, alpha_rot, camera_name
+                 theta, alpha_rot, camera_name,
+                 mcs_boresight_x_pix, mcs_boresight_y_pix
                  ):
 
         self.mcs_frame_id = mcs_frame_id
@@ -751,6 +760,8 @@ class mcs_pfi_transformation(Base):
         self.theta = theta
         self.alpha_rot = alpha_rot
         self.camera_name = camera_name
+        self.mcs_boresight_x_pix = mcs_boresight_x_pix
+        self.mcs_boresight_y_pix = mcs_boresight_y_pix
 
 
 class camera_model_f3c_mcs(Base):
