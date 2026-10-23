@@ -594,6 +594,25 @@ class mcs_boresight(Base):
         self.calculated_at = calculated_at
 
 
+class mcs_boresight_meas(Base):
+    ''' A boresight measured by MCS from frames of one visit taken at several rotator angles.
+    '''
+
+    __tablename__ = 'mcs_boresight_meas'
+
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'), primary_key=True,
+                          autoincrement=False)
+    mcs_boresight_x_pix = Column(REAL, comment='Measured boresight x [pixel]')
+    mcs_boresight_y_pix = Column(REAL, comment='Measured boresight y [pixel]')
+    calculated_at = Column(DateTime, primary_key=True, comment='When the measurement was made (HST)')
+
+    def __init__(self, pfs_visit_id, mcs_boresight_x_pix, mcs_boresight_y_pix, calculated_at):
+        self.pfs_visit_id = pfs_visit_id
+        self.mcs_boresight_x_pix = mcs_boresight_x_pix
+        self.mcs_boresight_y_pix = mcs_boresight_y_pix
+        self.calculated_at = calculated_at
+
+
 class mcs_camera(Base):
     __tablename__ = 'mcs_camera'
 
