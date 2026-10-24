@@ -1807,6 +1807,9 @@ class agc_data(Base):
 
 class agc_match(Base):
     '''AGC matching information.
+
+    camera_enabled is False for a match from a camera disabled for the fit, which is
+    matched but does not drive it.  NULL for rows written before INSTRM-3057.
     '''
 
     __tablename__ = 'agc_match'
@@ -1836,12 +1839,14 @@ class agc_match(Base):
     agc_center_y_mm = Column(REAL,
                              comment='Center measured y-position on the AGC [PFI mm]')
     flags = Column(Integer, comment='Flags')
+    camera_enabled = Column(Boolean,
+                            comment='False if the camera was disabled for the fit')
 
     def __init__(self, agc_exposure_id, spot_id, agc_camera_id,
                  pfs_design_id, guide_star_id,
                  agc_nominal_x_mm, agc_nominal_y_mm,
                  agc_center_x_mm, agc_center_y_mm,
-                 flags):
+                 flags, camera_enabled=None):
         self.agc_exposure_id = agc_exposure_id
         self.spot_id = spot_id
         self.agc_camera_id = agc_camera_id
@@ -1852,6 +1857,7 @@ class agc_match(Base):
         self.agc_center_x_mm = agc_center_x_mm
         self.agc_center_y_mm = agc_center_y_mm
         self.flags = flags
+        self.camera_enabled = camera_enabled
 
 
 class agc_guide_offset(Base):
