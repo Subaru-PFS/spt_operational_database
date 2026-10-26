@@ -975,15 +975,18 @@ class pfs_config_sps(Base):
     visit0 = Column(Integer, primary_key=True, autoincrement=False, comment='The first visit of the set')
     cam_mask = Column(Integer, comment='bitMask describing which cameras were use for this visit.')
     inst_status_flag = Column(Integer, comment='Bitmask indicating instrument-related status flags for this visit.')
+    observed_at = Column(DateTime(timezone=True),
+                         comment='Mid-exposure time of this visit (pfsConfig obstime)')
 
     pfs_visit = relationship('pfs_visit', uselist=False, back_populates='pfs_config_sps')
     pfs_config = relationship('pfs_config', uselist=False, back_populates='pfs_config_sps')
 
-    def __init__(self, pfs_visit_id, visit0, cam_mask, inst_status_flag):
+    def __init__(self, pfs_visit_id, visit0, cam_mask, inst_status_flag, observed_at=None):
         self.pfs_visit_id = pfs_visit_id
         self.visit0 = visit0
         self.cam_mask = cam_mask
         self.inst_status_flag = inst_status_flag
+        self.observed_at = observed_at
 
 class cobra_motor_axis(Base):
     '''The axis or stage of a cobra motor.
