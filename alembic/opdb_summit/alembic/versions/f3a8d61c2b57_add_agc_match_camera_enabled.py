@@ -9,7 +9,7 @@ agc_match.camera_enabled
     before this revision.
 
 Revision ID: f3a8d61c2b57
-Revises: e2b7c4d91a36
+Revises: c7e5f7e07143
 Create Date: 2026-10-24 12:00:00.000000
 
 """
@@ -17,7 +17,7 @@ from alembic import op
 import sqlalchemy as sa
 
 revision = 'f3a8d61c2b57'
-down_revision = 'e2b7c4d91a36'
+down_revision = 'c7e5f7e07143'
 branch_labels = None
 depends_on = None
 
