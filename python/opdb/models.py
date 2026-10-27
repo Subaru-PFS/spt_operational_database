@@ -436,6 +436,7 @@ class pfs_visit(Base):
     agc_exposure = relationship('agc_exposure', back_populates='pfs_visit')
     tel_status = relationship('tel_status', back_populates='pfs_visit')
     pfs_config_sps = relationship('pfs_config_sps', back_populates='pfs_visit', uselist=False)
+    pfs_config_sps_observed = relationship('pfs_config_sps_observed', back_populates='pfs_visit', uselist=False)
 
     def __init__(self, pfs_visit_id, pfs_visit_description, pfs_design_id, issued_at):
         self.pfs_visit_id = pfs_visit_id
@@ -975,17 +976,33 @@ class pfs_config_sps(Base):
     visit0 = Column(Integer, primary_key=True, autoincrement=False, comment='The first visit of the set')
     cam_mask = Column(Integer, comment='bitMask describing which cameras were use for this visit.')
     inst_status_flag = Column(Integer, comment='Bitmask indicating instrument-related status flags for this visit.')
-    observed_at = Column(DateTime(timezone=True),
-                         comment='Mid-exposure time of this visit (pfsConfig obstime)')
+    requested_at = Column(DateTime(timezone=True),
+                          comment='Time the pfsConfig of this visit was made, before the exposure')
 
     pfs_visit = relationship('pfs_visit', uselist=False, back_populates='pfs_config_sps')
     pfs_config = relationship('pfs_config', uselist=False, back_populates='pfs_config_sps')
 
-    def __init__(self, pfs_visit_id, visit0, cam_mask, inst_status_flag, observed_at=None):
+    def __init__(self, pfs_visit_id, visit0, cam_mask, inst_status_flag, requested_at=None):
         self.pfs_visit_id = pfs_visit_id
         self.visit0 = visit0
         self.cam_mask = cam_mask
         self.inst_status_flag = inst_status_flag
+        self.requested_at = requested_at
+
+
+class pfs_config_sps_observed(Base):
+    __tablename__ = 'pfs_config_sps_observed'
+
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
+                          primary_key=True, unique=True, autoincrement=False,
+                          comment='PFS visit identifier')
+    observed_at = Column(DateTime(timezone=True),
+                         comment='Mid-exposure time of this visit (pfsConfig obstime)')
+
+    pfs_visit = relationship('pfs_visit', uselist=False, back_populates='pfs_config_sps_observed')
+
+    def __init__(self, pfs_visit_id, observed_at):
+        self.pfs_visit_id = pfs_visit_id
         self.observed_at = observed_at
 
 class cobra_motor_axis(Base):
