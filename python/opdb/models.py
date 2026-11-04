@@ -2036,6 +2036,118 @@ class cobra_blind_move(Base):
         self.phi_pushed = phi_pushed
         self.ramp_residual = ramp_residual
 
+class blind_move_calib(Base):
+    '''A per-cobra calibration of the two blind moves, fitted from cobra_blind_move.
+
+    Written once by fps calibrateBlindMove.  It becomes the default only through a row of
+    blind_move_calib_validation.
+    '''
+    __tablename__ = 'blind_move_calib'
+
+    blind_move_calib_id = Column(Integer, primary_key=True, autoincrement=True,
+                                 comment='Calibration identifier')
+    created_at = Column(DateTime(timezone=True), nullable=False,
+                        comment='Time the calibration was fitted')
+    visits = Column(ARRAY(Integer), nullable=False,
+                    comment='Visits of cobra_blind_move it was fitted on')
+    ramp_residual_cut = Column(REAL, nullable=False,
+                               comment='Largest ramp_residual a move is fitted with [mm]')
+    min_runs = Column(Integer, nullable=False,
+                      comment='Passing runs a cobra needs to be calibrated')
+    model = Column(String, nullable=False, comment='Fitted model, e.g. gain-lsq')
+    model_version = Column(Integer, nullable=False, comment='Version of the model')
+    n_calibrated = Column(Integer, nullable=False, comment='Number of calibrated cobras')
+    loo_bias = Column(REAL,
+                      comment='Leave-one-out median of reached minus wanted depth [dot fraction]')
+    loo_spread = Column(REAL,
+                        comment='Leave-one-out 16-84% half-width of that error [dot fraction]')
+    loo_within_05 = Column(REAL,
+                           comment='Leave-one-out fraction of cobras within 0.05 of the depth wanted')
+
+    def __init__(self, created_at, visits, ramp_residual_cut, min_runs, model, model_version,
+                 n_calibrated, loo_bias, loo_spread, loo_within_05):
+        self.created_at = created_at
+        self.visits = visits
+        self.ramp_residual_cut = ramp_residual_cut
+        self.min_runs = min_runs
+        self.model = model
+        self.model_version = model_version
+        self.n_calibrated = n_calibrated
+        self.loo_bias = loo_bias
+        self.loo_spread = loo_spread
+        self.loo_within_05 = loo_within_05
+
+
+class cobra_blind_move_gain(Base):
+    '''The gains of one blind-move calibration, one row per cobra.
+
+    landing_gain and target_gain are measured phi change over commanded, for the landing and
+    the push.  An uncalibrated cobra is aimed with gain 1.0.
+    '''
+    __tablename__ = 'cobra_blind_move_gain'
+
+    blind_move_calib_id = Column(Integer, ForeignKey('blind_move_calib.blind_move_calib_id'),
+                                 primary_key=True, autoincrement=False,
+                                 comment='Calibration identifier')
+    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'),
+                      primary_key=True, autoincrement=False,
+                      comment='Cobra identifier (1..2394)')
+    landing_gain = Column(REAL, comment='Gain of the landing; NULL if not fitted')
+    target_gain = Column(REAL, comment='Gain of the push; NULL if not fitted')
+    n_runs = Column(Integer, comment='Passing runs fitted')
+    landing_scatter = Column(REAL, comment='Standard deviation of the per-run landing gain')
+    target_scatter = Column(REAL, comment='Standard deviation of the per-run push gain')
+    calibrated = Column(Boolean, nullable=False, comment='Whether the gains are used')
+
+    def __init__(self, blind_move_calib_id, cobra_id, landing_gain, target_gain, n_runs,
+                 landing_scatter, target_scatter, calibrated):
+        self.blind_move_calib_id = blind_move_calib_id
+        self.cobra_id = cobra_id
+        self.landing_gain = landing_gain
+        self.target_gain = target_gain
+        self.n_runs = n_runs
+        self.landing_scatter = landing_scatter
+        self.target_scatter = target_scatter
+        self.calibrated = calibrated
+
+
+class blind_move_calib_validation(Base):
+    '''A blind-move calibration judged good on aimed runs, which makes it the default.
+
+    Written by fps validateBlindMove and rollbackBlindMove, only when the check passes; the
+    default calibration is the one of the newest row.
+    '''
+    __tablename__ = 'blind_move_calib_validation'
+
+    blind_move_calib_validation_id = Column(Integer, primary_key=True, autoincrement=True,
+                                            comment='Validation identifier')
+    blind_move_calib_id = Column(Integer, ForeignKey('blind_move_calib.blind_move_calib_id'),
+                                 nullable=False, comment='Calibration validated')
+    validated_at = Column(DateTime(timezone=True), nullable=False,
+                          comment='Time of the validation')
+    visits = Column(ARRAY(Integer), nullable=False,
+                    comment='Aimed visits of cobra_blind_move it was checked on')
+    n_cobras = Column(Integer, comment='Cobras checked')
+    bias = Column(REAL, comment='Median of reached minus wanted depth [dot fraction]')
+    spread = Column(REAL, comment='16-84% half-width of that error [dot fraction]')
+    within_05 = Column(REAL, comment='Fraction of cobras within 0.05 of the depth wanted')
+    within_10 = Column(REAL, comment='Fraction of cobras within 0.10 of the depth wanted')
+    coverage = Column(REAL, comment='Fraction of the dot cobras aimed and measured')
+    reason = Column(String, nullable=False, comment='validation, or rollback and why')
+
+    def __init__(self, blind_move_calib_id, validated_at, visits, n_cobras, bias, spread,
+                 within_05, within_10, coverage, reason):
+        self.blind_move_calib_id = blind_move_calib_id
+        self.validated_at = validated_at
+        self.visits = visits
+        self.n_cobras = n_cobras
+        self.bias = bias
+        self.spread = spread
+        self.within_05 = within_05
+        self.within_10 = within_10
+        self.coverage = coverage
+        self.reason = reason
+
 if __name__ == '__main__':
     import sys
     dbinfo = sys.argv[1]
