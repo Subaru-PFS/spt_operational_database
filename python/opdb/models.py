@@ -846,6 +846,9 @@ class pfs_config(Base):
     fiducial_check_skipped = Column(Boolean,
                                     comment='True if the fiducial interference check was disabled')
     inst_status_flag = Column(Integer, comment='InstrumentStatusFlag bitmask, e.g. CONVERGENCE_FAILED')
+    blind_move_calib_id = Column(Integer, ForeignKey('blind_move_calib.blind_move_calib_id'),
+                                 comment='Blind-move calibration aiming the dot cobras; '
+                                         'NULL if none')
 
     pfs_designs = relationship(pfs_design, backref=backref('pfs_config'))
     field_set = relationship('field_set', back_populates='pfs_config')
