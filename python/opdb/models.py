@@ -1992,6 +1992,50 @@ class dot_roach_flux(Base):
         self.flux_ratio_norm = flux_ratio_norm
 
 
+class cobra_blind_move(Base):
+    '''The two open-loop phi moves of a black-dot convergence, measured on turned dots.
+
+    One row per cobra sent to a dot by a moveToPfsDesign on a design whose dots are turned
+    into view of MCS, followed by measureBlindMove: the landing, the ramp's last move, and
+    the push to the dot target, both at phi on-time scale 1.0.  Angles are local phi in
+    radians from the phi CCW hard stop; depths are dot fractions, 0 at the entry edge.
+    '''
+    __tablename__ = 'cobra_blind_move'
+
+    pfs_visit_id = Column(Integer, ForeignKey('pfs_visit.pfs_visit_id'),
+                          primary_key=True, autoincrement=False,
+                          comment='PFS visit identifier')
+    cobra_id = Column(Integer, ForeignKey('cobra.cobra_id'),
+                      primary_key=True, autoincrement=False,
+                      comment='Cobra identifier (1..2394)')
+    dot_landing = Column(REAL, comment='Depth the ramp landed at [dot fraction]')
+    dot_target = Column(REAL, comment='Depth wanted for the push [dot fraction]')
+    dot_command = Column(REAL,
+                         comment='Depth the push was commanded to [dot fraction]; '
+                                 'dot_target unless aimed through a calibration')
+    phi_landing_target = Column(REAL, comment='Phi at dot_landing [rad]')
+    phi_push_target = Column(REAL, comment='Phi at dot_command [rad]')
+    phi_start = Column(REAL, comment='Measured phi before the landing [rad]; NULL if unseen')
+    phi_landed = Column(REAL, comment='Measured phi after the landing [rad]; NULL if unseen')
+    phi_pushed = Column(REAL, comment='Measured phi after the push [rad]; NULL if unseen')
+    ramp_residual = Column(REAL,
+                           comment='Distance from its target before the landing [mm]')
+
+    def __init__(self, pfs_visit_id, cobra_id, dot_landing, dot_target, dot_command,
+                 phi_landing_target, phi_push_target, phi_start, phi_landed, phi_pushed,
+                 ramp_residual):
+        self.pfs_visit_id = pfs_visit_id
+        self.cobra_id = cobra_id
+        self.dot_landing = dot_landing
+        self.dot_target = dot_target
+        self.dot_command = dot_command
+        self.phi_landing_target = phi_landing_target
+        self.phi_push_target = phi_push_target
+        self.phi_start = phi_start
+        self.phi_landed = phi_landed
+        self.phi_pushed = phi_pushed
+        self.ramp_residual = ramp_residual
+
 if __name__ == '__main__':
     import sys
     dbinfo = sys.argv[1]
