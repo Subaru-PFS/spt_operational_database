@@ -849,6 +849,11 @@ class pfs_config(Base):
     blind_move_calib_id = Column(Integer, ForeignKey('blind_move_calib.blind_move_calib_id'),
                                  comment='Blind-move calibration aiming the dot cobras; '
                                          'NULL if none')
+    dot_landing = Column(REAL, comment='Depth the ramp lands the dot cobras at [dot fraction]; '
+                                       'NULL if none was sent to a dot')
+    dot_target = Column(REAL, comment='Depth the dot cobras should end at [dot fraction]; '
+                                      'dot_landing without a blind push, NULL if none was '
+                                      'sent to a dot')
 
     pfs_designs = relationship(pfs_design, backref=backref('pfs_config'))
     field_set = relationship('field_set', back_populates='pfs_config')
