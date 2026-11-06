@@ -2019,8 +2019,8 @@ class cobra_blind_move(Base):
     dot_landing = Column(REAL, comment='Depth the ramp landed at [dot fraction]')
     dot_target = Column(REAL, comment='Depth wanted for the push [dot fraction]')
     dot_command = Column(REAL,
-                         comment='Depth the push was commanded to [dot fraction]; '
-                                 'dot_target unless aimed through a calibration')
+                         comment='Depth the push was aimed at [dot fraction]: dot_target, or on '
+                                 'rows without phi_push_command the depth aimed through a calibration')
     phi_landing_target = Column(REAL, comment='Phi at dot_landing [rad]')
     phi_push_target = Column(REAL, comment='Phi at dot_command [rad]')
     phi_start = Column(REAL, comment='Measured phi before the landing [rad]; NULL if unseen')
@@ -2028,10 +2028,23 @@ class cobra_blind_move(Base):
     phi_pushed = Column(REAL, comment='Measured phi after the push [rad]; NULL if unseen')
     ramp_residual = Column(REAL,
                            comment='Distance from its target before the landing [mm]')
+    phi_landing_command = Column(REAL,
+                                 comment='Phi the landing was commanded to [rad]; NULL means '
+                                         'phi_landing_target')
+    phi_push_start = Column(REAL,
+                            comment='Phi the push was sized from, the estimate after the landing '
+                                    '[rad]; NULL means phi_landing_target')
+    phi_push_command = Column(REAL,
+                              comment='Phi the steps of the push reach at gain 1 from '
+                                      'phi_push_start [rad]; NULL means phi_push_target')
+    blind_move_calib_id = Column(Integer, ForeignKey('blind_move_calib.blind_move_calib_id'),
+                                 comment='Blind-move calibration that aimed this cobra; NULL if '
+                                         'none did')
 
     def __init__(self, pfs_visit_id, cobra_id, dot_landing, dot_target, dot_command,
                  phi_landing_target, phi_push_target, phi_start, phi_landed, phi_pushed,
-                 ramp_residual):
+                 ramp_residual, phi_landing_command=None, phi_push_start=None,
+                 phi_push_command=None, blind_move_calib_id=None):
         self.pfs_visit_id = pfs_visit_id
         self.cobra_id = cobra_id
         self.dot_landing = dot_landing
@@ -2043,6 +2056,10 @@ class cobra_blind_move(Base):
         self.phi_landed = phi_landed
         self.phi_pushed = phi_pushed
         self.ramp_residual = ramp_residual
+        self.phi_landing_command = phi_landing_command
+        self.phi_push_start = phi_push_start
+        self.phi_push_command = phi_push_command
+        self.blind_move_calib_id = blind_move_calib_id
 
 class blind_move_calib(Base):
     '''A per-cobra calibration of the two blind moves, fitted from cobra_blind_move.
@@ -2071,9 +2088,17 @@ class blind_move_calib(Base):
                         comment='Leave-one-out 16-84% half-width of that error [dot fraction]')
     loo_within_05 = Column(REAL,
                            comment='Leave-one-out fraction of cobras within 0.05 of the depth wanted')
+    prior_calib_id = Column(Integer, ForeignKey('blind_move_calib.blind_move_calib_id'),
+                            comment='Calibration an operating-point fit started from; NULL if none')
+    dot_landing = Column(REAL, comment='Landing depth the gains were tuned at [dot fraction]; '
+                                       'NULL for a fit over several depths')
+    dot_target = Column(REAL, comment='Push target the gains were tuned at [dot fraction]; '
+                                      'NULL for a fit over several depths')
+    parameters = Column(String, comment='Parameters and fleet terms of the fit, JSON')
 
     def __init__(self, created_at, visits, ramp_residual_cut, min_runs, model, model_version,
-                 n_calibrated, loo_bias, loo_spread, loo_within_05):
+                 n_calibrated, loo_bias, loo_spread, loo_within_05, prior_calib_id=None,
+                 dot_landing=None, dot_target=None, parameters=None):
         self.created_at = created_at
         self.visits = visits
         self.ramp_residual_cut = ramp_residual_cut
@@ -2084,6 +2109,10 @@ class blind_move_calib(Base):
         self.loo_bias = loo_bias
         self.loo_spread = loo_spread
         self.loo_within_05 = loo_within_05
+        self.prior_calib_id = prior_calib_id
+        self.dot_landing = dot_landing
+        self.dot_target = dot_target
+        self.parameters = parameters
 
 
 class cobra_blind_move_gain(Base):
@@ -2106,9 +2135,10 @@ class cobra_blind_move_gain(Base):
     landing_scatter = Column(REAL, comment='Standard deviation of the per-run landing gain')
     target_scatter = Column(REAL, comment='Standard deviation of the per-run push gain')
     calibrated = Column(Boolean, nullable=False, comment='Whether the gains are used')
+    reason = Column(String, comment='Why the cobra is not calibrated; NULL if it is')
 
     def __init__(self, blind_move_calib_id, cobra_id, landing_gain, target_gain, n_runs,
-                 landing_scatter, target_scatter, calibrated):
+                 landing_scatter, target_scatter, calibrated, reason=None):
         self.blind_move_calib_id = blind_move_calib_id
         self.cobra_id = cobra_id
         self.landing_gain = landing_gain
@@ -2117,6 +2147,7 @@ class cobra_blind_move_gain(Base):
         self.landing_scatter = landing_scatter
         self.target_scatter = target_scatter
         self.calibrated = calibrated
+        self.reason = reason
 
 
 class blind_move_calib_validation(Base):
