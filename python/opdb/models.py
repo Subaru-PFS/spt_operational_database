@@ -682,6 +682,7 @@ class mcs_exposure(Base):
     measurement_algorithm = Column(String, comment='Spot measurement algorithm (windowed/sep)')
     version_actor = Column(String, comment='Version of the actor')
     version_instdata = Column(String, comment='Version of the pfs_instdata')
+    version_pfs_utils = Column(String, comment='Version of the pfs_utils')
     taken_at = Column(DateTime, comment='The time at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
     taken_in_hst_at = Column(
         DateTime, comment='The time (in HST) at which the exposure was taken [YYYY-MM-DDThh-mm-sss]')
@@ -693,7 +694,8 @@ class mcs_exposure(Base):
                  dome_temperature, dome_pressure, dome_humidity,
                  outside_temperature, outside_pressure, outside_humidity,
                  mcs_cover_temperature, mcs_m1_temperature, mcs_camera_id,
-                 measurement_algorithm, version_actor, version_instdata, taken_at, taken_in_hst_at):
+                 measurement_algorithm, version_actor, version_instdata, taken_at, taken_in_hst_at,
+                 version_pfs_utils=None):
         self.mcs_frame_id = mcs_frame_id
         self.pfs_visit_id = pfs_visit_id
         self.mcs_exptime = mcs_exptime
@@ -713,6 +715,7 @@ class mcs_exposure(Base):
         self.measurement_algorithm = measurement_algorithm
         self.version_actor = version_actor
         self.version_instdata = version_instdata
+        self.version_pfs_utils = version_pfs_utils
         self.taken_at = taken_at
         self.taken_in_hst_at = taken_in_hst_at
 
