@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy import Column, BigInteger, Integer, String, FLOAT, ForeignKey, DateTime, Boolean, REAL, ARRAY
+from sqlalchemy import Sequence
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy import UniqueConstraint, ForeignKeyConstraint
@@ -596,7 +597,7 @@ class mcs_boresight(Base):
 
 
 class mcs_boresight_meas(Base):
-    ''' A boresight measured by MCS from frames of one visit taken at several rotator angles.
+    ''' A boresight measured by MCS from frames taken at several rotator angles.
     '''
 
     __tablename__ = 'mcs_boresight_meas'
@@ -605,13 +606,38 @@ class mcs_boresight_meas(Base):
                           autoincrement=False)
     mcs_boresight_x_pix = Column(REAL, comment='Measured boresight x [pixel]')
     mcs_boresight_y_pix = Column(REAL, comment='Measured boresight y [pixel]')
-    calculated_at = Column(DateTime, primary_key=True, comment='When the measurement was made (HST)')
+    calculated_at = Column(DateTime(timezone=True), primary_key=True, comment='When the measurement was made')
+    mcs_boresight_frame_set_id = Column(Integer,
+                                        comment='The frames measured, in mcs_boresight_frame_set; '
+                                                'NULL if not recorded')
 
-    def __init__(self, pfs_visit_id, mcs_boresight_x_pix, mcs_boresight_y_pix, calculated_at):
+    def __init__(self, pfs_visit_id, mcs_boresight_x_pix, mcs_boresight_y_pix, calculated_at,
+                 mcs_boresight_frame_set_id=None):
         self.pfs_visit_id = pfs_visit_id
         self.mcs_boresight_x_pix = mcs_boresight_x_pix
         self.mcs_boresight_y_pix = mcs_boresight_y_pix
         self.calculated_at = calculated_at
+        self.mcs_boresight_frame_set_id = mcs_boresight_frame_set_id
+
+
+mcs_boresight_frame_set_id_seq = Sequence('mcs_boresight_frame_set_id_seq', metadata=Base.metadata)
+'''Hands out mcs_boresight_frame_set_id.'''
+
+
+class mcs_boresight_frame_set(Base):
+    ''' The MCS frames a boresight was measured from, one row per frame.
+    '''
+
+    __tablename__ = 'mcs_boresight_frame_set'
+
+    mcs_boresight_frame_set_id = Column(Integer, primary_key=True, autoincrement=False,
+                                        comment='Frame set identifier, from mcs_boresight_frame_set_id_seq')
+    mcs_frame_id = Column(Integer, ForeignKey('mcs_exposure.mcs_frame_id'), primary_key=True,
+                          autoincrement=False, comment='MCS frame identifier')
+
+    def __init__(self, mcs_boresight_frame_set_id, mcs_frame_id):
+        self.mcs_boresight_frame_set_id = mcs_boresight_frame_set_id
+        self.mcs_frame_id = mcs_frame_id
 
 
 class mcs_camera(Base):
