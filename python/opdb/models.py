@@ -2050,6 +2050,9 @@ class cobra_blind_move(Base):
     dot_command = Column(REAL,
                          comment='Depth the push was aimed at [dot fraction]: dot_target, or on '
                                  'rows without phi_push_command the depth aimed through a calibration')
+    dot_approach = Column(REAL,
+                          comment='Depth the closed-loop ramp was commanded to stop at before the '
+                                  'landing [dot fraction], not measured; NULL means -0.075')
     phi_landing_target = Column(REAL, comment='Phi at dot_landing [rad]')
     phi_push_target = Column(REAL, comment='Phi at dot_command [rad]')
     phi_start = Column(REAL, comment='Measured phi before the landing [rad]; NULL if unseen')
@@ -2073,7 +2076,7 @@ class cobra_blind_move(Base):
     def __init__(self, pfs_visit_id, cobra_id, dot_landing, dot_target, dot_command,
                  phi_landing_target, phi_push_target, phi_start, phi_landed, phi_pushed,
                  ramp_residual, phi_landing_command=None, phi_push_start=None,
-                 phi_push_command=None, blind_move_calib_id=None):
+                 phi_push_command=None, blind_move_calib_id=None, dot_approach=None):
         self.pfs_visit_id = pfs_visit_id
         self.cobra_id = cobra_id
         self.dot_landing = dot_landing
@@ -2089,6 +2092,7 @@ class cobra_blind_move(Base):
         self.phi_push_start = phi_push_start
         self.phi_push_command = phi_push_command
         self.blind_move_calib_id = blind_move_calib_id
+        self.dot_approach = dot_approach
 
 class blind_move_calib(Base):
     '''A per-cobra calibration of the two blind moves, fitted from cobra_blind_move.
@@ -2104,8 +2108,6 @@ class blind_move_calib(Base):
                         comment='Time the calibration was fitted')
     visits = Column(ARRAY(Integer), nullable=False,
                     comment='Visits of cobra_blind_move it was fitted on')
-    ramp_residual_cut = Column(REAL, nullable=False,
-                               comment='Largest ramp_residual a move is fitted with [mm]')
     min_runs = Column(Integer, nullable=False,
                       comment='Passing runs a cobra needs to be calibrated')
     model = Column(String, nullable=False, comment='Fitted model, e.g. gain-lsq')
@@ -2125,12 +2127,11 @@ class blind_move_calib(Base):
                                       'NULL for a fit over several depths')
     parameters = Column(String, comment='Parameters and fleet terms of the fit, JSON')
 
-    def __init__(self, created_at, visits, ramp_residual_cut, min_runs, model, model_version,
+    def __init__(self, created_at, visits, min_runs, model, model_version,
                  n_calibrated, loo_bias, loo_spread, loo_within_05, prior_calib_id=None,
                  dot_landing=None, dot_target=None, parameters=None):
         self.created_at = created_at
         self.visits = visits
-        self.ramp_residual_cut = ramp_residual_cut
         self.min_runs = min_runs
         self.model = model
         self.model_version = model_version
