@@ -610,14 +610,21 @@ class mcs_boresight_meas(Base):
     mcs_boresight_frame_set_id = Column(Integer,
                                         comment='The frames measured, in mcs_boresight_frame_set; '
                                                 'NULL if not recorded')
+    mcs_boresight_x_err_pix = Column(REAL, comment='Uncertainty of x within the visit [pixel]; NULL if not measured')
+    mcs_boresight_y_err_pix = Column(REAL, comment='Uncertainty of y within the visit [pixel]; NULL if not measured')
+    altitude = Column(REAL, comment='Mean telescope altitude of the frames [deg]')
 
     def __init__(self, pfs_visit_id, mcs_boresight_x_pix, mcs_boresight_y_pix, calculated_at,
-                 mcs_boresight_frame_set_id=None):
+                 mcs_boresight_frame_set_id=None, mcs_boresight_x_err_pix=None,
+                 mcs_boresight_y_err_pix=None, altitude=None):
         self.pfs_visit_id = pfs_visit_id
         self.mcs_boresight_x_pix = mcs_boresight_x_pix
         self.mcs_boresight_y_pix = mcs_boresight_y_pix
         self.calculated_at = calculated_at
         self.mcs_boresight_frame_set_id = mcs_boresight_frame_set_id
+        self.mcs_boresight_x_err_pix = mcs_boresight_x_err_pix
+        self.mcs_boresight_y_err_pix = mcs_boresight_y_err_pix
+        self.altitude = altitude
 
 
 mcs_boresight_frame_set_id_seq = Sequence('mcs_boresight_frame_set_id_seq', metadata=Base.metadata)
