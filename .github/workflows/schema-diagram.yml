@@ -1,0 +1,110 @@
+# Regenerate the two schema diagrams in diagrams/ whenever the models change
+# on master.
+#
+# The schema is built from python/opdb/models.py in a throwaway Postgres
+# service on the runner, drawn with SchemaCrawler (the tool used for the
+# hand-made diagrams) and committed back to master. Pushes made with
+# GITHUB_TOKEN do not trigger workflows, so the commit cannot start another run.
+name: Schema diagram
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - python/opdb/models.py
+      - .github/workflows/schema-diagram.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: schema-diagram
+  cancel-in-progress: false
+
+env:
+  SC_VERSION: "18.0.1"
+  SC_SHA512: "0e9ae6aa5c990a2e1a3934de8bb2b98c7828650f27de59bb947f1e9fce02f6486ddbacfd655c2293338ed92765ddd501c3b7f88d237eb0c373ecbda022fd71f7"
+  FULL_PDF: diagrams/PFS-DAT-IPM003002-01_pfs_schema.pdf
+  LIGHT_PDF: diagrams/PFS-DAT-IPM003003-01_pfs_schema_light.pdf
+
+jobs:
+  diagram:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: opdb
+          POSTGRES_DB: opdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Create the schema from the models
+        run: |
+          pip install .
+          python -m opdb.models postgresql+psycopg2://postgres:opdb@localhost:5432/opdb
+
+      # SchemaCrawler needs Java 17+; Temurin 21 is preinstalled on the runner.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Cache SchemaCrawler
+        id: sc-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/schemacrawler
+          key: schemacrawler-${{ env.SC_VERSION }}
+
+      - name: Download SchemaCrawler
+        if: steps.sc-cache.outputs.cache-hit != 'true'
+        run: |
+          curl -sSL -o sc.zip "https://github.com/schemacrawler/SchemaCrawler/releases/download/v${SC_VERSION}/schemacrawler-${SC_VERSION}-bin.zip"
+          echo "${SC_SHA512}  sc.zip" | sha512sum -c -
+          mkdir -p ~/schemacrawler
+          unzip -q sc.zip -d ~/schemacrawler
+
+      - name: Install graphviz
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends graphviz
+
+      - name: Draw the schemas
+        # "schema" lists every column (full diagram); "brief" lists only key
+        # columns (light diagram).
+        run: |
+          draw() {
+            ~/schemacrawler/schemacrawler-${SC_VERSION}-bin/bin/schemacrawler.sh \
+              --server=postgresql --host=localhost --port=5432 \
+              --database=opdb --schemas=public --user=postgres --password=opdb \
+              --info-level=standard --command="$1" --portable=names --no-remarks \
+              --output-format=pdf --output-file="$2"
+          }
+          draw schema "$FULL_PDF"
+          draw brief "$LIGHT_PDF"
+          ls -l diagrams/
+
+      - name: Commit the diagrams
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$FULL_PDF" "$LIGHT_PDF"
+          if git diff --cached --quiet; then
+            echo "diagrams unchanged"
+          else
+            git commit -m "Update schema diagrams for ${GITHUB_SHA::7}"
+            git push
+          fi
