@@ -820,6 +820,53 @@ class mcs_pfi_transformation(Base):
         self.mcs_boresight_y_pix = mcs_boresight_y_pix
 
 
+class cobra_plate_transformation(Base):
+    ''' Where the cobra plate was in one MCS frame, from its anchor cobras.
+
+    A similarity carrying the frame of the calibration XML centres (the anchors'
+    FIBER_REFERENCE) into PFI mm: position = (x0 + i y0) + scale exp(i theta) reference.
+    frame_* is the fit on this frame's anchors alone, NULL when it could not be made; the
+    unprefixed columns are the plate fps applied to the cobra centres for this frame, the
+    identity (0, 0, 1, 0) with n_frames 0 when none was.
+    '''
+    __tablename__ = 'cobra_plate_transformation'
+
+    mcs_frame_id = Column(Integer, ForeignKey('mcs_exposure.mcs_frame_id'),
+                          primary_key=True, unique=True, autoincrement=False,
+                          comment='MCS frame identifier as generated from Gen2')
+    frame_x0 = Column(REAL, comment='Shift x of the fit on this frame [mm]')
+    frame_y0 = Column(REAL, comment='Shift y of the fit on this frame [mm]')
+    frame_scale = Column(REAL, comment='Scale of the fit on this frame')
+    frame_theta = Column(REAL, comment='Rotation of the fit on this frame [rad]')
+    frame_n_anchors = Column(Integer, comment='Anchors kept in the fit on this frame')
+    frame_rms = Column(REAL, comment='Rms residual of the anchors kept in the fit on this frame [um]')
+    x0 = Column(REAL, comment='Shift x of the plate applied [mm]')
+    y0 = Column(REAL, comment='Shift y of the plate applied [mm]')
+    scale = Column(REAL, comment='Scale of the plate applied')
+    theta = Column(REAL, comment='Rotation of the plate applied [rad]')
+    n_frames = Column(Integer, comment='Frames of the visit the plate applied was fitted on; 0 for the identity')
+    n_anchors = Column(Integer, comment='Anchors kept in the fit of the plate applied')
+    rms = Column(REAL, comment='Rms residual of the anchors kept in the fit of the plate applied [um]')
+
+    def __init__(self, mcs_frame_id,
+                 frame_x0, frame_y0, frame_scale, frame_theta, frame_n_anchors, frame_rms,
+                 x0, y0, scale, theta, n_frames, n_anchors, rms):
+        self.mcs_frame_id = mcs_frame_id
+        self.frame_x0 = frame_x0
+        self.frame_y0 = frame_y0
+        self.frame_scale = frame_scale
+        self.frame_theta = frame_theta
+        self.frame_n_anchors = frame_n_anchors
+        self.frame_rms = frame_rms
+        self.x0 = x0
+        self.y0 = y0
+        self.scale = scale
+        self.theta = theta
+        self.n_frames = n_frames
+        self.n_anchors = n_anchors
+        self.rms = rms
+
+
 class camera_model_f3c_mcs(Base):
     ''' Distortion parameters for sanity check
     '''
